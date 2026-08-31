@@ -1,0 +1,68 @@
+/* ============================================================
+   Khan Jee Center — design tokens
+
+   Red is the brand. It is the colour of the client's own logo and
+   the register the first concept was built in; everything else
+   here is chosen to sit under it. The palette runs warm end to
+   end — no cool greys anywhere, because a grey next to sandstone
+   reads as dirt.
+   ============================================================ */
+:root {
+  /* Brand ------------------------------------------------- */
+  --red:        #9A1B2F;  /* royal red — deep, not fire-engine. The logo. */
+  --red-deep:   #6E1222;  /* pressed states, deep scrim stops */
+  --red-ink:    #4A0C17;  /* red-black, for type that must not be flat black */
+  --gold:       #C6A15B;  /* the waistcoat hardware. Used sparingly. */
+  --gold-deep:  #8A6320;  /* gold that passes AA as text on light */
+
+  /* Grounds -----------------------------------------------
+     White below the fold, deliberately. Every brand this shop
+     actually stocks — Gul Ahmed, Maria B, Zellbury, Limelight —
+     runs a white homepage and lets the garment photography carry
+     the page. A cream editorial ground reads as a magazine, not a
+     shop, and this is a shop. Sand is kept for the one heritage
+     band, where it earns its place. */
+  --paper:      #FFFFFF;  /* the shop. Product photography ground. */
+  --sand:       #EFE7DC;  /* Hiran Minar sandstone — heritage band only */
+  --sand-lift:  #F7F2EA;
+  --line:       #E6E1DA;
+  --ink:        #14100E;  /* warm black — never #000 */
+  --muted:      #6B615A;
+
+  /* Derived — tinted from the above, never a flat rgba(0,0,0) */
+  --ink-08:     rgba(20,16,14,.08);
+  --ink-16:     rgba(20,16,14,.16);
+  --red-08:     rgba(154,27,47,.08);
+  --paper-72:   rgba(247,242,234,.86);
+
+  /* Type -------------------------------------------------- */
+  /* Bodoni Moda: a Didone, anchored to the client's own catalogues,
+     not a default "tasteful" serif. Archivo Black echoes the heavy
+     grotesque of the KHAN JEE wordmark. Italianno for the LADA
+     script lockup only. IBM Plex Mono for figures. */
+  /* Archivo does the work. The market runs Montserrat / Roboto /
+     Cabin — plain workhorse grotesques — and a Didone everywhere
+     would fight the product photography instead of serving it.
+     Bodoni is kept, but only for the heritage band's pull quote. */
+  --font-display: 'Bodoni Moda', 'Didot', 'Times New Roman', serif;
+  --font-ui:      'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --font-heavy:   'Archivo Black', 'Archivo', Impact, sans-serif;
+  --font-script:  'Italianno', 'Snell Roundhand', cursive;
+  --font-mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  /* Spacing — one scale, used everywhere */
+  --s1: .25rem; --s2: .5rem;  --s3: .75rem; --s4: 1rem;
+  --s5: 1.5rem; --s6: 2rem;   --s7: 3rem;   --s8: 4.5rem;
+  --s9: 7rem;   --s10: 10rem;
+
+  /* Sharp corners are the deliberate choice — editorial, not the
+     default rounded-everything look. */
+  --radius: 0px;
+  --measure: 62ch;
+  --wrap: 1280px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+@media (max-width: 640px) {
+  :root { --s6: 1.5rem; --s7: 2rem; --s8: 2.75rem; --s9: 3.5rem; --s10: 4.5rem; }
+}

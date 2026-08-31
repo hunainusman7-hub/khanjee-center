@@ -1,0 +1,203 @@
+/* ============================================================
+   V1 — cinematic hero, real shop underneath.
+   Hero mechanics carried from the first concept (Ken Burns, warm
+   maroon scrim, scroll-driven drift, header slides in after).
+   Everything below the fold is built the way the brands this shop
+   actually stocks build their homepages: white, photo-dense, and
+   typographically quiet.
+   ============================================================ */
+
+/* --- HERO -------------------------------------------------------------- */
+.hero {
+  --p: 0;
+  position: relative;
+  height: 100svh; min-height: 560px;
+  display: grid; place-items: center; text-align: center;
+  overflow: hidden; background: var(--ink);
+}
+.hero__media { position: absolute; inset: 0; }
+.hero__media img {
+  width: 100%; height: 100%; object-fit: cover;
+  object-position: 68% 50%;          /* keeps the pavilion in frame */
+  /* warm the daylight blue toward the sandstone/red register */
+  filter: saturate(1.1) contrast(1.14) sepia(.2) brightness(.72);
+  animation: ken 30s ease-in-out infinite alternate;
+}
+@keyframes ken { from { transform: scale(1.02); } to { transform: scale(1.1); } }
+
+/* Two layers: a warm maroon wash so the shadows stay red rather than
+   going grey, then a vignette that lets white type sit on top. */
+.hero__scrim {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(120% 92% at 50% 44%, rgba(110,18,34,.42) 0%, rgba(52,9,18,.74) 46%, rgba(16,4,8,.94) 100%),
+    linear-gradient(180deg, rgba(16,3,7,.74) 0%, rgba(16,3,7,.22) 36%, rgba(12,2,6,.92) 100%);
+  opacity: calc(.92 + var(--p) * .08);
+}
+.hero__inner {
+  position: relative; z-index: 2; padding-inline: var(--s5);
+  transform: translateY(calc(var(--p) * -52px));
+  opacity: calc(1 - var(--p) * 1.4);
+  will-change: transform, opacity;
+}
+.hero__mark { width: clamp(76px, 11vw, 128px); margin: 0 auto var(--s5); }
+.hero__word {
+  font-family: var(--font-heavy); color: #fff;
+  text-shadow: 0 2px 30px rgba(12,2,6,.45);
+  font-size: clamp(2.6rem, 9vw, 6.4rem);
+  line-height: .9; letter-spacing: .01em; text-transform: uppercase;
+}
+.hero__rule { width: 72px; height: 3px; background: var(--red); margin: var(--s5) auto; }
+.hero__tag {
+  color: #fff; font-size: clamp(.74rem, 1.7vw, .92rem);
+  letter-spacing: .24em; text-transform: uppercase; font-weight: 500;
+  text-shadow: 0 1px 12px rgba(12,2,6,.7);
+}
+.hero__cta { display: flex; gap: var(--s3); justify-content: center; flex-wrap: wrap; margin-top: var(--s6); }
+.hero__since {
+  position: absolute; z-index: 2; left: 50%; bottom: var(--s6); transform: translateX(-50%);
+  color: rgba(255,255,255,.55); font-size: .68rem; letter-spacing: .24em;
+  text-transform: uppercase; white-space: nowrap;
+  opacity: calc(1 - var(--p) * 2);
+}
+.hero__cue {
+  position: absolute; z-index: 2; right: var(--s6); bottom: var(--s6);
+  width: 1px; height: 58px; background: rgba(255,255,255,.26); overflow: hidden;
+  opacity: calc(1 - var(--p) * 2);
+}
+.hero__cue::after {
+  content: ""; position: absolute; inset: 0; background: var(--red);
+  animation: cue 2.4s var(--ease) infinite;
+}
+@keyframes cue { 0% { transform: translateY(-100%); } 60%,100% { transform: translateY(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .hero__media img { animation: none; }
+  .hero__cue::after { animation: none; }
+}
+@media (max-width: 640px) {
+  .hero__cue { display: none; }
+  /* A 9:19.5 crop of a 1.41:1 photo throws most of the frame away —
+     bias further toward the pavilion so it still reads on a phone. */
+  .hero__media img { object-position: 74% 52%; }
+  .hero__since { bottom: var(--s5); font-size: .6rem; }
+}
+
+/* --- KHADDAR ----------------------------------------------------------- */
+.khaddar { background: var(--paper); }
+.khaddar__grid { display: grid; gap: var(--s7); grid-template-columns: 1fr; align-items: center; }
+@media (min-width: 900px) { .khaddar__grid { grid-template-columns: 1fr 1fr; gap: var(--s9); } }
+.khaddar__title { font-size: clamp(1.9rem, 4.4vw, 3rem); max-width: 15ch; margin-bottom: var(--s4); }
+.khaddar__lede { color: var(--muted); max-width: 46ch; margin-bottom: var(--s6); }
+
+.cuts { display: flex; gap: var(--s6); align-items: baseline; flex-wrap: wrap; }
+.cuts li { display: flex; align-items: baseline; gap: 2px; }
+.cuts__n { font-size: clamp(2.4rem, 6vw, 3.6rem); font-weight: 500; line-height: 1; color: var(--ink); }
+.cuts__u { font-size: 1.1rem; color: var(--red); font-weight: 500; }
+.cuts__note { font-size: .82rem; color: var(--muted); margin-top: var(--s3); }
+.khaddar__cta { display: flex; align-items: center; gap: var(--s5); flex-wrap: wrap; margin-top: var(--s6); }
+
+.khaddar__shot { margin: 0; overflow: hidden; }
+.khaddar__shot img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+
+/* --- SHOP TILES --------------------------------------------------------
+   Photography does the work. The label sits on the image, and the image
+   darkens on hover rather than the card lifting off the page. */
+.shop { background: var(--paper); }
+.tiles { display: grid; gap: var(--s3); grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 760px)  { .tiles { grid-template-columns: repeat(3, 1fr); gap: var(--s4); } }
+@media (min-width: 1100px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
+
+.tile {
+  position: relative; display: block; overflow: hidden;
+  text-decoration: none; color: #fff; background: var(--ink);
+  aspect-ratio: 3/4;
+}
+@media (min-width: 1100px) { .tile--tall { grid-row: span 2; aspect-ratio: 3/8.2; } }
+.tile img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .7s var(--ease), filter .4s var(--ease);
+}
+.tile::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(20,4,9,0) 44%, rgba(20,4,9,.78) 100%);
+  transition: background .4s var(--ease);
+}
+.tile__body { position: absolute; z-index: 2; left: var(--s4); right: var(--s4); bottom: var(--s4); }
+.tile__k {
+  display: block; font-family: var(--font-mono); font-size: .64rem;
+  letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.8);
+  margin-bottom: 4px;
+}
+.tile__n { display: block; font-size: 1.1rem; font-weight: 700; letter-spacing: -.01em; }
+@media (hover: hover) and (pointer: fine) {
+  .tile:hover img { transform: scale(1.05); }
+  .tile:hover::after { background: linear-gradient(180deg, rgba(110,18,34,.24) 0%, rgba(20,4,9,.86) 100%); }
+}
+
+/* --- BRANDS MARQUEE ----------------------------------------------------
+   The roster is the credibility, so it gets the full width and moves.
+   Names only — no supplier logo appears until image rights are agreed. */
+.brands { background: var(--sand); padding-block: var(--s8); overflow: hidden; }
+.brands__head { margin-bottom: var(--s7); }
+.marquee { display: flex; flex-direction: column; gap: var(--s4); }
+.marquee__row {
+  display: flex; gap: var(--s6); width: max-content;
+  animation: slide 64s linear infinite;
+}
+.marquee__row--rev { animation-direction: reverse; animation-duration: 52s; }
+.marquee__row span {
+  font-family: var(--font-display); font-size: clamp(1.4rem, 3.4vw, 2.4rem);
+  color: var(--ink); white-space: nowrap; opacity: .72;
+}
+.marquee__row .is-own { color: var(--red); font-style: italic; opacity: 1; }
+@keyframes slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee__row { animation: none; width: 100%; flex-wrap: wrap; gap: var(--s3) var(--s5); }
+}
+
+/* --- NEW IN ------------------------------------------------------------ */
+.new { background: var(--paper); }
+.row { display: grid; gap: var(--s4); grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 860px) { .row { grid-template-columns: repeat(4, 1fr); } }
+.card__img { display: block; overflow: hidden; background: var(--sand); }
+.card__img img { width: 100%; aspect-ratio: 4/5; object-fit: cover; transition: transform .6s var(--ease); }
+@media (hover: hover) and (pointer: fine) { .card:hover .card__img img { transform: scale(1.04); } }
+.card__n { font-size: .98rem; font-weight: 600; margin-top: var(--s3); letter-spacing: -.005em; }
+.card__n a { text-decoration: none; }
+.card__n a:hover { color: var(--red); }
+.card__m { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+
+/* One quiet line, not a hatched box. The gap is real; it does not need
+   to shout on a page the client is showing people. */
+.note {
+  margin-top: var(--s6); padding-top: var(--s4);
+  border-top: 1px solid var(--line);
+  font-size: .82rem; color: var(--muted);
+}
+
+/* --- HERITAGE ---------------------------------------------------------- */
+.heritage { background: var(--sand); padding-block: var(--s8); }
+.heritage__in { display: grid; gap: var(--s7); grid-template-columns: 1fr; align-items: center; }
+@media (min-width: 900px) { .heritage__in { grid-template-columns: 1fr 1.15fr; gap: var(--s9); } }
+.heritage__q {
+  font-family: var(--font-display); font-size: clamp(1.8rem, 4.2vw, 2.8rem);
+  line-height: 1.12; margin: 0 0 var(--s5); max-width: 16ch; font-style: italic;
+}
+.heritage__p { color: var(--muted); max-width: 46ch; margin-bottom: var(--s5); }
+.heritage__shot { margin: 0; }
+.heritage__shot img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+.heritage__shot figcaption {
+  font-family: var(--font-mono); font-size: .68rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); margin-top: var(--s3);
+}
+
+/* --- SERVICE ----------------------------------------------------------- */
+.service { background: var(--paper); border-top: 1px solid var(--line); }
+.service__grid { display: grid; gap: var(--s6); grid-template-columns: 1fr; }
+@media (min-width: 760px) { .service__grid { grid-template-columns: repeat(3, 1fr); gap: var(--s7); } }
+.service__t {
+  font-size: .78rem; letter-spacing: .16em; text-transform: uppercase;
+  margin-bottom: var(--s3); color: var(--red);
+}
+.service p { color: var(--muted); font-size: .92rem; max-width: 40ch; }
+.service a { color: var(--ink); }

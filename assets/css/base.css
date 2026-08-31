@@ -1,0 +1,216 @@
+/* ============================================================
+   Khan Jee Center — base
+   White shop ground, warm black type, red accent. Photography
+   carries the page; type stays out of its way.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img, svg { display: block; max-width: 100%; }
+img { height: auto; }
+a { color: inherit; }
+
+h1, h2, h3, h4 { margin: 0; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }
+p { margin: 0; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+.wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: var(--s5); }
+
+/* Any digit that has to line up: metres, prices, phone, sizes. */
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+
+.skip { position: absolute; left: -9999px; background: var(--ink); color: #fff; padding: var(--s3) var(--s4); z-index: 200; }
+.skip:focus { left: var(--s4); top: var(--s4); }
+
+/* --- Section furniture ------------------------------------------------ */
+.sec { padding-block: var(--s8); }
+.sec--tight { padding-block: var(--s7); }
+.sec__head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: var(--s5); margin-bottom: var(--s6); flex-wrap: wrap;
+}
+.sec__title { font-size: clamp(1.5rem, 3.4vw, 2.1rem); }
+.sec__sub { color: var(--muted); font-size: .95rem; margin-top: var(--s2); max-width: 54ch; }
+
+/* The one label style. Red, tracked, small — used as an eyebrow. */
+.kicker {
+  font-family: var(--font-mono); font-size: .7rem; font-weight: 500;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--red);
+  margin-bottom: var(--s3);
+}
+
+.link-more {
+  font-size: .78rem; font-weight: 700; letter-spacing: .14em;
+  text-transform: uppercase; text-decoration: none; color: var(--ink);
+  border-bottom: 2px solid var(--red); padding-bottom: 3px;
+  white-space: nowrap;
+}
+.link-more:hover { color: var(--red); }
+
+/* --- Buttons ---------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+  min-height: 50px; padding: 0 var(--s6);
+  font-family: var(--font-ui); font-size: .78rem; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: background-color .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease);
+}
+/* White on red is 8.17:1. Red is the brand, so it fills the primary. */
+.btn--red { background: var(--red); color: #fff; }
+.btn--red:hover { background: var(--red-deep); }
+.btn--ghost { background: transparent; color: var(--ink); border-color: var(--ink-16); }
+.btn--ghost:hover { border-color: var(--ink); }
+/* Translucent-on-photo, the pattern Zellbury uses over hero imagery. */
+.btn--glass {
+  background: rgba(255,255,255,.16); color: #fff;
+  border-color: rgba(255,255,255,.5);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.btn--glass:hover { background: #fff; color: var(--ink); border-color: #fff; }
+
+/* --- Utility strip (top of page) -------------------------------------- */
+.util {
+  background: var(--ink); color: rgba(255,255,255,.82);
+  font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+}
+.util__in {
+  display: flex; align-items: center; justify-content: center; gap: var(--s6);
+  min-height: 38px; flex-wrap: wrap;
+}
+.util a { color: #fff; text-decoration: none; }
+.util a:hover { text-decoration: underline; }
+.util__dot { color: var(--red); }
+@media (max-width: 700px) { .util__in > *:nth-child(n+3) { display: none; } }
+
+/* --- Header ------------------------------------------------------------
+   Hidden until the hero is nearly past, then slides down. Carried over
+   from the first concept — it keeps the hero uninterrupted, which is
+   the whole point of a full-bleed opener. */
+.hdr {
+  position: fixed; inset: 0 0 auto 0; z-index: 60;
+  background: var(--paper-72);
+  -webkit-backdrop-filter: saturate(150%) blur(12px); backdrop-filter: saturate(150%) blur(12px);
+  border-bottom: 1px solid var(--line);
+  transform: translateY(-100%);
+  transition: transform .5s var(--ease);
+}
+.hdr.is-on { transform: none; }
+.hdr__in { display: flex; align-items: center; gap: var(--s4); min-height: 62px; }
+
+.hdr__logo {
+  flex: 0 1 auto; min-width: 0;   /* never let the wordmark push the burger off */
+  display: flex; align-items: center; gap: var(--s3);
+  text-decoration: none; min-height: 44px;
+}
+.hdr__logo .mark { width: 42px; flex: none; }
+.hdr__logo b {
+  font-family: var(--font-heavy); font-size: 1rem; letter-spacing: .01em;
+  color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.hdr__nav { margin-left: auto; display: flex; align-items: center; gap: var(--s5); }
+.hdr__nav a {
+  font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none; color: var(--ink); padding: var(--s2) 0;
+  border-bottom: 2px solid transparent;
+}
+.hdr__nav a:hover { border-bottom-color: var(--red); }
+
+.hdr__acts { display: flex; align-items: center; gap: var(--s1); flex: none; }
+.iconbtn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  width: 44px; height: 44px; background: none; border: 0; padding: 0;
+  color: var(--ink); cursor: pointer; text-decoration: none;
+}
+.iconbtn .num { font-size: .72rem; }
+
+.burger { display: none; flex-direction: column; gap: 4px; }
+.burger span { display: block; width: 20px; height: 2px; background: var(--ink); transition: transform .3s var(--ease), opacity .2s; }
+.burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 900px) {
+  .burger { display: inline-flex; }
+  .hdr__nav {
+    position: fixed; inset: 62px 0 auto 0; flex-direction: column;
+    align-items: stretch; gap: 0; background: var(--paper);
+    border-bottom: 1px solid var(--line); padding: 0 var(--s5) var(--s4);
+    transform: translateY(-8px); opacity: 0; pointer-events: none;
+    transition: opacity .22s var(--ease), transform .22s var(--ease);
+  }
+  .hdr__nav[data-open="true"] { opacity: 1; transform: none; pointer-events: auto; }
+  .hdr__nav a { min-height: 52px; display: flex; align-items: center; border-bottom: 1px solid var(--line); }
+  .hdr__nav a:hover { border-bottom-color: var(--line); }
+}
+
+/* --- Reveal ------------------------------------------------------------
+   Opt-in: the hidden start state is only applied once JS is running, so
+   nothing can leave content permanently invisible. */
+.js-reveal [data-reveal] {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+  transition-delay: var(--d, 0ms);
+}
+.js-reveal [data-reveal].is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal [data-reveal] { opacity: 1; transform: none; transition: none; }
+}
+
+/* --- WhatsApp float ---------------------------------------------------- */
+.wa {
+  position: fixed; right: var(--s4); bottom: var(--s4); z-index: 55;
+  display: inline-flex; align-items: center; gap: var(--s3);
+  min-height: 52px; padding: 0 var(--s5);
+  background: #12793B; color: #fff; text-decoration: none;
+  border-radius: 100px; font-size: .82rem; font-weight: 600;
+  box-shadow: 0 4px 18px rgba(20,16,14,.22);
+  transition: transform .25s var(--ease);
+}
+.wa svg { width: 20px; height: 20px; flex: none; }
+.wa span { display: none; }
+@media (min-width: 760px) { .wa span { display: inline; } }
+@media (hover: hover) and (pointer: fine) { .wa:hover { transform: translateY(-2px); } }
+
+/* --- Footer ------------------------------------------------------------ */
+.foot { background: var(--ink); color: rgba(255,255,255,.72); padding-block: var(--s8) var(--s6); }
+.foot__grid { display: grid; gap: var(--s6); grid-template-columns: repeat(auto-fit, minmax(190px,1fr)); }
+.foot h4 { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: #fff; margin-bottom: var(--s4); }
+.foot li { margin-bottom: var(--s1); }
+.foot li a { display: flex; align-items: center; min-height: 40px; color: rgba(255,255,255,.72); text-decoration: none; }
+.foot li a:hover { color: #fff; }
+.foot .mark { width: 54px; color: #fff; margin-bottom: var(--s4); }
+.foot__legal {
+  margin-top: var(--s7); padding-top: var(--s5); border-top: 1px solid rgba(255,255,255,.14);
+  display: flex; flex-wrap: wrap; gap: var(--s3) var(--s6); justify-content: space-between;
+  font-size: .74rem; color: rgba(255,255,255,.5);
+}
+
+/* --- The Khan Jee mark -------------------------------------------------
+   Masked so one file serves every placement and still recolours.
+   Red on white is 7.33:1; on the dark hero and footer it reverses to
+   white, which is the normal pair any one-colour mark needs. */
+.mark {
+  display: inline-block; aspect-ratio: 1021 / 617;
+  background-color: var(--red);
+  -webkit-mask: url(../logo/kj-mark.svg) no-repeat center / contain;
+          mask: url(../logo/kj-mark.svg) no-repeat center / contain;
+}
+.mark--light { background-color: #fff; }

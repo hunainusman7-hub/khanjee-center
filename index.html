@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khan Jee Center — landing page versions</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/tokens.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+  body { display: grid; place-items: center; min-height: 100svh; padding: var(--s6) 0; }
+  .pick { width: 100%; max-width: 760px; padding-inline: var(--s5); }
+  .pick > .mark { width: 64px; margin-bottom: var(--s5); }
+  .pick h1 { font-family: var(--font-heavy); font-size: clamp(1.8rem,5vw,2.6rem); text-transform: uppercase; letter-spacing: .01em; }
+  .pick > p { color: var(--muted); margin: var(--s3) 0 var(--s7); max-width: 52ch; }
+  .vs { display: grid; gap: var(--s3); }
+  .v {
+    display: flex; align-items: baseline; gap: var(--s5);
+    padding: var(--s5) 0; border-top: 1px solid var(--line);
+    text-decoration: none; color: inherit;
+  }
+  .v:last-child { border-bottom: 1px solid var(--line); }
+  .v__n { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .18em; color: var(--red); flex: none; width: 3ch; }
+  .v__b { flex: 1; min-width: 0; }
+  .v__t { font-size: 1.15rem; font-weight: 700; }
+  .v__d { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+  .v__go { font-size: .74rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; flex: none; }
+  .v[aria-disabled="true"] { pointer-events: none; opacity: .45; }
+  .v:not([aria-disabled]) .v__go { border-bottom: 2px solid var(--red); padding-bottom: 3px; }
+  .v:not([aria-disabled]):hover .v__t { color: var(--red); }
+  .foot-note { margin-top: var(--s7); font-size: .82rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main class="pick">
+  <span class="mark" aria-hidden="true"></span>
+  <h1>Khan Jee Center</h1>
+  <p>Landing page versions for review. Same content and the same brand in each &mdash;
+     what changes is how it carries itself.</p>
+
+  <div class="vs">
+    <a class="v" href="v1/">
+      <span class="v__n">V1</span>
+      <span class="v__b">
+        <span class="v__t">Cinematic</span>
+        <span class="v__d">Hiran Minar hero, then a real shop underneath. Heritage up top, product below.</span>
+      </span>
+      <span class="v__go">View</span>
+    </a>
+    <a class="v" aria-disabled="true">
+      <span class="v__n">V2</span>
+      <span class="v__b">
+        <span class="v__t">Shop-first</span>
+        <span class="v__d">Built the way Zellbury and Gul Ahmed build theirs &mdash; banners, dense grids, brand roster.</span>
+      </span>
+      <span class="v__go">Soon</span>
+    </a>
+    <a class="v" aria-disabled="true">
+      <span class="v__n">V3</span>
+      <span class="v__b">
+        <span class="v__t">Editorial</span>
+        <span class="v__d">Fashion-house feel. Big photography, serif display, the 1978 story front and centre.</span>
+      </span>
+      <span class="v__go">Soon</span>
+    </a>
+  </div>
+
+  <p class="foot-note">Work in progress &mdash; catalogue photography and shop details are still being collected.</p>
+</main>
+</body>
+</html>

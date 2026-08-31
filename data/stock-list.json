@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "description": "What Khan Jee Center actually stocks. Supplied by the client (via Zain, 31 Aug 2026) as a handwritten list, transcribed. This is the REAL range — it is materially wider than the four-department model an earlier brief assumed, and it is why the first landing-page concept called the shop a 'House of Brands'.",
+    "source": "client handwritten list, transcribed 2026-08-31",
+    "focus_directive": "Client specifically said the build focuses on KHADDAR ONLY. Khaddar is the depth: hero, calculator, by-the-metre buying. Everything else below is breadth — proof of range, not a department to build out this sprint.",
+    "SPELLINGS_TODO_CONFIRM_WITH_CLIENT": "Transcribed from handwriting. Several names need the client's own spelling confirmed before they appear on a live page — flagged individually below.",
+    "RIGHTS_TODO_CONFIRM_WITH_CLIENT": "Stocking a label is NOT the same as holding rights to its logo or catalogue imagery. Every name here renders as PLAIN TEXT until dealer status and image rights are confirmed in writing. See Part 7, item 1."
+  },
+
+  "gents": {
+    "focus": "khaddar",
+    "lines": [
+      { "name": "Khaddar",   "is_focus": true, "note": "The department this build is about. Sold unstitched by the metre; confirmed cuts 4.0m / 4.5m / 7.0m." },
+      { "name": "Grace" },
+      { "name": "Pasha" },
+      { "name": "Dynasty" },
+      { "name": "Gul Ahmed", "spelling_confirm": "transcribed 'Gul-Ahmed'; the label's own styling is 'Gul Ahmed'" },
+      { "name": "Asco" },
+      { "name": "Narkin's",  "spelling_confirm": "transcribed 'Narkins'; the label styles itself \"Narkin's\"" },
+      { "name": "Shirting",  "note": "a fabric category, not a brand" },
+      { "name": "Boski",     "note": "a fabric type, not a brand" },
+      { "name": "Shawls",    "note": "a category" }
+    ]
+  },
+
+  "ladies": {
+    "lines": [
+      { "name": "Maria.B" },
+      { "name": "Saira Shakira" },
+      { "name": "Khoobsoorat" },
+      { "name": "Limelight",  "spelling_confirm": "transcribed 'LimeLight / Mahees' — confirm whether Mahees is a separate label or a sub-line" },
+      { "name": "Mahees",     "spelling_confirm": "see Limelight above" },
+      { "name": "Nishat" },
+      { "name": "Zellbury" },
+      { "name": "Razab" },
+      { "name": "Shaista" },
+      { "name": "Nuréh",      "spelling_confirm": "transcribed 'Nuren'. Almost certainly Nuréh — the first landing-page repo used a Nuréh Jhoomro catalogue image, which corroborates it. Confirm before publishing." },
+      { "name": "Izza",       "spelling_confirm": "transcribed 'Colorum / Izza' — 'Colorum' is not a label we can verify; confirm both names" },
+      { "name": "Colorum",    "spelling_confirm": "see Izza above — unverified" },
+      { "name": "Nazakat",    "spelling_confirm": "transcribed 'Watan / Nazakat' — confirm whether these are two labels or one" },
+      { "name": "Watan",      "spelling_confirm": "see Nazakat above" },
+      { "name": "Abaya",      "note": "a garment category, not a brand" },
+      { "name": "Shawls",     "note": "a category" }
+    ]
+  },
+
+  "bridal": {
+    "note": "Transcribed as 'Bridle Senses' — read as 'Bridal Collection'. Bespoke; a WhatsApp booking request, not add-to-cart.",
+    "lines": [
+      { "name": "Razab" },
+      { "name": "Maria.B" }
+    ]
+  }
+}
