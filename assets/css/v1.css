@@ -82,22 +82,29 @@
   .hero__since { bottom: var(--s5); font-size: .6rem; }
 }
 
-/* --- KHADDAR ----------------------------------------------------------- */
-.khaddar { background: var(--paper); }
-.khaddar__grid { display: grid; gap: var(--s7); grid-template-columns: 1fr; align-items: center; }
-@media (min-width: 900px) { .khaddar__grid { grid-template-columns: 1fr 1fr; gap: var(--s9); } }
-.khaddar__title { font-size: clamp(1.9rem, 4.4vw, 3rem); max-width: 15ch; margin-bottom: var(--s4); }
-.khaddar__lede { color: var(--muted); max-width: 46ch; margin-bottom: var(--s6); }
+/* --- THE COUNTER -------------------------------------------------------
+   Cloth by the metre. Khaddar is one of the cloths listed here, not the
+   shop's identity. No calculator: lengths become Shopify variants once
+   the client confirms them. */
+.counter { background: var(--paper); }
+.counter__grid { display: grid; gap: var(--s7); grid-template-columns: 1fr; align-items: center; }
+@media (min-width: 900px) { .counter__grid { grid-template-columns: 1fr 1fr; gap: var(--s9); } }
+.counter__title { font-size: clamp(1.9rem, 4.4vw, 3rem); max-width: 15ch; margin-bottom: var(--s4); }
+.counter__lede { color: var(--muted); max-width: 46ch; margin-bottom: var(--s6); }
 
-.cuts { display: flex; gap: var(--s6); align-items: baseline; flex-wrap: wrap; }
-.cuts li { display: flex; align-items: baseline; gap: 2px; }
-.cuts__n { font-size: clamp(2.4rem, 6vw, 3.6rem); font-weight: 500; line-height: 1; color: var(--ink); }
-.cuts__u { font-size: 1.1rem; color: var(--red); font-weight: 500; }
-.cuts__note { font-size: .82rem; color: var(--muted); margin-top: var(--s3); }
-.khaddar__cta { display: flex; align-items: center; gap: var(--s5); flex-wrap: wrap; margin-top: var(--s6); }
-
-.khaddar__shot { margin: 0; overflow: hidden; }
-.khaddar__shot img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+/* The cloths, as a row of equals. Khaddar leads because it is the one
+   most people come in asking for — it is not billed above the others. */
+.cloths { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.cloths a {
+  display: inline-flex; align-items: center; min-height: 44px;
+  padding: 0 var(--s5); border: 1px solid var(--ink-16);
+  font-size: .88rem; font-weight: 600; text-decoration: none; color: var(--ink);
+  transition: border-color .2s var(--ease), background-color .2s var(--ease), color .2s var(--ease);
+}
+.cloths a:hover { border-color: var(--red); color: var(--red); }
+.counter__cta { display: flex; align-items: center; gap: var(--s5); flex-wrap: wrap; margin-top: var(--s6); }
+.counter__shot { margin: 0; overflow: hidden; }
+.counter__shot img { width: 100%; aspect-ratio: 4/5; object-fit: cover; }
 
 /* --- SHOP TILES --------------------------------------------------------
    Photography does the work. The label sits on the image, and the image
@@ -124,7 +131,7 @@
 }
 .tile__body { position: absolute; z-index: 2; left: var(--s4); right: var(--s4); bottom: var(--s4); }
 .tile__k {
-  display: block; font-family: var(--font-mono); font-size: .64rem;
+  display: block; font-family: var(--font-ui); font-size: .64rem;
   letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.8);
   margin-bottom: 4px;
 }
@@ -187,7 +194,7 @@
 .heritage__shot { margin: 0; }
 .heritage__shot img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
 .heritage__shot figcaption {
-  font-family: var(--font-mono); font-size: .68rem; letter-spacing: .14em;
+  font-family: var(--font-ui); font-size: .68rem; letter-spacing: .14em;
   text-transform: uppercase; color: var(--muted); margin-top: var(--s3);
 }
 

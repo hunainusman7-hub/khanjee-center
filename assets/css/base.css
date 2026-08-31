@@ -31,8 +31,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 .wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: var(--s5); }
 
-/* Any digit that has to line up: metres, prices, phone, sizes. */
-.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+/* Any digit that has to line up: prices, metres, phone, sizes.
+   Body face with tabular figures — columns align, nothing looks like
+   a terminal. */
+.num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
 
 .skip { position: absolute; left: -9999px; background: var(--ink); color: #fff; padding: var(--s3) var(--s4); z-index: 200; }
 .skip:focus { left: var(--s4); top: var(--s4); }
@@ -49,7 +51,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* The one label style. Red, tracked, small — used as an eyebrow. */
 .kicker {
-  font-family: var(--font-mono); font-size: .7rem; font-weight: 500;
+  font-size: .7rem; font-weight: 700;
   letter-spacing: .22em; text-transform: uppercase; color: var(--red);
   margin-bottom: var(--s3);
 }

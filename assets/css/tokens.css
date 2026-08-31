@@ -39,7 +39,7 @@
   /* Bodoni Moda: a Didone, anchored to the client's own catalogues,
      not a default "tasteful" serif. Archivo Black echoes the heavy
      grotesque of the KHAN JEE wordmark. Italianno for the LADA
-     script lockup only. IBM Plex Mono for figures. */
+     script lockup only. Figures are Archivo with tabular numerals. */
   /* Archivo does the work. The market runs Montserrat / Roboto /
      Cabin — plain workhorse grotesques — and a Didone everywhere
      would fight the product photography instead of serving it.
@@ -48,7 +48,11 @@
   --font-ui:      'Archivo', 'Helvetica Neue', Arial, sans-serif;
   --font-heavy:   'Archivo Black', 'Archivo', Impact, sans-serif;
   --font-script:  'Italianno', 'Snell Roundhand', cursive;
-  --font-mono:    'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+  /* No monospace anywhere. A mono face on prices and measurements reads
+     as a spec sheet, and none of the brands this shop stocks use one —
+     Zellbury, Maria B, Gul Ahmed and Limelight all set figures in their
+     body sans. Archivo has proper tabular figures, so columns still
+     line up without the typewriter connotation. */
 
   /* Spacing — one scale, used everywhere */
   --s1: .25rem; --s2: .5rem;  --s3: .75rem; --s4: 1rem;
