@@ -1,0 +1,50 @@
+<section class="lada" id="lada-sizing">
+  <div class="lada__wrap lada__sec">
+    <p class="lada__kicker">{{ section.settings.kicker | default: 'Fit' }}</p>
+    <h2 class="lada__h2">{{ section.settings.heading | default: 'Bespoke sizing' }}</h2>
+    <p class="lada__p">{{ section.settings.intro | default: 'Waistcoats and prince coats are cut 38R through 46R as standard. Anything outside that is measured in the shop at no extra cost.' }}</p>
+
+    <div class="lada__split">
+      <div>
+        <table class="lada__sizes">
+          <thead><tr><th>Size</th><th>Chest</th><th>Waist</th><th>Length</th></tr></thead>
+          <tbody>
+            {%- assign rows = section.settings.rows | default: '38R,38 in,32 in,29 in|40R,40 in,34 in,29.5 in|42R,42 in,36 in,30 in|44R,44 in,38 in,30.5 in|46R,46 in,40 in,31 in' | split: '|' -%}
+            {%- for row in rows -%}
+              {%- assign c = row | split: ',' -%}
+              <tr><td>{{ c[0] }}</td><td>{{ c[1] }}</td><td>{{ c[2] }}</td><td>{{ c[3] }}</td></tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="lada__panel">
+        <h3>{{ section.settings.help_title | default: 'Not sure of your size?' }}</h3>
+        <ul>
+          <li>Measure over a shirt, not bare skin.</li>
+          <li>Chest: the fullest point, tape level under the arms.</li>
+          <li>Waist: at the navel, one finger under the tape.</li>
+          <li>Length: from the base of the collar to where you want it to end.</li>
+        </ul>
+        <a class="btn-lada" style="margin-top:var(--s5)"
+           href="https://wa.me/{{ section.settings.whatsapp | default: '923019090590' }}?text={{ 'I need help with Lada sizing.' | url_encode }}"
+           target="_blank" rel="noopener">Send measurements on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lada sizing",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "textarea", "id": "intro", "label": "Intro" },
+    { "type": "textarea", "id": "rows", "label": "Size rows", "info": "size,chest,waist,length — separate rows with |" },
+    { "type": "text", "id": "help_title", "label": "Help panel title" },
+    { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590" }
+  ],
+  "presets": [{ "name": "Lada sizing" }]
+}
+{% endschema %}

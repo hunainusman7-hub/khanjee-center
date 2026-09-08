@@ -1,0 +1,38 @@
+<section class="lada">
+  <div class="lada__wrap lada__sec">
+    <p class="lada__kicker">{{ section.settings.kicker | default: 'Plainly put' }}</p>
+    <h2 class="lada__h2">{{ section.settings.heading | default: 'What in-house actually buys you' }}</h2>
+
+    <div class="lada__split">
+      <div class="lada__panel">
+        <h3>{{ section.settings.left_title | default: 'Lada — our own looms' }}</h3>
+        <ul>
+          {%- assign left = section.settings.left_items | default: 'We choose the yarn count|We set the finish and the shrinkage|We carry the guarantee ourselves|Replaced or refunded, no conditions|Cut to your measurement in the shop' | split: '|' -%}
+          {%- for item in left -%}<li>{{ item }}</li>{%- endfor -%}
+        </ul>
+      </div>
+      <div class="lada__panel">
+        <h3>{{ section.settings.right_title | default: 'Sourced cloth — the rest of the shelf' }}</h3>
+        <ul>
+          {%- assign right = section.settings.right_items | default: 'Chosen by us, made by the mill|Mill sets the finish, we inspect every bolt|Mill warranty, handled by us|Exchange within 7 days|Cut to your measurement in the shop' | split: '|' -%}
+          {%- for item in right -%}<li>{{ item }}</li>{%- endfor -%}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lada promise",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "text", "id": "left_title", "label": "Left title" },
+    { "type": "textarea", "id": "left_items", "label": "Left items", "info": "Separate with |" },
+    { "type": "text", "id": "right_title", "label": "Right title" },
+    { "type": "textarea", "id": "right_items", "label": "Right items", "info": "Separate with |" }
+  ],
+  "presets": [{ "name": "Lada promise" }]
+}
+{% endschema %}

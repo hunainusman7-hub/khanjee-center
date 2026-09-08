@@ -1,0 +1,12 @@
+{
+  "sections": {
+    "main": {
+      "type": "brand-directory",
+      "settings": {
+        "heading": "All brands under one roof",
+        "sub": "Every house Khan Jee stocks, and our own label. Cloth is sold by the metre or as full unstitched suits."
+      }
+    }
+  },
+  "order": ["main"]
+}

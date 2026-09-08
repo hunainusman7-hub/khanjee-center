@@ -1,0 +1,46 @@
+<section class="lada" id="lada-craft">
+  <div class="lada__wrap lada__sec">
+    <p class="lada__kicker">{{ section.settings.kicker | default: 'The making' }}</p>
+    <h2 class="lada__h2">{{ section.settings.heading | default: 'Three hands, one bolt' }}</h2>
+    {%- if section.settings.intro != blank -%}<p class="lada__p">{{ section.settings.intro }}</p>{%- endif -%}
+
+    <div class="lada__stages">
+      {%- for block in section.blocks -%}
+        <article class="lada__stage" {{ block.shopify_attributes }}>
+          {%- if block.settings.image -%}
+            <img src="{{ block.settings.image | image_url: width: 900 }}" loading="lazy" decoding="async"
+                 width="900" height="1125" alt="{{ block.settings.title | escape }}">
+          {%- elsif block.settings.asset_file != blank -%}
+            <img src="{{ block.settings.asset_file | asset_url }}" loading="lazy" decoding="async"
+                 width="900" height="1125" alt="{{ block.settings.title | escape }}">
+          {%- endif -%}
+          <p class="n">{{ forloop.index | prepend: '0' }} &middot; {{ block.settings.kicker }}</p>
+          <h3>{{ block.settings.title }}</h3>
+          <p>{{ block.settings.text }}</p>
+        </article>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lada craft",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "The making" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Three hands, one bolt" },
+    { "type": "textarea", "id": "intro", "label": "Intro" }
+  ],
+  "blocks": [
+    { "type": "stage", "name": "Stage", "settings": [
+      { "type": "image_picker", "id": "image", "label": "Image" },
+      { "type": "text", "id": "asset_file", "label": "…or theme asset filename" },
+      { "type": "text", "id": "kicker", "label": "Kicker", "default": "Spin" },
+      { "type": "text", "id": "title", "label": "Title", "default": "The yarn" },
+      { "type": "textarea", "id": "text", "label": "Text" }
+    ]}
+  ],
+  "max_blocks": 3,
+  "presets": [{ "name": "Lada craft" }]
+}
+{% endschema %}

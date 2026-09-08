@@ -1,0 +1,74 @@
+{%- comment -%}
+  sections/brand-marquee.liquid
+  Home-page brand strip: two rows drifting in opposite directions, paused on
+  hover. Real logos where we hold the file, house wordmarks otherwise.
+  The full directory lives on /pages/brands.
+{%- endcomment -%}
+
+{%- liquid
+  assign row_a = 'Dynasty,Pasha,Grace,Narkins,Maria B,Alkaram,Asim Jofa,Elan,Gul Ahmad,Charizma,Crimson,Zellbury,Khoobsoorat,Mushq,Gulaal,Emaan Adeel' | split: ','
+  assign row_b = 'Sobia Nazir,Zahra Shahjahan,Shiza Hassan,Saira Shakira,Saira Rizwan,Ayla Zahra,Rang Rasia,Sitara,Shabbir,Shaffer,Bin Ilyas,Emblish,Noor,Ramshah,Sadia Noor,Hussain Rehar' | split: ','
+  assign logo_map = 'dynasty:dynasty.svg,pasha:pasha.png,grace:grace.png,narkins:narkins.png,maria-b:maria-b.svg,zellbury:zellbury.png,saira-shakira:saira-shakira.png,shahista:shaista.webp' | split: ','
+-%}
+
+<section class="bmq" aria-labelledby="bmq-h">
+  <div class="bmq__lead">
+    <h2 id="bmq-h">{{ section.settings.heading | default: 'All brands under one roof' }}</h2>
+    {%- if section.settings.sub != blank -%}<p>{{ section.settings.sub }}</p>{%- endif -%}
+  </div>
+
+  <div class="bmq__rows">
+    {%- for r in (1..2) -%}
+      {%- liquid
+        if r == 1
+          assign list = row_a
+          assign cls = 'bmq__row--a'
+        else
+          assign list = row_b
+          assign cls = 'bmq__row--b'
+        endif
+      -%}
+      <div class="bmq__row {{ cls }}" data-bmq-row>
+        {%- for brand in list -%}
+          {%- liquid
+            assign name = brand | strip
+            assign handle = name | handleize
+            assign logo_file = ''
+            for pair in logo_map
+              assign kv = pair | split: ':'
+              if kv[0] == handle
+                assign logo_file = kv[1]
+              endif
+            endfor
+          -%}
+          <span class="bmq__item">
+            {%- if logo_file != '' -%}
+              <img src="{{ logo_file | asset_url }}" alt="{{ name | escape }}"
+                   loading="lazy" decoding="async" width="140" height="38">
+            {%- else -%}
+              <span>{{ name }}</span>
+            {%- endif -%}
+          </span>
+        {%- endfor -%}
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <div class="bmq__more">
+    <a class="more" href="{{ routes.root_url }}pages/brands">{{ section.settings.link_label | default: 'See every brand we stock' }}</a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Brand marquee",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "All brands under one roof" },
+    { "type": "textarea", "id": "sub", "label": "Subtitle",
+      "default": "Sixty-plus houses on one shelf in Sheikhupura, plus our own label — Lada, woven in-house." },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "See every brand we stock" }
+  ],
+  "presets": [{ "name": "Brand marquee" }]
+}
+{% endschema %}

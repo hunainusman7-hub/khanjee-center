@@ -1,49 +1,70 @@
 {
   "sections": {
     "hero": {
-      "type": "hero-mosaic",
+      "type": "hero-slideshow",
       "blocks": {
-        "p1": {
-          "type": "panel",
+        "s1": {
+          "type": "slide",
           "settings": {
-            "asset_file": "women-shawls.jpg",
-            "eyebrow": "This week",
-            "title": "On Sale",
-            "sub": "Reduced while stock lasts.",
-            "cta": "Shop sale",
+            "asset_file": "hiran-minar-2560.jpg",
+            "focal": "center",
+            "align": "left",
+            "eyebrow": "Since 1978 \u00b7 Sheikhupura",
+            "heading": "Khan Jee",
+            "sub": "Unstitched cloth for men and women. All brands under one roof.",
+            "cta": "Shop the shelf",
             "link": "/collections/all"
           }
         },
-        "p2": {
-          "type": "panel",
+        "s2": {
+          "type": "slide",
           "settings": {
             "asset_file": "women-unstitched.jpg",
+            "focal": "center",
+            "align": "left",
             "eyebrow": "Just in",
-            "title": "New Arrivals",
-            "sub": "The latest cloth on the shelf.",
+            "heading": "New this week",
+            "sub": "The latest lawn, khaddar and karandi on the shelf.",
             "cta": "See what landed",
-            "link": "/collections/all"
+            "link": "/collections/ladies-unstitched"
           }
         },
-        "p3": {
-          "type": "panel",
+        "s3": {
+          "type": "slide",
+          "settings": {
+            "asset_file": "bridal.jpg",
+            "focal": "center",
+            "align": "left",
+            "eyebrow": "Bridal & formal",
+            "heading": "For the season",
+            "sub": "Hand-worked nets, jamawar and velvet, cut to your measurement.",
+            "cta": "Bridal collection",
+            "link": "/collections/bridal"
+          }
+        },
+        "s4": {
+          "type": "slide",
           "settings": {
             "asset_file": "lada-waistcoats.jpg",
+            "focal": "center",
+            "align": "left",
             "eyebrow": "Made in-house",
-            "title": "Lada",
+            "heading": "Lada",
             "sub": "Our own label. Every thread we answer for.",
             "cta": "Enter Lada",
             "link": "/pages/lada"
           }
         }
       },
-      "block_order": ["p1", "p2", "p3"],
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+      ],
       "settings": {
-        "main_eyebrow": "Since 1978 · Sheikhupura",
-        "main_title": "Khan Jee",
-        "main_sub": "Unstitched cloth for men and women. All brands under one roof.",
-        "main_cta": "Shop the shelf",
-        "main_link": "/collections/all"
+        "autoplay_seconds": 6,
+        "aria_label": "Featured"
       }
     },
     "new-arrivals": {
@@ -107,14 +128,22 @@
           }
         }
       },
-      "block_order": ["t1", "t2", "t3", "t4", "t5", "t6"],
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4",
+        "t5",
+        "t6"
+      ],
       "settings": {}
     },
-    "brand-wall": {
-      "type": "brand-wall",
+    "brand-marquee": {
+      "type": "brand-marquee",
       "settings": {
         "heading": "All brands under one roof",
-        "sub": "Every house we stock, on one shelf in Sheikhupura. Cloth is sold by the metre or as full unstitched suits."
+        "sub": "Sixty-plus houses on one shelf in Sheikhupura, plus our own label \u2014 Lada, woven in-house.",
+        "link_label": "See every brand we stock"
       }
     },
     "lada-band": {
@@ -126,7 +155,7 @@
     "hero",
     "new-arrivals",
     "category-grid",
-    "brand-wall",
+    "brand-marquee",
     "lada-band"
   ]
 }

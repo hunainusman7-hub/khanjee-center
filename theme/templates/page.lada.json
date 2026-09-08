@@ -1,0 +1,81 @@
+{
+  "sections": {
+    "hero": {
+      "type": "lada-hero",
+      "settings": {
+        "asset_file": "lada-waistcoats.jpg",
+        "eyebrow": "Woven in-house · Khan Jee",
+        "heading": "Lada",
+        "lede": "Spun, woven and finished under our own roof. The only cloth in this shop whose every thread we answer for.",
+        "primary_label": "The unstitched flagship",
+        "primary_url": "#lada-collection",
+        "secondary_label": "How it is made",
+        "secondary_url": "#lada-craft"
+      }
+    },
+    "craft": {
+      "type": "lada-craft",
+      "blocks": {
+        "s1": {
+          "type": "stage",
+          "settings": {
+            "asset_file": "men-unstitched.jpg",
+            "kicker": "Spin",
+            "title": "The yarn",
+            "text": "We buy staple long enough to hold a twist, and spin to a count we set ourselves. It is the one decision that fixes everything downstream."
+          }
+        },
+        "s2": {
+          "type": "stage",
+          "settings": {
+            "asset_file": "men-shawls.jpg",
+            "kicker": "Weave",
+            "title": "The loom",
+            "text": "Woven slowly, at a tension that leaves the cloth room to move. A fast bolt looks the same on the shelf and fails in the third season."
+          }
+        },
+        "s3": {
+          "type": "stage",
+          "settings": {
+            "asset_file": "lada-waistcoats.jpg",
+            "kicker": "Finish",
+            "title": "The hand",
+            "text": "Washed, pressed and shrunk before it is ever cut, so what you measure in the shop is what you keep after the first wash."
+          }
+        }
+      },
+      "block_order": ["s1", "s2", "s3"],
+      "settings": {
+        "kicker": "The making",
+        "heading": "Three hands, one bolt",
+        "intro": "Most of the shelf is chosen. This is the part we make. Every stage happens at our own unit in Sheikhupura, which is why the guarantee on it is unconditional."
+      }
+    },
+    "collection": {
+      "type": "lada-collection",
+      "settings": {
+        "kicker": "The range",
+        "heading": "Lada, unstitched",
+        "collection": "lada",
+        "count": 6,
+        "whatsapp": "923019090590"
+      }
+    },
+    "promise": {
+      "type": "lada-promise",
+      "settings": {
+        "kicker": "Plainly put",
+        "heading": "What in-house actually buys you"
+      }
+    },
+    "sizing": {
+      "type": "lada-sizing",
+      "settings": {
+        "kicker": "Fit",
+        "heading": "Bespoke sizing",
+        "whatsapp": "923019090590"
+      }
+    }
+  },
+  "order": ["hero", "craft", "collection", "promise", "sizing"]
+}

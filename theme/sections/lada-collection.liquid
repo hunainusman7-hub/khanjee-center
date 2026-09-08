@@ -1,0 +1,38 @@
+<section class="lada" id="lada-collection">
+  <div class="lada__wrap lada__sec">
+    <p class="lada__kicker">{{ section.settings.kicker | default: 'The range' }}</p>
+    <h2 class="lada__h2">{{ section.settings.heading | default: 'Lada, unstitched' }}</h2>
+
+    {%- assign coll = collections[section.settings.collection] -%}
+    {%- if coll != blank and coll.products.size > 0 -%}
+      <div class="pgrid" style="margin-top:var(--s6)">
+        {%- for product in coll.products limit: section.settings.count -%}
+          {% render 'product-card', product: product, index: forloop.index0 %}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="lada__empty" style="margin-top:var(--s6)">
+        <h3>{{ section.settings.empty_title | default: 'Arriving this season' }}</h3>
+        <p>{{ section.settings.empty_text | default: 'The new Lada range is on the looms. Reserve a piece, or ask for the line list, and we will hold it for you.' }}</p>
+        <a class="btn-lada" href="https://wa.me/{{ section.settings.whatsapp | default: '923019090590' }}?text={{ 'I would like to reserve a Lada piece.' | url_encode }}"
+           target="_blank" rel="noopener">Reserve on WhatsApp</a>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lada collection",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "The range" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Lada, unstitched" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "count", "min": 2, "max": 12, "step": 1, "label": "Products shown", "default": 6 },
+    { "type": "text", "id": "empty_title", "label": "Empty state title" },
+    { "type": "textarea", "id": "empty_text", "label": "Empty state text" },
+    { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590" }
+  ],
+  "presets": [{ "name": "Lada collection" }]
+}
+{% endschema %}
