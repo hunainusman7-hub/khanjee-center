@@ -109,23 +109,22 @@
 .bmq__rows{margin-top:var(--s6);display:grid;gap:var(--s4);overflow:hidden;
   -webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);
   mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent)}
-.bmq__row{display:flex;gap:var(--s6);width:max-content;will-change:transform}
-.bmq__row--a{animation:bmqA 62s linear infinite}
-.bmq__row--b{animation:bmqB 74s linear infinite}
-@keyframes bmqA{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes bmqB{from{transform:translateX(-50%)}to{transform:translateX(0)}}
-.bmq__rows:hover .bmq__row{animation-play-state:paused}
+.bmq__row{display:flex;gap:var(--s6);width:max-content;will-change:transform;
+  transform:translate3d(0,0,0)}
+/* motion is driven by kj-v2.js (base drift + scroll velocity); no keyframes here,
+   so hover/click never fight an animation, and reduced-motion simply never starts it */
 .bmq__item{flex:0 0 auto;height:58px;display:flex;align-items:center;justify-content:center;
-  padding-inline:var(--s4);min-width:132px}
+  padding-inline:var(--s4);min-width:132px;color:inherit;text-decoration:none}
 .bmq__item img{max-height:38px;width:auto;object-fit:contain;
   filter:grayscale(1);opacity:.6;transition:filter .35s var(--ease),opacity .35s var(--ease)}
-.bmq__item:hover img{filter:none;opacity:1}
+.bmq__item:hover img,.bmq__item:focus-visible img{filter:none;opacity:1}
 .bmq__item span{font-family:var(--font-display);font-size:1.15rem;letter-spacing:.03em;
   color:var(--text-tertiary);white-space:nowrap;transition:color .3s var(--ease)}
-.bmq__item:hover span{color:var(--accent)}
+.bmq__item:hover span,.bmq__item:focus-visible span{color:var(--accent)}
+.bmq__item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .bmq__more{text-align:center;margin-top:var(--s6)}
-@media (prefers-reduced-motion:reduce){.bmq__row{animation:none}
-  .bmq__rows{overflow-x:auto;mask-image:none;-webkit-mask-image:none}}
+@media (prefers-reduced-motion:reduce){.bmq__rows{overflow-x:auto;mask-image:none;-webkit-mask-image:none}
+  .bmq__row{transform:none !important}}
 
 /* ---------- full brand directory (brands page) ---------- */
 .bdir{padding-block:var(--s7)}

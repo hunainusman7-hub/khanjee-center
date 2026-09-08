@@ -1,13 +1,17 @@
 {%- comment -%}
   sections/brand-marquee.liquid
-  Home-page brand strip: two rows drifting in opposite directions, paused on
-  hover. Real logos where we hold the file, house wordmarks otherwise.
-  The full directory lives on /pages/brands.
+  Home-page brand strip. Two rows drift in opposite directions; kj-v2.js
+  links their speed to the reader's scroll (faster on scroll, reversing on
+  scroll-up) and eases them to a crawl on hover so they can be clicked.
+  Every item is a real link to that brand's collection. Real logos where we
+  hold the file, house wordmarks otherwise. Lists mirror brand-directory.liquid
+  minus fabric types; keep the two in step.
 {%- endcomment -%}
 
 {%- liquid
-  assign row_a = 'Dynasty,Pasha,Grace,Narkins,Maria B,Alkaram,Asim Jofa,Elan,Gul Ahmad,Charizma,Crimson,Zellbury,Khoobsoorat,Mushq,Gulaal,Emaan Adeel' | split: ','
-  assign row_b = 'Sobia Nazir,Zahra Shahjahan,Shiza Hassan,Saira Shakira,Saira Rizwan,Ayla Zahra,Rang Rasia,Sitara,Shabbir,Shaffer,Bin Ilyas,Emblish,Noor,Ramshah,Sadia Noor,Hussain Rehar' | split: ','
+  assign gents  = 'Dynasty,Pasha,Grace,Narkins,Shabbir,Shaffer,Sitara,Stallers,Chawla,Ghani & Sons,Ghazi Ilamdin,Bin Saeed,Barooque,Laaj,Puri,Rashid' | split: ','
+  assign ladies = 'Alkaram,Asim Jofa,Crimson,Gulaal,Maria B,Bin Ilyas,Charizma,Glamour,Elan,Gul Ahmad,Emaan Adeel,Emblish,Khoobsoorat,Mushq,Noor,Zellbury,Rang Rasia,Ramshah,Razab,Sara,Lakhanee,Nur,Raessa,Sirine,Seren,Florent,Izinek,Jhora,Columkari' | split: ','
+  assign bridal = 'Ayla Zahra,Zahra Shahjahan,Sobia Nazir,Shiza Hassan,Saira Rizwan,Saira Shakira,Sadia Noor,Sanum Saeed,Noor by Sadia,Noor e Fajar,Hussain Rehar,Rajbari,Shahista,Parishy,Zebtan' | split: ','
   assign logo_map = 'dynasty:dynasty.svg,pasha:pasha.png,grace:grace.png,narkins:narkins.png,maria-b:maria-b.svg,zellbury:zellbury.png,saira-shakira:saira-shakira.png,shahista:shaista.webp' | split: ','
 -%}
 
@@ -17,38 +21,52 @@
     {%- if section.settings.sub != blank -%}<p>{{ section.settings.sub }}</p>{%- endif -%}
   </div>
 
-  <div class="bmq__rows">
+  <div class="bmq__rows" data-bmq>
     {%- for r in (1..2) -%}
-      {%- liquid
-        if r == 1
-          assign list = row_a
-          assign cls = 'bmq__row--a'
-        else
-          assign list = row_b
-          assign cls = 'bmq__row--b'
-        endif
-      -%}
-      <div class="bmq__row {{ cls }}" data-bmq-row>
-        {%- for brand in list -%}
+      <div class="bmq__row" data-bmq-row data-bmq-dir="{% if r == 1 %}-1{% else %}1{% endif %}">
+        {%- liquid
+          if r == 1
+            assign groups = 'gents,bridal' | split: ','
+          else
+            assign groups = 'ladies' | split: ','
+          endif
+        -%}
+        {%- for grp in groups -%}
           {%- liquid
-            assign name = brand | strip
-            assign handle = name | handleize
-            assign logo_file = ''
-            for pair in logo_map
-              assign kv = pair | split: ':'
-              if kv[0] == handle
-                assign logo_file = kv[1]
-              endif
-            endfor
+            case grp
+              when 'gents'
+                assign list = gents
+                assign prefix = 'gents-'
+              when 'ladies'
+                assign list = ladies
+                assign prefix = 'ladies-'
+              else
+                assign list = bridal
+                assign prefix = 'bridal-'
+            endcase
           -%}
-          <span class="bmq__item">
-            {%- if logo_file != '' -%}
-              <img src="{{ logo_file | asset_url }}" alt="{{ name | escape }}"
-                   loading="lazy" decoding="async" width="140" height="38">
-            {%- else -%}
-              <span>{{ name }}</span>
-            {%- endif -%}
-          </span>
+          {%- for brand in list -%}
+            {%- liquid
+              assign name = brand | strip
+              assign handle = name | handleize
+              assign logo_file = ''
+              for pair in logo_map
+                assign kv = pair | split: ':'
+                if kv[0] == handle
+                  assign logo_file = kv[1]
+                endif
+              endfor
+            -%}
+            <a class="bmq__item" href="{{ routes.collections_url }}/{{ prefix }}{{ handle }}"
+               aria-label="{{ name | escape }} — shop the brand">
+              {%- if logo_file != '' -%}
+                <img src="{{ logo_file | asset_url }}" alt="{{ name | escape }}"
+                     loading="lazy" decoding="async" width="140" height="38">
+              {%- else -%}
+                <span>{{ name }}</span>
+              {%- endif -%}
+            </a>
+          {%- endfor -%}
         {%- endfor -%}
       </div>
     {%- endfor -%}

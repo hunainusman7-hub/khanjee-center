@@ -63,10 +63,54 @@
     start();
   });
 
-  /* ---------------- brand marquee: duplicate each row once so the loop is seamless ---------------- */
-  document.querySelectorAll('[data-bmq-row]').forEach(function (row) {
-    row.innerHTML += row.innerHTML;
-  });
+  /* ---------------- brand marquee: base drift + scroll velocity, clickable ----------------
+     Each row is duplicated once so the loop is seamless, then moved with a
+     transform every frame. Scrolling adds to the speed and flips direction on
+     scroll-up; hovering eases the rows to a crawl so the links can be clicked.
+     Reduced-motion users get static, hand-scrollable rows (see kj-v2.css). */
+  (function () {
+    var rows = Array.prototype.slice.call(document.querySelectorAll('[data-bmq-row]'));
+    if (!rows.length || reduce) return;
+    var wrap = rows[0].parentElement;
+    var hover = false, lastY = window.scrollY, vel = 0, state = [];
+
+    rows.forEach(function (row, i) {
+      if (row.dataset.bmqReady) return;
+      row.dataset.bmqReady = '1';
+      row.innerHTML += row.innerHTML;
+      var dir = parseInt(row.dataset.bmqDir, 10) || (i % 2 ? 1 : -1);
+      state.push({ row: row, x: 0, dir: dir, w: 0 });
+    });
+    function measure() {
+      state.forEach(function (s) { s.w = s.row.scrollWidth / 2; if (s.dir > 0 && s.x === 0) s.x = -s.w; });
+    }
+    measure();
+    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('scroll', function () {
+      vel += (window.scrollY - lastY) * 0.28; lastY = window.scrollY;
+    }, { passive: true });
+    wrap.addEventListener('mouseenter', function () { hover = true; });
+    wrap.addEventListener('mouseleave', function () { hover = false; });
+    wrap.addEventListener('focusin',  function () { hover = true; });
+    wrap.addEventListener('focusout', function () { hover = false; });
+
+    (function tick() {
+      vel *= 0.90;                                  /* decay */
+      if (Math.abs(vel) < 0.01) vel = 0;
+      var base = hover ? 0.05 : 0.42;               /* px per frame at rest */
+      state.forEach(function (s) {
+        if (!s.w) return;
+        s.x += base * s.dir + vel * s.dir * 0.9;    /* scroll down speeds both rows along their own direction */
+        if (s.x <= -s.w) s.x += s.w;
+        if (s.x > 0)     s.x -= s.w;
+        s.row.style.transform = 'translate3d(' + s.x.toFixed(2) + 'px,0,0)';
+      });
+      if (!document.hidden) window.requestAnimationFrame(tick);
+      else document.addEventListener('visibilitychange', function once() {
+        document.removeEventListener('visibilitychange', once); window.requestAnimationFrame(tick);
+      });
+    })();
+  })();
 
   /* ---------------- product card image swap on touch ---------------- */
   if (window.matchMedia && !window.matchMedia('(hover: hover)').matches) {
