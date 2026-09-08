@@ -61,10 +61,13 @@
            alt="">
     {%- endif -%}
 
-    {%- if in_house -%}
+    {%- if product.compare_at_price > product.price -%}
+      {%- assign off = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round -%}
+      <span class="pcard__off">{{ off }}% OFF</span>
+    {%- elsif in_house -%}
       <span class="pcard__badge pcard__badge--seal">Khan Jee Seal</span>
-    {%- elsif product.compare_at_price > product.price -%}
-      <span class="pcard__badge pcard__badge--sale">Sale</span>
+    {%- elsif product.available == false and product.metafields.custom.preorder.value -%}
+      <span class="pcard__pre">Pre order</span>
     {%- endif -%}
 
     {%- unless product.available -%}

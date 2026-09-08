@@ -1,0 +1,67 @@
+{%- comment -%}
+  sections/collection-split.liquid
+  Copy block on the left, wide image carousel on the right that bleeds off
+  the edge of the viewport.
+{%- endcomment -%}
+<section class="csplit" data-csplit aria-labelledby="csplit-{{ section.id }}">
+  <div class="csplit__copy">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="csplit__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h2 id="csplit-{{ section.id }}" class="csplit__h">{{ section.settings.heading }}</h2>
+    {%- if section.settings.text != blank -%}<p class="csplit__p">{{ section.settings.text }}</p>{%- endif -%}
+    {%- if section.settings.cta != blank -%}
+      <a class="csplit__btn" href="{{ section.settings.link | default: '#' }}">
+        {{ section.settings.cta }}
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+      </a>
+    {%- endif -%}
+    {%- if section.blocks.size > 1 -%}
+      <div class="csplit__dots">
+        {%- for block in section.blocks -%}
+          <button type="button" class="{% if forloop.first %}is-active{% endif %}"
+                  data-csplit-dot="{{ forloop.index0 }}" aria-label="Slide {{ forloop.index }}"><span></span></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="csplit__rail" data-csplit-rail>
+    {%- for block in section.blocks -%}
+      <a class="csplit__slide" href="{{ block.settings.link | default: '#' }}" {{ block.shopify_attributes }}>
+        {%- if block.settings.image -%}
+          <img src="{{ block.settings.image | image_url: width: 1600 }}" width="1600" height="1200"
+               loading="lazy" decoding="async" alt="{{ block.settings.caption | escape }}">
+        {%- elsif block.settings.asset_file != blank -%}
+          <img src="{{ block.settings.asset_file | asset_url }}" width="1600" height="1200"
+               loading="lazy" decoding="async" alt="{{ block.settings.caption | escape }}">
+        {%- endif -%}
+        {%- if block.settings.caption != blank -%}<span>{{ block.settings.caption }}</span>{%- endif -%}
+      </a>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection split",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by collection" },
+    { "type": "textarea", "id": "text", "label": "Text" },
+    { "type": "text", "id": "cta", "label": "Button label", "default": "Shop the look" },
+    { "type": "url", "id": "link", "label": "Button link" }
+  ],
+  "blocks": [
+    { "type": "slide", "name": "Slide", "settings": [
+      { "type": "image_picker", "id": "image", "label": "Image" },
+      { "type": "text", "id": "asset_file", "label": "…or theme asset filename" },
+      { "type": "text", "id": "caption", "label": "Caption over image" },
+      { "type": "url", "id": "link", "label": "Link" }
+    ]}
+  ],
+  "max_blocks": 6,
+  "presets": [{ "name": "Collection split" }]
+}
+{% endschema %}
