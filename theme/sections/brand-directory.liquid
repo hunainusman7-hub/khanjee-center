@@ -4,9 +4,9 @@
 {%- endcomment -%}
 
 {%- liquid
-  assign gents = 'Dynasty,Pasha,Grace,Narkins,Boski,Krandi,Shabbir,Shaffer,Sitara,Stallers,Chawla,Ghani & Sons,Ghazi Ilamdin,Bin Saeed,Barooque,Laaj,Puri,Rashid,Rasheed,Gents Shawl,Gents Silk,Lada Fabrics' | split: ','
-  assign ladies = 'Alkaram,Asim Jofa,Crimson,Gulaal,Maria B,Bin Ilyas,Charizma,Glamour,Elan,Gul Ahmad,Emaan Adeel,Emblish,Khoobsoorat,Mushq,Noor,Zellbury,Rang Rasia,Ramshah,Razab,Sara,Lakhanee,Nur,Raessa,Sirine,Seren,Florent,Izinek,Jhora,Columkari,Abaya,Banu Wool,Ladies Shawl' | split: ','
-  assign bridal = 'Ayla Zahra,Zahra Shahjahan,Sobia Nazir,Shiza Hassan,Saira Rizwan,Saira Shakira,Sadia Noor,Sanum Saeed,Sunam Saeed,Noor by Sadia,Noor e Fajar,Hussain Rehar,Rajbari,Shahista,Parishy,Zebtan' | split: ','
+  assign gents = 'Dynasty,Pasha,Grace,Narkins,Shabbir,Shaffer,Sitara,Stallers,Chawla,Ghani & Sons,Ghazi Ilamdin,Bin Saeed,Barooque,Laaj,Puri,Rashid' | split: ','
+  assign ladies = 'Alkaram,Asim Jofa,Crimson,Gulaal,Maria B,Bin Ilyas,Charizma,Glamour,Elan,Gul Ahmad,Emaan Adeel,Emblish,Khoobsoorat,Mushq,Noor,Zellbury,Rang Rasia,Ramshah,Razab,Sara,Lakhanee,Nur,Raessa,Sirine,Seren,Florent,Izinek,Jhora,Columkari' | split: ','
+  assign bridal = 'Ayla Zahra,Zahra Shahjahan,Sobia Nazir,Shiza Hassan,Saira Rizwan,Saira Shakira,Sadia Noor,Sanum Saeed,Noor by Sadia,Noor e Fajar,Hussain Rehar,Rajbari,Shahista,Parishy,Zebtan' | split: ','
   assign logo_map = 'dynasty:dynasty.svg,pasha:pasha.png,grace:grace.png,narkins:narkins.png,maria-b:maria-b.svg,zellbury:zellbury.png,saira-shakira:saira-shakira.png,shahista:shaista.webp' | split: ','
 -%}
 
@@ -60,6 +60,41 @@
       </div>
     </section>
   {%- endfor -%}
+  <section class="bdir">
+    <h2 class="bdir__h">Shop by fabric</h2>
+    <div class="bdir__fab">
+      <h3 class="bdir__fabh">Gents</h3>
+      <div class="chiprow" role="list">
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-shirting">Shirting</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-khaddar">Khaddar</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-boski">Boski</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-cotton">Cotton</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-wash-wear">Wash &amp; Wear</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-wool">Wool &amp; Winter</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-premium-suiting">Premium Suiting</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-silk">Gents Silk</a>
+        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-shawls">Shawls</a>
+      </div>
+      <h3 class="bdir__fabh">Ladies</h3>
+      <div class="chiprow" role="list">
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-lawn">Lawn</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-khaddar">Khaddar</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-cambric">Cambric</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-chiffon">Chiffon</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-karandi">Karandi</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-jacquard">Jacquard</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-organza">Organza</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-velvet">Velvet</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-net">Net</a>
+        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-abaya">Abaya</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bdir bdir--own">
+    <h2 class="bdir__h">Our own label</h2>
+    <a class="bdir__cell bdir__cell--lada" href="{{ routes.root_url }}pages/lada"><span>Lada by Khan Jee</span></a>
+  </section>
 </div>
 
 {% schema %}

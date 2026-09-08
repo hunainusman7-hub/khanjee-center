@@ -403,3 +403,8 @@
    .6rem  : badges, table heads, seals, kickers      (XS)
    .66rem : eyebrows, meta, tabs, "more" links, buttons (LABEL)
    Anything else uppercase+tracked is a display heading, not a label. */
+
+/* ---------- brand directory: fabric row + own label ---------- */
+.bdir__fabh{margin:var(--s4) 0 var(--s2);font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--text)}
+.bdir__fab .chiprow{padding-bottom:var(--s2)}
+.bdir__cell--lada span{color:var(--gold);letter-spacing:.06em}
