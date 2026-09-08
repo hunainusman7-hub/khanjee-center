@@ -1,0 +1,114 @@
+{%- comment -%}
+  snippets/kj-nav.liquid
+  Brand lists come from the client's approved inventory whitelist
+  (Inventory brand names.pdf, 6 Sep 2026). Nothing outside that list appears.
+  LADA sits first and in brass — it is the flagship, not a peer department.
+{%- endcomment -%}
+<nav class="nav" id="site-nav" data-nav aria-label="Main">
+  <div class="nav__inner">
+
+    <div class="nav__sec">
+      <a class="nav__link nav__link--lada" href="{{ routes.root_url }}pages/lada">Lada</a>
+    </div>
+
+    <div class="nav__sec">
+      <a class="nav__link" href="{{ routes.root_url }}collections/gents-unstitched">Gents</a>
+      <div class="mega">
+        <div class="nav__grp">
+          <h4><a href="{{ routes.root_url }}collections/gents-unstitched">Shop by Brand</a></h4>
+          <ul>
+            <li><a href="{{ routes.root_url }}collections/gents-dynasty">Dynasty</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-pasha">Pasha</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-grace">Grace</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-narkins">Narkins</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-shabbir">Shabbir</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-shaffer">Shaffer</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-sitara">Sitara</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-chawla">Chawla</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-ghani-sons">Ghani &amp; Sons</a></li>
+            <li><a href="{{ routes.root_url }}pages/brands">All gents brands &rarr;</a></li>
+          </ul>
+        </div>
+        <div class="nav__grp">
+          <h4><a href="{{ routes.root_url }}collections/gents-unstitched">Shop by Fabric</a></h4>
+          <ul>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-shirting">Shirting</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-khaddar">Khaddar</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-boski">Boski</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-cotton">Cotton</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-wash-wear">Wash &amp; Wear</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-wool">Wool &amp; Winter</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-premium-suiting">Premium Suiting</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-silk">Gents Silk</a></li>
+            <li><a href="{{ routes.root_url }}collections/gents-fabric-shawls">Shawls</a></li>
+          </ul>
+        </div>
+      </div>
+      <a class="nav__viewall" href="{{ routes.root_url }}collections/gents-unstitched">View all Gents</a>
+    </div>
+
+    <div class="nav__sec">
+      <a class="nav__link" href="{{ routes.root_url }}collections/ladies-unstitched">Ladies</a>
+      <div class="mega">
+        <div class="nav__grp">
+          <h4><a href="{{ routes.root_url }}collections/ladies-unstitched">Shop by Brand</a></h4>
+          <ul>
+            <li><a href="{{ routes.root_url }}collections/ladies-maria-b">Maria B</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-alkaram">Alkaram</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-asim-jofa">Asim Jofa</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-elan">Elan</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-gul-ahmad">Gul Ahmad</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-charizma">Charizma</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-crimson">Crimson</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-zellbury">Zellbury</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-khoobsoorat">Khoobsoorat</a></li>
+            <li><a href="{{ routes.root_url }}pages/brands">All ladies brands &rarr;</a></li>
+          </ul>
+        </div>
+        <div class="nav__grp">
+          <h4><a href="{{ routes.root_url }}collections/ladies-unstitched">Shop by Fabric</a></h4>
+          <ul>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-lawn">Lawn</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-khaddar">Khaddar</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-cambric">Cambric</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-chiffon">Chiffon</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-karandi">Karandi</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-jacquard">Jacquard</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-organza">Organza</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-velvet">Velvet</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-net">Net</a></li>
+            <li><a href="{{ routes.root_url }}collections/ladies-fabric-abaya">Abaya</a></li>
+          </ul>
+        </div>
+      </div>
+      <a class="nav__viewall" href="{{ routes.root_url }}collections/ladies-unstitched">View all Ladies</a>
+    </div>
+
+    <div class="nav__sec">
+      <a class="nav__link" href="{{ routes.root_url }}collections/bridal">Bridal</a>
+      <div class="mega">
+        <div class="nav__grp">
+          <h4><a href="{{ routes.root_url }}collections/bridal">Bridal &amp; Formal</a></h4>
+          <ul>
+            <li><a href="{{ routes.root_url }}collections/bridal-ayla-zahra">Ayla Zahra</a></li>
+            <li><a href="{{ routes.root_url }}collections/bridal-zahra-shahjahan">Zahra Shahjahan</a></li>
+            <li><a href="{{ routes.root_url }}collections/bridal-sobia-nazir">Sobia Nazir</a></li>
+            <li><a href="{{ routes.root_url }}collections/bridal-shiza-hassan">Shiza Hassan</a></li>
+            <li><a href="{{ routes.root_url }}collections/bridal-saira-rizwan">Saira Rizwan</a></li>
+            <li><a href="{{ routes.root_url }}collections/bridal-saira-shakira">Saira Shakira</a></li>
+            <li><a href="{{ routes.root_url }}collections/bridal-sadia-noor">Sadia Noor</a></li>
+            <li><a href="{{ routes.root_url }}pages/brands">All bridal brands &rarr;</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav__sec">
+      <a class="nav__link" href="{{ routes.root_url }}collections/shawls">Shawls</a>
+    </div>
+
+    <div class="nav__sec">
+      <a class="nav__link" href="{{ routes.root_url }}pages/brands">Brands</a>
+    </div>
+  </div>
+</nav>

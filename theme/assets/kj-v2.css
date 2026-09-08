@@ -192,3 +192,21 @@
 .lada .pcard:hover .pcard__title{color:var(--lada-champagne)}
 .lada .pcard__meta{color:var(--lada-muted)}
 .lada .pcard__price{color:var(--lada-champagne)}
+
+/* ---------- LADA sits first in the nav, in brass ---------- */
+.nav__link--lada{color:var(--gold);letter-spacing:.16em;font-weight:600}
+.nav__link--lada:hover{color:var(--accent)}
+@media (min-width:1024px){
+  .nav__link--lada{position:relative}
+  .nav__link--lada::after{content:"";position:absolute;left:0;right:0;bottom:.4rem;height:1px;
+    background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+  .nav__link--lada:hover::after{transform:scaleX(1)}
+}
+
+/* ---------- footer trust strip ---------- */
+.foot__trust{display:grid;gap:var(--s3);grid-template-columns:repeat(2,1fr);
+  margin-top:var(--s6);padding-block:var(--s4);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+@media (min-width:820px){.foot__trust{grid-template-columns:repeat(4,1fr)}}
+.foot__trust span{font-size:.66rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-tertiary);text-align:center}

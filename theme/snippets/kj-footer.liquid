@@ -1,0 +1,45 @@
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div>
+        <span class="foot__mark" style="display:block">{% render 'kj-mark' %}</span>
+        <p style="margin:var(--s4) 0 0;max-width:32ch;color:var(--text-tertiary);font-size:.9rem">
+          Khan Jee Fabrics, Sheikhupura, Punjab. Unstitched cloth for men and women since 1978.</p>
+        <p style="margin:var(--s4) 0 0;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)">
+          All brands under one roof</p>
+      </div>
+      <div><h4>Shop</h4><ul>
+        <li><a href="{{ routes.root_url }}pages/lada">Lada by Khan Jee</a></li>
+        <li><a href="{{ routes.root_url }}collections/gents-unstitched">Gents Unstitched</a></li>
+        <li><a href="{{ routes.root_url }}collections/ladies-unstitched">Ladies Unstitched</a></li>
+        <li><a href="{{ routes.root_url }}collections/bridal">Bridal &amp; Formal</a></li>
+        <li><a href="{{ routes.root_url }}collections/shawls">Shawls &amp; Wraps</a></li>
+      </ul></div>
+      <div><h4>Buying</h4><ul>
+        <li><a href="{{ routes.root_url }}pages/size-guide">Cut &amp; meterage guide</a></li>
+        <li><a href="{{ routes.root_url }}pages/care">Fabric care</a></li>
+        <li><a href="{{ routes.root_url }}pages/exchange-policy">Exchange policy</a></li>
+        <li><a href="{{ routes.root_url }}pages/contact">Delivery &amp; COD</a></li>
+      </ul></div>
+      <div><h4>Visit</h4><ul>
+        <li><a href="{{ routes.root_url }}pages/stores">Our store</a></li>
+        <li><a href="{{ routes.root_url }}pages/about">About Khan Jee</a></li>
+        <li><a href="{{ routes.root_url }}pages/contact">Contact</a></li>
+        <li><a href="{{ routes.root_url }}pages/brands">All brands</a></li>
+      </ul></div>
+    </div>
+
+    <div class="foot__trust">
+      <span>Open parcel before payment</span>
+      <span>Exchange within 7 days</span>
+      <span>Cut to your measurement</span>
+      <span>Cash on delivery</span>
+    </div>
+
+    <div class="foot__legal">
+      <span>&copy; {{ 'now' | date: "%Y" }} Khan Jee Fabrics</span>
+      <span>Hiran Minar photograph by Shaguftakarim,
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener" target="_blank">CC BY-SA 4.0</a></span>
+    </div>
+  </div>
+</footer>
