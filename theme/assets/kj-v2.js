@@ -77,7 +77,12 @@
     rows.forEach(function (row, i) {
       if (row.dataset.bmqReady) return;
       row.dataset.bmqReady = '1';
+      var half = row.children.length;
       row.innerHTML += row.innerHTML;
+      /* the clone exists only to make the loop seamless: hide it from AT and the tab order */
+      Array.prototype.slice.call(row.children, half).forEach(function (el) {
+        el.setAttribute('aria-hidden', 'true'); el.setAttribute('tabindex', '-1');
+      });
       var dir = parseInt(row.dataset.bmqDir, 10) || (i % 2 ? 1 : -1);
       state.push({ row: row, x: 0, dir: dir, w: 0 });
     });
