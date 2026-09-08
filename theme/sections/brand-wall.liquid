@@ -1,0 +1,91 @@
+{%- comment -%}
+  sections/brand-wall.liquid
+  The stocked-brand wall. Sourced from the client's approved inventory
+  whitelist (Inventory brand names.pdf, 6 Sep 2026) — nothing outside
+  that list appears anywhere on the site.
+
+  Logos: each cell renders a typographic wordmark until a real logo file
+  exists in the theme's assets. To switch a brand to its logo, add the file
+  as `brand-<handle>.png` (or .svg) and add its handle to `logo_handles`
+  below. Nothing else needs to change.
+{%- endcomment -%}
+
+{%- liquid
+  assign gents = 'Dynasty,Pasha,Grace,Narkins,Boski,Krandi,Shabbir,Shaffer,Sitara,Stallers,Chawla,Ghani & Sons,Ghazi Ilamdin,Bin Saeed,Barooque,Laaj,Puri,Rashid,Rasheed,Gents Shawl,Gents Silk,Lada Fabrics' | split: ','
+  assign ladies = 'Alkaram,Asim Jofa,Crimson,Gulaal,Maria B,Bin Ilyas,Charizma,Glamour,Elan,Gul Ahmad,Emaan Adeel,Emblish,Khoobsoorat,Mushq,Noor,Zellbury,Rang Rasia,Ramshah,Razab,Sara,Lakhanee,Nur,Raessa,Sirine,Seren,Florent,Izinek,Jhora,Columkari,Abaya,Banu Wool,Ladies Shawl' | split: ','
+  assign bridal = 'Ayla Zahra,Zahra Shahjahan,Sobia Nazir,Shiza Hassan,Saira Rizwan,Saira Shakira,Sadia Noor,Sanum Saeed,Sunam Saeed,Noor by Sadia,Noor e Fajar,Hussain Rehar,Rajbari,Shahista,Parishy,Zebtan' | split: ','
+
+  comment
+    Brands with a real logo file in the theme assets, as "handle:filename".
+    Everything else falls back to a typographic wordmark. To add a logo,
+    upload the file to assets and append one pair here.
+  endcomment
+  assign logo_map = 'dynasty:dynasty.svg,pasha:pasha.png,grace:grace.png,narkins:narkins.png,maria-b:maria-b.svg,zellbury:zellbury.png,saira-shakira:saira-shakira.png,shahista:shaista.webp' | split: ','
+-%}
+
+<section class="wrap" aria-labelledby="bwall-h">
+  <div class="bwall__lead">
+    <h2 id="bwall-h">{{ section.settings.heading | default: 'All brands under one roof' }}</h2>
+    {%- if section.settings.sub != blank -%}
+      <p>{{ section.settings.sub }}</p>
+    {%- endif -%}
+  </div>
+
+  {%- for group in (1..3) -%}
+    {%- liquid
+      case group
+        when 1
+          assign list = gents
+          assign label = 'Gents'
+          assign prefix = 'gents-'
+        when 2
+          assign list = ladies
+          assign label = 'Ladies'
+          assign prefix = 'ladies-'
+        when 3
+          assign list = bridal
+          assign label = 'Bridal & Formal'
+          assign prefix = 'bridal-'
+      endcase
+    -%}
+    <div class="bwall__group">
+      <h3 class="bwall__gh">{{ label }}</h3>
+      <div class="bwall">
+        {%- for brand in list -%}
+          {%- liquid
+            assign name = brand | strip
+            assign handle = name | handleize
+            assign logo_file = ''
+            for pair in logo_map
+              assign kv = pair | split: ':'
+              if kv[0] == handle
+                assign logo_file = kv[1]
+              endif
+            endfor
+          -%}
+          <a class="bwall__cell" href="{{ routes.collections_url }}/{{ prefix }}{{ handle }}">
+            {%- if logo_file != '' -%}
+              <img src="{{ logo_file | asset_url }}"
+                   alt="{{ name | escape }}" loading="lazy" decoding="async" width="160" height="44">
+            {%- else -%}
+              <span class="bwall__wordmark">{{ name }}</span>
+            {%- endif -%}
+          </a>
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endfor -%}
+</section>
+
+{% schema %}
+{
+  "name": "Brand wall",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "All brands under one roof" },
+    { "type": "textarea", "id": "sub", "label": "Subtitle",
+      "default": "Every house we stock, on one shelf in Sheikhupura. Cloth is sold by the metre or as full unstitched suits." }
+  ],
+  "presets": [{ "name": "Brand wall" }]
+}
+{% endschema %}

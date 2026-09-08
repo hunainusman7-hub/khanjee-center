@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ page_title }}{% if page_title != shop.name %} &mdash; {{ shop.name }}{% endif %}</title>
+{% if page_description %}<meta name="description" content="{{ page_description }}">{% endif %}
+<link rel="canonical" href="{{ canonical_url }}">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ 'archivo-latin.woff2' | asset_url }}">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ 'archivo-black-latin.woff2' | asset_url }}">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ 'bodoni-moda-latin.woff2' | asset_url }}">
+<link rel="stylesheet" href="{{ 'fonts.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'site.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'kj-v2.css' | asset_url }}">
+{{ content_for_header }}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+{% render 'kj-svg-defs' %}
+
+{% section 'header' %}
+
+<main id="main">
+{{ content_for_layout }}
+</main>
+
+{% section 'footer' %}
+
+<script src="{{ 'site.js' | asset_url }}" defer></script>
+<script src="{{ 'kj-v2.js' | asset_url }}" defer></script>
+</body>
+</html>

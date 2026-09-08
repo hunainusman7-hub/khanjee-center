@@ -1,0 +1,131 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero-mosaic",
+      "blocks": {
+        "p1": {
+          "type": "panel",
+          "settings": {
+            "asset_file": "women-shawls.jpg",
+            "eyebrow": "This week",
+            "title": "On Sale",
+            "sub": "Reduced while stock lasts.",
+            "cta": "Shop sale",
+            "link": "/collections/all"
+          }
+        },
+        "p2": {
+          "type": "panel",
+          "settings": {
+            "asset_file": "women-unstitched.jpg",
+            "eyebrow": "Just in",
+            "title": "New Arrivals",
+            "sub": "The latest cloth on the shelf.",
+            "cta": "See what landed",
+            "link": "/collections/all"
+          }
+        },
+        "p3": {
+          "type": "panel",
+          "settings": {
+            "asset_file": "lada-waistcoats.jpg",
+            "eyebrow": "Made in-house",
+            "title": "Lada",
+            "sub": "Our own label. Every thread we answer for.",
+            "cta": "Enter Lada",
+            "link": "/pages/lada"
+          }
+        }
+      },
+      "block_order": ["p1", "p2", "p3"],
+      "settings": {
+        "main_eyebrow": "Since 1978 · Sheikhupura",
+        "main_title": "Khan Jee",
+        "main_sub": "Unstitched cloth for men and women. All brands under one roof.",
+        "main_cta": "Shop the shelf",
+        "main_link": "/collections/all"
+      }
+    },
+    "new-arrivals": {
+      "type": "product-rail",
+      "settings": {
+        "heading": "New this week",
+        "count": 4,
+        "link_label": "View all"
+      }
+    },
+    "category-grid": {
+      "type": "category-grid",
+      "blocks": {
+        "t1": {
+          "type": "tile",
+          "settings": {
+            "label": "Gents Unstitched",
+            "link": "/collections/gents-unstitched",
+            "asset_file": "men-unstitched.jpg"
+          }
+        },
+        "t2": {
+          "type": "tile",
+          "settings": {
+            "label": "Gents Shawls",
+            "link": "/collections/gents-fabric-shawls",
+            "asset_file": "men-shawls.jpg"
+          }
+        },
+        "t3": {
+          "type": "tile",
+          "settings": {
+            "label": "Ladies Unstitched",
+            "link": "/collections/ladies-unstitched",
+            "asset_file": "women-unstitched.jpg"
+          }
+        },
+        "t4": {
+          "type": "tile",
+          "settings": {
+            "label": "Ladies Shawls",
+            "link": "/collections/ladies-fabric-shawls",
+            "asset_file": "women-shawls.jpg"
+          }
+        },
+        "t5": {
+          "type": "tile",
+          "settings": {
+            "label": "Bridal Collection",
+            "link": "/collections/bridal",
+            "asset_file": "bridal.jpg"
+          }
+        },
+        "t6": {
+          "type": "tile",
+          "settings": {
+            "label": "Lada Waistcoats",
+            "link": "/pages/lada",
+            "asset_file": "lada-waistcoats.jpg"
+          }
+        }
+      },
+      "block_order": ["t1", "t2", "t3", "t4", "t5", "t6"],
+      "settings": {}
+    },
+    "brand-wall": {
+      "type": "brand-wall",
+      "settings": {
+        "heading": "All brands under one roof",
+        "sub": "Every house we stock, on one shelf in Sheikhupura. Cloth is sold by the metre or as full unstitched suits."
+      }
+    },
+    "lada-band": {
+      "type": "lada-band",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "new-arrivals",
+    "category-grid",
+    "brand-wall",
+    "lada-band"
+  ]
+}

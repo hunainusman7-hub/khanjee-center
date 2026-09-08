@@ -1,0 +1,102 @@
+{%- comment -%}
+  snippets/product-card.liquid
+  Usage: {% render 'product-card', product: product, index: forloop.index0 %}
+
+  Hover swaps to the product's second image. Falls back gracefully to a
+  single image, and on touch devices the swap fires on first tap
+  (see kj-v2.js) instead of blocking the link.
+
+  Naming rule: only Dynasty and Pasha are sold under their own cloth name.
+  Everything else is a Khan Jee piece and shows its KJC SKU instead of a
+  supplier name — so `vendor` is only surfaced for those two houses.
+{%- endcomment -%}
+
+{%- liquid
+  assign alt_media = null
+  if product.media.size > 1
+    assign alt_media = product.media[1]
+  endif
+
+  assign sku = product.selected_or_first_available_variant.sku
+  assign fabric = product.metafields.custom.by_fabric.value
+  assign pieces = product.metafields.custom.by_pieces.value
+  assign in_house = product.metafields.lada.in_house.value
+
+  assign named_houses = 'Dynasty,Pasha' | split: ','
+  assign show_vendor = false
+  for house in named_houses
+    if product.vendor == house
+      assign show_vendor = true
+    endif
+  endfor
+
+  assign loading = 'lazy'
+  if index < 4
+    assign loading = 'eager'
+  endif
+-%}
+
+<article class="pcard" data-pcard>
+  <a class="pcard__media pcard__link" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+    {%- if product.featured_media -%}
+      <img class="pcard__img pcard__img--main"
+           src="{{ product.featured_media | image_url: width: 800 }}"
+           srcset="{{ product.featured_media | image_url: width: 400 }} 400w,
+                   {{ product.featured_media | image_url: width: 800 }} 800w,
+                   {{ product.featured_media | image_url: width: 1200 }} 1200w"
+           sizes="(min-width:1100px) 24vw, (min-width:760px) 32vw, 46vw"
+           width="800" height="1000" loading="{{ loading }}" decoding="async"
+           alt="{{ product.featured_media.alt | default: product.title | escape }}">
+    {%- else -%}
+      <span class="pcard__img pcard__img--main" aria-hidden="true"></span>
+    {%- endif -%}
+
+    {%- if alt_media -%}
+      <img class="pcard__img pcard__img--alt"
+           src="{{ alt_media | image_url: width: 800 }}"
+           srcset="{{ alt_media | image_url: width: 400 }} 400w,
+                   {{ alt_media | image_url: width: 800 }} 800w"
+           sizes="(min-width:1100px) 24vw, (min-width:760px) 32vw, 46vw"
+           width="800" height="1000" loading="lazy" decoding="async" aria-hidden="true"
+           alt="">
+    {%- endif -%}
+
+    {%- if in_house -%}
+      <span class="pcard__badge pcard__badge--seal">Khan Jee Seal</span>
+    {%- elsif product.compare_at_price > product.price -%}
+      <span class="pcard__badge pcard__badge--sale">Sale</span>
+    {%- endif -%}
+
+    {%- unless product.available -%}
+      <span class="pcard__soldout">Sold out</span>
+    {%- endunless -%}
+  </a>
+
+  {%- if product.available and product.variants.size == 1 -%}
+    <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+      <button type="submit" class="pcard__quick">Add to cart</button>
+    </form>
+  {%- endif -%}
+
+  <h3 class="pcard__title">{{ product.title | split: ' — ' | first }}</h3>
+
+  <p class="pcard__meta">
+    {%- if show_vendor -%}
+      {{ product.vendor }}
+      {%- if fabric %} · {{ fabric }}{% endif -%}
+    {%- elsif fabric -%}
+      {{ fabric }}{% if pieces %} · {{ pieces }}{% endif %}
+    {%- elsif sku -%}
+      {{ sku }}
+    {%- endif -%}
+  </p>
+
+  <p class="pcard__price">
+    {%- if product.compare_at_price > product.price -%}
+      <s>{{ product.compare_at_price | money }}</s><span class="now">{{ product.price | money }}</span>
+    {%- else -%}
+      {{ product.price | money }}
+    {%- endif -%}
+  </p>
+</article>

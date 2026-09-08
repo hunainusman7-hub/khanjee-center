@@ -1,0 +1,100 @@
+{%- comment -%}
+  sections/main-collection.liquid
+  Drives every brand / fabric / department collection page. Facets come from
+  Shopify's native `collection.filters` (populated by Search & Discovery), so
+  nothing here is hard-coded per brand.
+{%- endcomment -%}
+
+<div class="wrap">
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a><i>/</i>
+    <span aria-current="page">{{ collection.title }}</span>
+  </nav>
+</div>
+
+<div class="wrap phead">
+  <h1 class="ptitle">{{ collection.title }}</h1>
+  {%- if collection.description != blank -%}
+    <p class="psub">{{ collection.description }}</p>
+  {%- endif -%}
+</div>
+
+<div class="wrap listing">
+  <aside class="filters" data-filters aria-label="Filters">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+      <h2 style="font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600">Filter</h2>
+      <button class="iconbtn filters__close" type="button" data-filter-close aria-label="Close filters">&times;</button>
+    </div>
+
+    {%- if collection.filters.size > 0 -%}
+      <form id="FacetFilterForm">
+        {%- for filter in collection.filters -%}
+          <div class="filters__grp">
+            <h3>{{ filter.label }}</h3>
+            <div class="filters__list" data-facet>
+              {%- if filter.type == 'price_range' -%}
+                <div class="filters__price">
+                  <input type="number" inputmode="numeric" name="{{ filter.min_value.param_name }}"
+                         placeholder="Min" value="{{ filter.min_value.value }}" aria-label="Minimum price">
+                  <span aria-hidden="true">&ndash;</span>
+                  <input type="number" inputmode="numeric" name="{{ filter.max_value.param_name }}"
+                         placeholder="Max" value="{{ filter.max_value.value }}" aria-label="Maximum price">
+                </div>
+              {%- else -%}
+                {%- for value in filter.values -%}
+                  <label class="chip" aria-pressed="{{ value.active }}">
+                    <input type="checkbox" class="vh" name="{{ value.param_name }}" value="{{ value.value }}"
+                           {% if value.active %}checked{% endif %} onchange="this.form.submit()">
+                    {{ value.label }} <span class="chip__n">{{ value.count }}</span>
+                  </label>
+                {%- endfor -%}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </form>
+    {%- endif -%}
+
+    <div class="filters__done">
+      <button class="btn" type="button" data-filter-close>View results</button>
+    </div>
+  </aside>
+
+  <div>
+    <div class="toolbar">
+      <span class="toolbar__n num">{{ collection.products_count }} products</span>
+      {%- if collection.filters.size > 0 -%}
+        <button class="btn btn--ghost btn--sm toolbar__filter" type="button"
+                data-filter-toggle aria-expanded="false" aria-controls="filters">Filter</button>
+      {%- endif -%}
+    </div>
+
+    {%- paginate collection.products by 24 -%}
+      {%- if collection.products.size == 0 -%}
+        <div class="empty">
+          <h3>{{ collection.title }} arriving shortly</h3>
+          <p>Stock is being photographed and listed now. The filters are live and ready &mdash;
+             as soon as pieces are added they will appear here.</p>
+        </div>
+      {%- else -%}
+        <div class="pgrid" style="margin-top:var(--s5)">
+          {%- for product in collection.products -%}
+            {% render 'product-card', product: product, index: forloop.index0 %}
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="pagination" aria-label="Pagination" style="margin-block:var(--s7)">
+            {{ paginate | default_pagination }}
+          </nav>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+
+  <div class="scrim" data-scrim></div>
+</div>
+
+{% schema %}
+{ "name": "Collection", "settings": [] }
+{% endschema %}

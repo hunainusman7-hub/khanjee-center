@@ -1,0 +1,46 @@
+{%- comment -%}
+  sections/product-rail.liquid
+  A row of products from a chosen collection, using the shared card so the
+  hover image-swap behaves identically everywhere.
+{%- endcomment -%}
+
+{%- liquid
+  assign coll = collections[section.settings.collection]
+  assign limit = section.settings.count | default: 4
+-%}
+
+<section class="wrap" aria-labelledby="rail-{{ section.id }}">
+  <div class="sec__head--v2">
+    <h2 id="rail-{{ section.id }}">{{ section.settings.heading | default: coll.title | default: 'New this week' }}</h2>
+    {%- if coll != blank -%}
+      <a class="more" href="{{ coll.url }}">{{ section.settings.link_label | default: 'View all' }}</a>
+    {%- endif -%}
+  </div>
+
+  {%- if coll != blank and coll.products.size > 0 -%}
+    <div class="pgrid" style="padding-block:var(--s5) var(--s7)">
+      {%- for product in coll.products limit: limit -%}
+        {% render 'product-card', product: product, index: forloop.index0 %}
+      {%- endfor -%}
+    </div>
+  {%- else -%}
+    <div class="empty" style="margin-block:var(--s5) var(--s7)">
+      <h3>Arriving shortly</h3>
+      <p>Stock is being photographed and listed now. Call or visit the shop &mdash; we likely have it on the shelf already.</p>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Product rail",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "count", "min": 2, "max": 12, "step": 1, "label": "Products shown", "default": 4 },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "View all" }
+  ],
+  "presets": [{ "name": "Product rail" }]
+}
+{% endschema %}
