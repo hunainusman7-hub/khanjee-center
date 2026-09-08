@@ -50,6 +50,7 @@
       "type": "product-rail",
       "settings": {
         "heading": "New this week",
+        "collection": "gents-grace",
         "count": 4,
         "link_label": "View all"
       }
