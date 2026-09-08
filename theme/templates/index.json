@@ -67,64 +67,109 @@
         "aria_label": "Featured"
       }
     },
-    "new-arrivals": {
-      "type": "product-rail",
+    "categories": {
+      "type": "category-rail",
+      "blocks": {
+        "c1": {
+          "type": "card",
+          "settings": {
+            "asset_file": "men-unstitched.jpg",
+            "label": "Gents Unstitched",
+            "link": "/collections/gents-unstitched"
+          }
+        },
+        "c2": {
+          "type": "card",
+          "settings": {
+            "asset_file": "women-unstitched.jpg",
+            "label": "Ladies Unstitched",
+            "link": "/collections/ladies-unstitched"
+          }
+        },
+        "c3": {
+          "type": "card",
+          "settings": {
+            "asset_file": "bridal.jpg",
+            "label": "Bridal & Formal",
+            "link": "/collections/bridal"
+          }
+        },
+        "c4": {
+          "type": "card",
+          "settings": {
+            "asset_file": "men-shawls.jpg",
+            "label": "Gents Shawls",
+            "link": "/collections/gents-fabric-shawls"
+          }
+        },
+        "c5": {
+          "type": "card",
+          "settings": {
+            "asset_file": "women-shawls.jpg",
+            "label": "Ladies Shawls",
+            "link": "/collections/ladies-fabric-shawls"
+          }
+        },
+        "c6": {
+          "type": "card",
+          "settings": {
+            "asset_file": "lada-waistcoats.jpg",
+            "label": "Lada by Khan Jee",
+            "link": "/pages/lada"
+          }
+        }
+      },
+      "block_order": [
+        "c1",
+        "c2",
+        "c3",
+        "c4",
+        "c5",
+        "c6"
+      ],
       "settings": {
-        "heading": "New this week",
-        "collection": "gents-grace",
-        "count": 4,
-        "link_label": "View all"
+        "heading": "Shop by category",
+        "sub": "Unstitched cloth, cut to your measurement in the shop.",
+        "link_label": "View all",
+        "link": "/collections/all"
       }
     },
-    "category-grid": {
-      "type": "category-grid",
+    "trending": {
+      "type": "product-carousel",
       "blocks": {
         "t1": {
-          "type": "tile",
+          "type": "tab",
           "settings": {
-            "label": "Gents Unstitched",
-            "link": "/collections/gents-unstitched",
-            "asset_file": "men-unstitched.jpg"
+            "label": "New arrivals",
+            "collection": "gents-grace"
           }
         },
         "t2": {
-          "type": "tile",
+          "type": "tab",
           "settings": {
-            "label": "Gents Shawls",
-            "link": "/collections/gents-fabric-shawls",
-            "asset_file": "men-shawls.jpg"
+            "label": "Gents",
+            "collection": "gents-unstitched"
           }
         },
         "t3": {
-          "type": "tile",
+          "type": "tab",
           "settings": {
-            "label": "Ladies Unstitched",
-            "link": "/collections/ladies-unstitched",
-            "asset_file": "women-unstitched.jpg"
+            "label": "Ladies",
+            "collection": "ladies-unstitched"
           }
         },
         "t4": {
-          "type": "tile",
+          "type": "tab",
           "settings": {
-            "label": "Ladies Shawls",
-            "link": "/collections/ladies-fabric-shawls",
-            "asset_file": "women-shawls.jpg"
+            "label": "Bridal",
+            "collection": "bridal"
           }
         },
         "t5": {
-          "type": "tile",
+          "type": "tab",
           "settings": {
-            "label": "Bridal Collection",
-            "link": "/collections/bridal",
-            "asset_file": "bridal.jpg"
-          }
-        },
-        "t6": {
-          "type": "tile",
-          "settings": {
-            "label": "Lada Waistcoats",
-            "link": "/pages/lada",
-            "asset_file": "lada-waistcoats.jpg"
+            "label": "Lada",
+            "collection": "lada"
           }
         }
       },
@@ -133,8 +178,79 @@
         "t2",
         "t3",
         "t4",
-        "t5",
-        "t6"
+        "t5"
+      ],
+      "settings": {
+        "heading": "Most trending",
+        "sub": "What is moving off the shelf this week.",
+        "link": "/collections/all",
+        "count": 10
+      }
+    },
+    "split": {
+      "type": "collection-split",
+      "blocks": {
+        "s1": {
+          "type": "slide",
+          "settings": {
+            "asset_file": "women-unstitched.jpg",
+            "caption": "Unstitched",
+            "link": "/collections/ladies-unstitched"
+          }
+        },
+        "s2": {
+          "type": "slide",
+          "settings": {
+            "asset_file": "bridal.jpg",
+            "caption": "Bridal",
+            "link": "/collections/bridal"
+          }
+        },
+        "s3": {
+          "type": "slide",
+          "settings": {
+            "asset_file": "men-unstitched.jpg",
+            "caption": "Gents",
+            "link": "/collections/gents-unstitched"
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3"
+      ],
+      "settings": {
+        "eyebrow": "This season",
+        "heading": "Shop by collection",
+        "text": "Fresh lawn, khaddar and karandi on the shelf now \u2014 cut by the metre or taken as a full unstitched suit.",
+        "cta": "Shop the look",
+        "link": "/collections/all"
+      }
+    },
+    "pair": {
+      "type": "editorial-pair",
+      "blocks": {
+        "p1": {
+          "type": "item",
+          "settings": {
+            "asset_file": "men-unstitched.jpg",
+            "label": "Gents",
+            "link": "/collections/gents-unstitched"
+          }
+        },
+        "p2": {
+          "type": "item",
+          "settings": {
+            "asset_file": "women-unstitched.jpg",
+            "label": "Ladies",
+            "link": "/collections/ladies-unstitched"
+          }
+        }
+      },
+      "block_order": [
+        "p1",
+        "p2"
       ],
       "settings": {}
     },
@@ -153,8 +269,10 @@
   },
   "order": [
     "hero",
-    "new-arrivals",
-    "category-grid",
+    "categories",
+    "trending",
+    "split",
+    "pair",
     "brand-marquee",
     "lada-band"
   ]
