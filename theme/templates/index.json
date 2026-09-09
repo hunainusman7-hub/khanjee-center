@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
@@ -195,9 +204,9 @@
         "s1": {
           "type": "slide",
           "settings": {
-            "asset_file": "women-unstitched.jpg",
-            "caption": "Unstitched",
-            "link": "/collections/ladies-unstitched"
+            "asset_file": "women-shawls.jpg",
+            "caption": "Ladies shawls",
+            "link": "/collections/ladies-fabric-shawls"
           }
         },
         "s2": {
@@ -211,9 +220,9 @@
         "s3": {
           "type": "slide",
           "settings": {
-            "asset_file": "men-unstitched.jpg",
-            "caption": "Gents",
-            "link": "/collections/gents-unstitched"
+            "asset_file": "men-shawls.jpg",
+            "caption": "Gents shawls",
+            "link": "/collections/gents-fabric-shawls"
           }
         }
       },

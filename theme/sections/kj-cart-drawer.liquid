@@ -52,7 +52,17 @@
 
       <ul class="cdrawer__lines" data-kj-lines>
         {%- for item in cart.items -%}
-          <li class="cline" data-kj-line="{{ forloop.index }}">
+          {%- comment -%}
+              The variant, quantity and any line properties are on the
+              element so Undo can put the line back exactly as it was.
+              A removal cannot be reversed with /cart/change.js — the
+              line is gone — so undo re-adds, and it needs all three.
+            {%- endcomment -%}
+            <li class="cline" data-kj-line="{{ forloop.index }}"
+                data-kj-variant="{{ item.variant_id }}"
+                data-kj-qty-value="{{ item.quantity }}"
+                data-kj-title="{{ item.product.title | escape }}"
+                data-kj-props="{{ item.properties | json | escape }}">
             <a class="cline__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
               {%- if item.image -%}
                 <img src="{{ item.image | image_url: width: 200 }}" width="100" height="125"
@@ -151,6 +161,13 @@
         <a class="cdrawer__view" href="{{ routes.cart_url }}">View bag</a>
       </footer>
     {%- endif -%}
+
+    {%- comment -%}
+      Filled by kj-cart.js after a removal. Rendered empty rather than
+      created from scratch so there is always somewhere stable to put it,
+      including immediately after a section re-render.
+    {%- endcomment -%}
+    <div class="cundo" data-kj-undo hidden></div>
 
     <p class="cdrawer__live" role="status" aria-live="polite" data-kj-cart-live></p>
   </aside>

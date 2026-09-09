@@ -1,0 +1,16 @@
+<div class="wrap">
+  <nav class="crumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a><i>/</i>
+    <span aria-current="page">{{ page.title }}</span>
+  </nav>
+</div>
+<section class="sec" style="padding-top:1.5rem">
+  <div class="wrap" style="max-width:62ch">
+    <h1 class="sec__h2">{{ page.title }}</h1>
+    <div class="sec__rule"></div>
+    <div style="margin-top:1.5rem;color:var(--text-secondary)">{{ page.content }}</div>
+  </div>
+</section>
+{% schema %}
+{ "name": "Page", "settings": [] }
+{% endschema %}

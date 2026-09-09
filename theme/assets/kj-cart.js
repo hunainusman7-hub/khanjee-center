@@ -55,13 +55,15 @@
       }
     }
 
+    if (sections[DRAWER_SECTION]) paintUndo();
+
     if (sections[CART_SECTION]) {
       var page = $('[data-kj-cart-page]');
       if (page) {
         var h2 = document.createElement('div');
         h2.innerHTML = sections[CART_SECTION];
         var freshPage = h2.querySelector('[data-kj-cart-page]');
-        if (freshPage) page.parentNode.replaceChild(freshPage, page);
+        if (freshPage) { page.parentNode.replaceChild(freshPage, page); paintUndo(); }
       }
     }
   }
@@ -200,8 +202,97 @@
     }
 
     var rm = t.closest('[data-kj-remove]');
-    if (rm) { changeLine(lineOf(rm), 0); return; }
+    if (rm) {
+      var li = rm.closest('[data-kj-line]');
+      if (li) {
+        /* Snapshot before the line goes, so Undo can put it back with
+           its quantity and any measurements the customer typed in. */
+        pendingUndo = {
+          id: li.getAttribute('data-kj-variant'),
+          quantity: parseInt(li.getAttribute('data-kj-qty-value'), 10) || 1,
+          title: li.getAttribute('data-kj-title') || 'That item',
+          properties: parseProps(li.getAttribute('data-kj-props'))
+        };
+      }
+      changeLine(lineOf(rm), 0);
+      return;
+    }
+
+    if (t.closest('[data-kj-undo-go]')) { undo(); return; }
+    if (t.closest('[data-kj-undo-dismiss]')) { pendingUndo = null; paintUndo(); return; }
   });
+
+  /* ---------- undo a removal ----------
+     A removal is the one destructive action in the bag, and it takes one
+     tap. A confirmation dialog in front of every Remove would be worse
+     than the problem — so this is the other half of that guideline:
+     the action happens immediately and stays reversible. */
+  var pendingUndo = null;
+
+  function parseProps(raw) {
+    if (!raw) return null;
+    try {
+      var o = JSON.parse(raw);
+      if (!o) return null;
+      var keys = Object.keys(o).filter(function (k) { return k[0] !== '_' && o[k]; });
+      return keys.length ? o : null;
+    } catch (e) { return null; }
+  }
+
+  function paintUndo() {
+    $$('[data-kj-undo]').forEach(function (slot) {
+      if (!pendingUndo) { slot.hidden = true; slot.innerHTML = ''; return; }
+      slot.innerHTML =
+        '<p class="cundo__t">' + escapeHtml(pendingUndo.title) + ' removed.</p>' +
+        '<button class="cundo__go" type="button" data-kj-undo-go>Undo</button>' +
+        '<button class="cundo__x" type="button" data-kj-undo-dismiss ' +
+        'aria-label="Dismiss">&times;</button>';
+      slot.hidden = false;
+    });
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function undo() {
+    if (!pendingUndo) return;
+    var body = new FormData();
+    body.append('id', pendingUndo.id);
+    body.append('quantity', pendingUndo.quantity);
+    if (pendingUndo.properties) {
+      Object.keys(pendingUndo.properties).forEach(function (k) {
+        if (k[0] !== '_') body.append('properties[' + k + ']', pendingUndo.properties[k]);
+      });
+    }
+    body.append('sections', wantedSections());
+    body.append('sections_url', window.location.pathname);
+
+    var restored = pendingUndo.title;
+    pendingUndo = null;
+    busy(true);
+
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: body
+    })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (res) {
+        if (!res.ok) { announce('Could not put that back. ' + (res.body.description || '')); return; }
+        applySections(res.body.sections);
+        return fetch('/cart.js', { headers: { Accept: 'application/json' } })
+          .then(function (r) { return r.json(); })
+          .then(function (cart) {
+            setCount(cart.item_count);
+            announce(restored + ' is back in your bag.');
+          });
+      })
+      .catch(function () { announce('Could not put that back. Please try again.'); })
+      .finally(function () { busy(false); paintUndo(); });
+  }
 
   document.addEventListener('change', function (e) {
     var input = e.target.closest('[data-kj-qty-input]');
@@ -254,6 +345,9 @@
           announce(msg);
           return;
         }
+        /* A new add supersedes the last removal — offering to undo
+           something from three actions ago is just confusing. */
+        pendingUndo = null;
         applySections(res.body.sections);
         return fetch('/cart.js', { headers: { Accept: 'application/json' } })
           .then(function (r) { return r.json(); })
@@ -294,8 +388,9 @@
         applySections(cart.sections);
         setCount(cart.item_count);
         announce(quantity === 0
-          ? 'Removed. Bag has ' + cart.item_count + '.'
+          ? 'Removed. Bag has ' + cart.item_count + '. Undo is available.'
           : 'Bag updated. ' + cart.item_count + ' in the bag.');
+        if (quantity === 0) paintUndo();
       })
       .catch(function () { announce('Could not update the bag. Please try again.'); })
       .finally(function () { busy(false); });

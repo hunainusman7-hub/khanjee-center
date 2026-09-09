@@ -1,0 +1,114 @@
+{%- comment -%}
+  sections/hero-mosaic.liquid
+  The Hiran Minar photograph stays as the anchor panel. Three editorial
+  panels sit alongside it (Sale / New Arrivals / Lada by default) and are
+  fully editable in the theme editor. On mobile the three become a
+  scroll-snap rail underneath the hero.
+{%- endcomment -%}
+
+<section class="mosaic" aria-label="{{ section.settings.aria_label | default: 'Featured' | escape }}">
+
+  {%- comment -%} ---------- anchor panel: Hiran Minar ---------- {%- endcomment -%}
+  <a class="mosaic__panel mosaic__panel--main"
+     href="{{ section.settings.main_link | default: routes.all_products_collection_url }}">
+    {%- if section.settings.main_image -%}
+      <img src="{{ section.settings.main_image | image_url: width: 2560 }}"
+           srcset="{{ section.settings.main_image | image_url: width: 1280 }} 1280w,
+                   {{ section.settings.main_image | image_url: width: 2560 }} 2560w"
+           sizes="(min-width:900px) 62vw, 100vw"
+           width="2560" height="1810" fetchpriority="high" decoding="async"
+           alt="{{ section.settings.main_alt | default: 'Hiran Minar, Sheikhupura' | escape }}">
+    {%- else -%}
+      <img src="{{ 'hiran-minar-2560.jpg' | asset_url }}"
+           srcset="{{ 'hiran-minar-1280.jpg' | asset_url }} 1280w,
+                   {{ 'hiran-minar-2560.jpg' | asset_url }} 2560w"
+           sizes="(min-width:900px) 62vw, 100vw"
+           width="2560" height="1810" fetchpriority="high" decoding="async"
+           alt="Hiran Minar, Sheikhupura">
+    {%- endif -%}
+    <span class="mosaic__in">
+      {%- if section.settings.main_eyebrow != blank -%}
+        <span class="mosaic__eyebrow">{{ section.settings.main_eyebrow }}</span>
+      {%- endif -%}
+      <span class="mosaic__title">{{ section.settings.main_title | default: 'Khan Jee' }}</span>
+      {%- if section.settings.main_sub != blank -%}
+        <span class="mosaic__sub">{{ section.settings.main_sub }}</span>
+      {%- endif -%}
+      <span class="mosaic__cta">{{ section.settings.main_cta | default: 'Shop the shelf' }}</span>
+    </span>
+  </a>
+
+  {%- comment -%} ---------- three editorial panels ---------- {%- endcomment -%}
+  <div class="mosaic__side">
+    {%- for block in section.blocks limit: 3 -%}
+      <a class="mosaic__panel" href="{{ block.settings.link | default: '#' }}" {{ block.shopify_attributes }}>
+        {%- if block.settings.image -%}
+          <img src="{{ block.settings.image | image_url: width: 1000 }}"
+               srcset="{{ block.settings.image | image_url: width: 600 }} 600w,
+                       {{ block.settings.image | image_url: width: 1000 }} 1000w"
+               sizes="(min-width:900px) 38vw, 76vw"
+               width="1000" height="750" loading="lazy" decoding="async"
+               alt="{{ block.settings.image.alt | default: block.settings.title | escape }}">
+        {%- elsif block.settings.asset_file != blank -%}
+          <img src="{{ block.settings.asset_file | asset_url }}"
+               width="1000" height="750" loading="lazy" decoding="async"
+               alt="{{ block.settings.title | escape }}">
+        {%- endif -%}
+        <span class="mosaic__in">
+          {%- if block.settings.eyebrow != blank -%}
+            <span class="mosaic__eyebrow">{{ block.settings.eyebrow }}</span>
+          {%- endif -%}
+          <span class="mosaic__title">{{ block.settings.title }}</span>
+          {%- if block.settings.sub != blank -%}
+            <span class="mosaic__sub">{{ block.settings.sub }}</span>
+          {%- endif -%}
+          <span class="mosaic__cta">{{ block.settings.cta | default: 'View' }}</span>
+        </span>
+      </a>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero mosaic",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Anchor panel" },
+    { "type": "image_picker", "id": "main_image", "label": "Image (defaults to Hiran Minar)" },
+    { "type": "text", "id": "main_alt", "label": "Image alt text" },
+    { "type": "text", "id": "main_eyebrow", "label": "Eyebrow", "default": "Since 1978 · Sheikhupura" },
+    { "type": "text", "id": "main_title", "label": "Title", "default": "Khan Jee" },
+    { "type": "textarea", "id": "main_sub", "label": "Subtitle", "default": "Unstitched cloth for men and women, all brands under one roof." },
+    { "type": "text", "id": "main_cta", "label": "Link label", "default": "Shop the shelf" },
+    { "type": "url", "id": "main_link", "label": "Link" },
+    { "type": "text", "id": "aria_label", "label": "Accessible section label", "default": "Featured" }
+  ],
+  "blocks": [
+    {
+      "type": "panel",
+      "name": "Panel",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "asset_file", "label": "…or theme asset filename", "info": "e.g. women-shawls.jpg — used only when no image is picked above" },
+        { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+        { "type": "text", "id": "title", "label": "Title", "default": "New Arrivals" },
+        { "type": "text", "id": "sub", "label": "Subtitle" },
+        { "type": "text", "id": "cta", "label": "Link label", "default": "View" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Hero mosaic",
+      "blocks": [
+        { "type": "panel", "settings": { "eyebrow": "This week", "title": "On Sale", "cta": "Shop sale" } },
+        { "type": "panel", "settings": { "eyebrow": "Just in", "title": "New Arrivals", "cta": "See what landed" } },
+        { "type": "panel", "settings": { "eyebrow": "Made in-house", "title": "Lada", "sub": "Our own label.", "cta": "Enter Lada" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

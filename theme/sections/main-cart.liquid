@@ -44,13 +44,19 @@
         <div class="cartp__grid">
 
           <div class="cartp__lines">
+            <div class="cundo" data-kj-undo hidden></div>
+
             <div class="cartp__thead" aria-hidden="true">
               <span>Item</span><span>Quantity</span><span>Total</span>
             </div>
 
             <ul class="cartp__list">
               {%- for item in cart.items -%}
-                <li class="cline cline--page" data-kj-line="{{ forloop.index }}">
+                <li class="cline cline--page" data-kj-line="{{ forloop.index }}"
+                      data-kj-variant="{{ item.variant_id }}"
+                      data-kj-qty-value="{{ item.quantity }}"
+                      data-kj-title="{{ item.product.title | escape }}"
+                      data-kj-props="{{ item.properties | json | escape }}">
                   <a class="cline__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
                     {%- if item.image -%}
                       <img src="{{ item.image | image_url: width: 240 }}" width="120" height="150"

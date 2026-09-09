@@ -1,0 +1,11 @@
+<div class="wrap" style="padding-block:3rem">
+  <h1 class="sec__h2">Collections</h1>
+  <div class="grid-brand" style="margin-top:2rem">
+    {% for collection in collections %}
+      <a class="bcard" href="{{ collection.url }}"><span class="bcard__name">{{ collection.title }}</span></a>
+    {% endfor %}
+  </div>
+</div>
+{% schema %}
+{ "name": "Collection list", "settings": [] }
+{% endschema %}

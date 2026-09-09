@@ -1,0 +1,57 @@
+<section class="sec">
+  <div class="wrap">
+    <div class="sec__head" data-reveal>
+      <h2 class="sec__h2">{{ section.settings.heading }}</h2>
+      <div class="sec__rule"></div>
+      <p class="sec__sub">{{ section.settings.subheading }}</p>
+    </div>
+    <div class="grid-cat">
+      {% for block in section.blocks %}
+        <a class="cat" href="{{ block.settings.link }}" data-reveal style="--d:{{ forloop.index0 | times: 80 }}ms">
+          <span class="cat__media">
+            {% if block.settings.image %}
+              <img src="{{ block.settings.image | image_url: width: 1000 }}" alt="" decoding="async" width="1000" height="1250">
+            {% elsif block.settings.asset_file != blank %}
+              <img src="{{ block.settings.asset_file | asset_url }}" alt="" decoding="async" width="1000" height="1250">
+            {% endif %}
+          </span>
+          <span class="cat__label">{{ block.settings.label }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Category grid",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Choose your cloth" },
+    { "type": "textarea", "id": "subheading", "label": "Subheading", "default": "Unstitched only — the way cloth has always been bought here. Pick a counter, then narrow by brand, fabric, piece count or colour." }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label" },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "image_picker", "id": "image", "label": "Image (overrides asset file)" },
+        { "type": "text", "id": "asset_file", "label": "Theme asset filename (fallback image)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Category grid",
+      "blocks": [
+        { "type": "tile", "settings": { "label": "Gents Unstitched", "link": "/collections/gents-unstitched", "asset_file": "men-unstitched.jpg" } },
+        { "type": "tile", "settings": { "label": "Gents Shawls", "link": "/collections/gents-fabric-shawls", "asset_file": "men-shawls.jpg" } },
+        { "type": "tile", "settings": { "label": "Ladies Unstitched", "link": "/collections/ladies-unstitched", "asset_file": "women-unstitched.jpg" } },
+        { "type": "tile", "settings": { "label": "Ladies Shawls", "link": "/collections/ladies-fabric-shawls", "asset_file": "women-shawls.jpg" } },
+        { "type": "tile", "settings": { "label": "Bridal Collection", "link": "/collections/bridal", "asset_file": "bridal.jpg" } },
+        { "type": "tile", "settings": { "label": "Lada Waistcoats", "link": "/collections/lada", "asset_file": "lada-waistcoats.jpg" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

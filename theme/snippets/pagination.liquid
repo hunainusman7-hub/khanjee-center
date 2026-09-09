@@ -1,0 +1,7 @@
+{% if paginate.pages > 1 %}
+<nav class="crumb" aria-label="Pagination" style="justify-content:center;gap:var(--s3)">
+  {% if paginate.previous %}<a href="{{ paginate.previous.url }}">&larr; Prev</a>{% endif %}
+  <span class="num">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+  {% if paginate.next %}<a href="{{ paginate.next.url }}">Next &rarr;</a>{% endif %}
+</nav>
+{% endif %}

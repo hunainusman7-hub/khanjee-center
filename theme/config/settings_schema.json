@@ -1,0 +1,17 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Khan Jee",
+    "theme_version": "1.0.0",
+    "theme_author": "Khan Jee",
+    "theme_documentation_url": "https://khanjeecenter.com",
+    "theme_support_url": "https://khanjeecenter.com"
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      { "type": "color", "id": "accent", "label": "Accent", "default": "#9A1B2F" },
+      { "type": "color", "id": "text", "label": "Text", "default": "#14100E" }
+    ]
+  }
+]

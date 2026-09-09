@@ -1,0 +1,35 @@
+<header class="hdr">
+  <div class="wrap hdr__bar">
+    <a class="hdr__brand" href="{{ routes.root_url }}" aria-label="{{ shop.name }}, home">
+      {% render 'kj-mark' %}<b>{{ section.settings.brand_name | default: shop.name }}</b>
+    </a>
+    {% render 'kj-nav' %}
+    <div class="hdr__tools">
+      {%- comment -%}
+        Still a real link to /cart, so it works with JS off and can be
+        opened in a new tab. kj-cart.js intercepts the click and opens
+        the bag instead. data-cart-count is the hook it updates after
+        every add — without it the badge kept showing the count from
+        whenever the page was last rendered. The badge is always in the
+        markup now, hidden at zero, because a badge that does not exist
+        yet cannot be updated to "1".
+      {%- endcomment -%}
+      <a class="iconbtn" href="{{ routes.cart_url }}" data-kj-drawer-open data-cart-link
+         aria-label="Bag, {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        <span class="num" data-cart-count data-cart-count-hide-empty
+              {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
+      </a>
+      <button class="iconbtn navtoggle" data-nav-toggle hidden aria-expanded="false"
+              aria-controls="site-nav" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    { "type": "text", "id": "brand_name", "label": "Brand name", "default": "Khan Jee" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,66 @@
+<section class="strip" aria-labelledby="strip-h">
+  <div class="wrap strip__head">
+    <h2 class="eyebrow" id="strip-h">{{ section.settings.heading }}</h2>
+  </div>
+  <div class="strip__track">
+    <div class="strip__row" data-strip-row>
+      {% for block in section.blocks %}
+        <span class="strip__item">
+          {% if block.settings.logo %}
+            <img src="{{ block.settings.logo | image_url: width: 200 }}" alt="{{ block.settings.name | escape }}" decoding="async">
+          {% elsif block.settings.asset_file != blank %}
+            <img src="{{ block.settings.asset_file | asset_url }}" alt="{{ block.settings.name | escape }}" decoding="async">
+          {% else %}
+            <span>{{ block.settings.name }}</span>
+          {% endif %}
+        </span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Brand strip",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Twenty of Pakistan's labels, under one roof" }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Brand",
+      "settings": [
+        { "type": "text", "id": "name", "label": "Name" },
+        { "type": "image_picker", "id": "logo", "label": "Logo (overrides asset file)" },
+        { "type": "text", "id": "asset_file", "label": "Theme asset filename (fallback logo)" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Brand strip",
+      "blocks": [
+        { "type": "brand", "settings": { "name": "Grace", "asset_file": "grace.png" } },
+        { "type": "brand", "settings": { "name": "Pasha", "asset_file": "pasha.png" } },
+        { "type": "brand", "settings": { "name": "Dynasty", "asset_file": "dynasty.svg" } },
+        { "type": "brand", "settings": { "name": "Gul Ahmed" } },
+        { "type": "brand", "settings": { "name": "Asco" } },
+        { "type": "brand", "settings": { "name": "Narkin's", "asset_file": "narkins.png" } },
+        { "type": "brand", "settings": { "name": "Colorum" } },
+        { "type": "brand", "settings": { "name": "Watan" } },
+        { "type": "brand", "settings": { "name": "Maria.B", "asset_file": "maria-b.svg" } },
+        { "type": "brand", "settings": { "name": "Saira Shakira", "asset_file": "saira-shakira.png" } },
+        { "type": "brand", "settings": { "name": "Khoobsoorat" } },
+        { "type": "brand", "settings": { "name": "LimeLight", "asset_file": "limelight.svg" } },
+        { "type": "brand", "settings": { "name": "Nishat Linen", "asset_file": "nishat-linen.png" } },
+        { "type": "brand", "settings": { "name": "Zellbury", "asset_file": "zellbury.png" } },
+        { "type": "brand", "settings": { "name": "Razab" } },
+        { "type": "brand", "settings": { "name": "Shaista", "asset_file": "shaista.webp" } },
+        { "type": "brand", "settings": { "name": "Nuréh", "asset_file": "nureh.png" } },
+        { "type": "brand", "settings": { "name": "Izza", "asset_file": "izza.png" } },
+        { "type": "brand", "settings": { "name": "Mahee's" } },
+        { "type": "brand", "settings": { "name": "Nazakat" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

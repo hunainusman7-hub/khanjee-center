@@ -1,5 +1,24 @@
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}">
+{%- comment -%}
+  Reading direction. Liquid has no request.locale.direction, so the RTL
+  locales are listed explicitly. Without dir the browser lays every
+  locale out left-to-right, and the logical properties in kj-v2.css —
+  inset-inline, padding-inline, text-align:start — have nothing to
+  mirror against. Urdu is the realistic case for this shop; ar/he/fa
+  are here because the list costs nothing.
+{%- endcomment -%}
+{%- liquid
+  assign rtl_locales = 'ar,arc,ckb,dv,fa,ha,he,khw,ks,ku,ps,sd,ur,uz-AF,yi' | split: ','
+  assign lang = request.locale.iso_code
+  assign base = lang | split: '-' | first
+  assign dir = 'ltr'
+  for code in rtl_locales
+    if code == lang or code == base
+      assign dir = 'rtl'
+    endif
+  endfor
+-%}
+<html lang="{{ lang }}" dir="{{ dir }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
