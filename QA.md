@@ -83,3 +83,65 @@ rules actually match. Second: programmatic `.focus()` does not trigger
 `:focus-visible` in Chrome, so focus rings cannot be verified that way —
 grep the stylesheet or drive real keyboard input instead. Both produced
 convincing false positives on the first pass.
+
+
+## 4. Verifying a push actually pushed
+
+`shopify theme push --only` reported "Theme upload complete" and silently
+did not upload `assets/site.css`. Everything else in the same command
+went up. So do not trust the success message — check.
+
+Two flags matter in a non-interactive shell:
+
+```bash
+shopify theme push --theme <id> --nodelete --force --allow-live -o <file> …
+```
+
+`--allow-live` is required once the target is the live theme; without it
+the CLI tries to prompt and the whole command dies. `--force` alone does
+not cover it.
+
+**Assets** — read them back off the CDN, which is ungated:
+
+```bash
+curl -s "https://www.khanjeecenter.com/cdn/shop/t/<slot>/assets/site.css?v=$RANDOM" \
+  | grep -o -- '--font-display:[^;]*'
+```
+
+Add the cache-buster. A plain fetch served a stale copy and cost twenty
+minutes of chasing a bug that was not there. Find `<slot>` by fetching a
+known-new file from slots 6-12; it changes on every publish (6 → 8 → 9
+so far).
+
+**Liquid** is not on the CDN, so pull it back and diff:
+
+```bash
+shopify theme pull --theme <id> --path /tmp/verify --force \
+  -o snippets/kj-mark.liquid -o sections/lada-band.liquid
+diff theme/snippets/kj-mark.liquid /tmp/verify/snippets/kj-mark.liquid
+```
+
+## 5. Do not round-trip a Horizon theme
+
+Covered in HANDOFF-SHOPIFY.md, repeated here because it costs a broken
+storefront: pushing Horizon's own stock files back up fails validation
+on about thirty of them, one of which is `templates/password.json` — on
+a password-protected store that is the only page a visitor can reach.
+Use `theme duplicate` for a server-side copy, then `push --only` the
+handful of files you changed.
+
+## 6. The two marks
+
+`kj-svg-defs` stores the KJ mark as a bare `<path id="kj-path">` inside
+`<defs>` — **no viewBox and no fill**. `kj-mark.liquid` supplies both on
+the outer `<svg>`. Remove either and the mark breaks in a way that looks
+like a CSS problem but is not: with no viewBox it draws at its native
+1021x617 user units inside whatever box it is given, so at the header's
+44px you see the top-left corner; with no fill it paints black, so it
+stays black on the dark hero where it should be white. This shipped once.
+
+The Lada mark is the client's own gold-gradient artwork at
+`assets/lada-mark.png`, keyed to real alpha from a JPEG on black. It is
+a fixed-colour image: `currentColor` does nothing to it, and it must
+only ever sit on a dark ground, because gold on white is about 2:1. Its
+lockup already reads BY KHAN JEE — do not set that as text beside it.
