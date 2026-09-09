@@ -30,6 +30,9 @@ import re
 import sys
 
 CAT = "LU"                                  # Ladies Unstitched
+SEQ_START = 10015                           # 10001-10014 are spent on the 13 live products
+BRAND_CODES = json.loads((pathlib.Path(__file__).resolve().parent.parent
+                          / "data" / "brand-codes.json").read_text())
 COLOURS = ["Ivory", "White", "Black", "Red", "Maroon", "Pink", "Peach",
            "Blue", "Navy", "Teal", "Green", "Olive", "Yellow", "Mustard",
            "Orange", "Purple", "Lilac", "Grey", "Brown", "Beige", "Gold",
@@ -74,11 +77,17 @@ def main(indir, outpath):
             continue
         rows += json.loads(f.read_text())
 
-    seq = 0
+    seq = SEQ_START - 1
     out = []
+    unknown = set()
     for r in rows:
         seq += 1
-        sku = f"KJC-{CAT}-{seq:05d}"
+        bc = BRAND_CODES.get(r["brand"])
+        if not bc:
+            unknown.add(r["brand"])
+            bc = "UNK"
+        # KJC-{CAT}-{BRAND}-{NNNNN} — see data/SKU-SCHEME.md
+        sku = f"KJC-{CAT}-{bc}-{seq:05d}"
         hay = " ".join([r["source_title"], r["product_type"], r["tags"]])
         fabric = r["fabric"]
         pieces = f"{r['pieces']} piece" if r["pieces"] else ""
@@ -162,12 +171,24 @@ def main(indir, outpath):
         w.writeheader()
         w.writerows(out)
 
+    if unknown:
+        print(f"  !! no brand code for: {sorted(unknown)} — coded UNK, fix the register")
     prod = sum(1 for o in out if o["Variant SKU"])
     instock = sum(1 for o in out if o.get("_in_stock_at_source") == "yes")
     print(f"  {prod} products, {len(out)} CSV rows (extra image rows included)")
     print(f"  in stock at source: {instock}  |  out of stock: {prod - instock}")
     print(f"  all rows Status=draft, Published=FALSE, Inventory Qty=0")
+    master = pathlib.Path(outpath).with_name("kjc_master.csv")
+    with open(master, "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["sku", "brand_code", "brand", "category", "source_url"])
+        for o in out:
+            if not o["Variant SKU"]:
+                continue
+            w.writerow([o["Variant SKU"], o["Variant SKU"].split("-")[2],
+                        o["_source_brand"], CAT, o["_source_url"]])
     print(f"  wrote {outpath}")
+    print(f"  wrote {master} — the SKU -> brand register")
 
 
 if __name__ == "__main__":

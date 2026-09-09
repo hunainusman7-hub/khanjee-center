@@ -250,9 +250,32 @@ title before it goes ACTIVE.
 the brand wall. Tagline is **"All brands under one roof"** (not "20 brands").
 
 ### SKU scheme
-`KJC-{CAT}-{5 digits}`, CAT ∈ `LU` ladies unstitched · `LB` ladies bridal ·
-`GU` gents unstitched · `LP` lawn print · `SH` shawls · `FM` fabric by metre ·
-`LD` Lada.
+
+**Extended 9 Sep 2026 — see `data/SKU-SCHEME.md` for the full version.**
+
+    KJC-{CAT}-{BRAND}-{NNNNN}        e.g. KJC-LU-ASJ-10231
+
+`KJC` and the `{CAT}` codes are unchanged: CAT ∈ `LU` ladies unstitched ·
+`LB` ladies bridal · `GU` gents unstitched · `LP` lawn print · `SH`
+shawls · `FM` fabric by the metre · `LD` Lada.
+
+`{BRAND}` is new and is the point of the change — a three-letter house
+code, so a code tells you which house a piece came from without looking
+anything up. Register: `data/brand-codes.csv`, 60 houses plus `KHJ`
+(Khan Jee's own unbranded cloth) and `LDA` (Lada). **Append-only** — a
+code printed on a tag must never be reassigned.
+
+`{NNNNN}` is ONE shared counter across the whole catalogue, not
+per-category and not per-brand. `10001`–`10014` are spent on the 13
+products already on the store, so new stock starts at `10015`.
+
+To be clear about what "sold under their own name" meant, since it was
+read the other way once: it means **Khan Jee assigns its own code**. It
+does not mean the house is hidden. Showing the brand in the title, the
+Vendor field and the navigation is fine and intended — the navigation
+already links `/collections/ladies-alkaram`. The confidentiality rule
+below applies to suppliers of *unbranded* cloth, which is a different
+thing from a branded house on the shelf.
 
 ---
 
