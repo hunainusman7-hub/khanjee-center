@@ -241,12 +241,12 @@
    hover it sits permanently below the image, in the card's own flow,
    at a full 44px touch target. */
 .pcard__add{position:relative;z-index:3;margin-top:var(--s3)}
-.pcard__quick{display:flex;align-items:center;justify-content:center;gap:.5rem;
+.pcard__quick{border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:.5rem;
   width:100%;min-height:44px;
   background:rgba(var(--bg-rgb),.96);border:1px solid var(--border-strong);color:var(--text);
   font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;letter-spacing:.2em;
   text-transform:uppercase;padding:.72rem;text-align:center;cursor:pointer}
-.pcard__quick--link{margin-top:var(--s3);text-decoration:none}
+.pcard__quick--link{border-radius:var(--radius);margin-top:var(--s3);text-decoration:none}
 .pcard__quick:hover{background:var(--surface-dark);color:#fff;border-color:var(--surface-dark)}
 .pcard__quick:disabled{cursor:progress}
 .pcard__quick[data-loading] .pcard__quick-t{opacity:.45}
@@ -372,7 +372,7 @@
    v2.1 — layout patterns from the reference site.
    Colours and type stay exactly as site.css defines them.
    ============================================================ */
-:root{ --radius-media:10px; }
+:root{ --radius-media:10px  /* media keeps its own, slightly larger */; }
 
 /* ---------- section head: left heading + grey sub, action right ---------- */
 .shead{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);
@@ -473,10 +473,10 @@
 .csplit__dots .is-active span{background:var(--text)}
 
 /* ---------- product card: rounded media, % OFF badge, price pair ---------- */
-.pcard__media{border-radius:var(--radius-media)}.pcard__badge{border-radius:3px;inset-inline-start:var(--s3);top:var(--s3);font-size:var(--fs-micro)}.pcard__off{position:absolute;z-index:2;top:var(--s3);inset-inline-start:var(--s3);background:var(--sale);color:#fff;
-  font-size:var(--fs-micro);font-weight:600;letter-spacing:.04em;padding:.34rem .5rem;border-radius:3px}.pcard__pre{position:absolute;z-index:2;top:var(--s3);inset-inline-start:var(--s3);background:#fff;color:var(--text);
+.pcard__media{border-radius:var(--radius-media)}.pcard__badge{border-radius:var(--radius-sm);inset-inline-start:var(--s3);top:var(--s3);font-size:var(--fs-micro)}.pcard__off{position:absolute;z-index:2;top:var(--s3);inset-inline-start:var(--s3);background:var(--sale);color:#fff;
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.04em;padding:.34rem .5rem;border-radius:var(--radius-sm)}.pcard__pre{position:absolute;z-index:2;top:var(--s3);inset-inline-start:var(--s3);background:#fff;color:var(--text);
   font-size:var(--fs-micro);font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-  padding:.4rem .6rem;border-radius:3px}
+  padding:.4rem .6rem;border-radius:var(--radius-sm)}
 .pcard__title{font-family:var(--font-display);font-size:1.02rem;font-weight:var(--font-weight-heading);line-height:1.3;
   color:var(--text)}
 .pcard__price{font-weight:600}
@@ -531,7 +531,7 @@
   letter-spacing:.44em;text-transform:uppercase;color:var(--lada-champagne)}
 .lband__text{margin:var(--s6) 0 0;max-width:46ch;color:var(--lada-muted);
   font-size:clamp(.95rem,1.5vw,1.05rem);line-height:1.75}
-.lband__btn{margin-top:var(--s6);display:inline-flex;align-items:center;justify-content:center;
+.lband__btn{border-radius:var(--radius);margin-top:var(--s6);display:inline-flex;align-items:center;justify-content:center;
   min-height:52px;padding-inline:2.4rem;border:1px solid var(--lada-champagne);
   background:transparent;color:var(--lada-champagne);font-family:var(--font-ui);
   font-size:var(--fs-micro);font-weight:600;letter-spacing:.22em;text-transform:uppercase;
@@ -565,6 +565,7 @@
    panel is otherwise fully focusable. Transitioned so it stays
    visible for the length of the slide-out. */
 .cdrawer__panel{position:absolute;inset-block:0;inset-inline-end:0;
+  border-start-start-radius:var(--radius-lg);border-end-start-radius:var(--radius-lg);
   width:min(100%,430px);display:flex;flex-direction:column;
   background:var(--bg);color:var(--text);border-inline-start:1px solid var(--border);
   transform:translateX(100%);visibility:hidden;
@@ -581,7 +582,7 @@
   font-size:1.32rem;letter-spacing:-.01em;display:flex;align-items:baseline;gap:.55rem}
 .cdrawer__count{font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
   letter-spacing:.14em;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
-.cdrawer__x{display:grid;place-items:center;width:44px;height:44px;margin:-10px -10px -10px 0;
+.cdrawer__x{border-radius:var(--radius-pill);display:grid;place-items:center;width:44px;height:44px;margin:-10px -10px -10px 0;
   background:none;border:0;color:var(--text);cursor:pointer}
 .cdrawer__x:hover{color:var(--accent)}
 
@@ -589,7 +590,7 @@
   justify-content:center;gap:var(--s3);padding:var(--s7) var(--s5);text-align:center}
 .cdrawer__empty-h{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.25rem}
 .cdrawer__empty-p{margin:0;color:var(--text-tertiary);font-size:.9rem}
-.cdrawer__cta{margin-top:var(--s4);display:inline-flex;align-items:center;justify-content:center;
+.cdrawer__cta{border-radius:var(--radius);margin-top:var(--s4);display:inline-flex;align-items:center;justify-content:center;
   min-height:48px;padding-inline:2rem;background:var(--surface-dark);color:#fff;
   font-size:var(--fs-micro);font-weight:600;letter-spacing:.22em;text-transform:uppercase}
 .cdrawer__cta:hover{background:var(--accent)}
@@ -600,7 +601,7 @@
 .cline{display:grid;grid-template-columns:84px 1fr;gap:var(--s4);
   padding:var(--s5);border-bottom:1px solid var(--border)}
 .cline__media{display:block;background:var(--surface)}
-.cline__media img{display:block;width:100%;height:auto;object-fit:cover;aspect-ratio:4/5}
+.cline__media img{border-radius:var(--radius-media);display:block;width:100%;height:auto;object-fit:cover;aspect-ratio:4/5}
 .cline__body{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
 .cline__title{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1rem;line-height:1.3;color:var(--text)}
 .cline__title:hover{color:var(--accent)}
@@ -629,7 +630,7 @@
    44pt floor for a touch target and this shop is almost all phone
    traffic — a miss on a minus button removes nothing, or removes the
    wrong line. */
-.qty{display:flex;align-items:center;border:1px solid var(--border)}
+.qty{border-radius:var(--radius);display:flex;align-items:center;border:1px solid var(--border)}
 .qty__b{width:44px;height:44px;display:grid;place-items:center;background:none;border:0;
   cursor:pointer;color:var(--text);font-size:1rem;line-height:1}
 .qty__b:hover{background:var(--surface-hover);color:var(--accent)}
@@ -655,7 +656,7 @@
 .cdrawer__total strong{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem;
   font-variant-numeric:tabular-nums}
 .cdrawer__note{margin:.4rem 0 var(--s4);font-size:.72rem;color:var(--text-tertiary)}
-.cdrawer__checkout{width:100%;min-height:52px;background:var(--accent);color:#fff;border:0;
+.cdrawer__checkout{border-radius:var(--radius);width:100%;min-height:52px;background:var(--accent);color:#fff;border:0;
   cursor:pointer;font-family:var(--font-ui);font-size:.7rem;font-weight:600;
   letter-spacing:.22em;text-transform:uppercase;
   transition:background .25s var(--ease)}
@@ -693,7 +694,7 @@
 .cartp__empty-p{margin:var(--s3) auto 0;max-width:44ch;color:var(--text-tertiary)}
 .cartp__empty-ctas{margin-top:var(--s6);display:flex;flex-wrap:wrap;gap:var(--s3);
   justify-content:center}
-.btn-solid,.btn-line{display:inline-flex;align-items:center;justify-content:center;
+.btn-solid,.btn-line{border-radius:var(--radius);display:inline-flex;align-items:center;justify-content:center;
   min-height:52px;padding-inline:2.2rem;font-family:var(--font-ui);font-size:var(--fs-micro);
   font-weight:600;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;
   border:1px solid var(--surface-dark);transition:background .25s var(--ease),color .25s var(--ease)}
@@ -734,7 +735,7 @@
 .cartp__update{margin-top:var(--s5)}
 .cartp[data-busy="true"] .cartp__list{opacity:.55;transition:opacity .2s}
 
-.cartp__side{border:1px solid var(--border);padding:var(--s5);background:var(--surface)}
+.cartp__side{border-radius:var(--radius);border:1px solid var(--border);padding:var(--s5);background:var(--surface)}
 @media (min-width:900px){.cartp__side{position:sticky;top:var(--s6)}}
 .cartp__sum-h{margin:0 0 var(--s4);font-size:var(--fs-micro);font-weight:600;letter-spacing:.22em;
   text-transform:uppercase;color:var(--text-secondary)}
@@ -758,7 +759,7 @@
   border:1px solid var(--border);font-family:var(--font-ui);font-size:.88rem;
   color:var(--text);resize:vertical}
 .cartp__note-t:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.cartp__checkout{width:100%;min-height:54px;background:var(--accent);color:#fff;border:0;
+.cartp__checkout{border-radius:var(--radius);width:100%;min-height:54px;background:var(--accent);color:#fff;border:0;
   cursor:pointer;font-family:var(--font-ui);font-size:.7rem;font-weight:600;
   letter-spacing:.22em;text-transform:uppercase;transition:background .25s var(--ease)}
 .cartp__checkout:hover{background:var(--accent-hover)}
@@ -786,14 +787,14 @@
   .pdp__grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--s8);
     align-items:start}
 }
-.pdp__stage{position:relative;background:var(--surface);aspect-ratio:4/5;overflow:hidden}
+.pdp__stage{border-radius:var(--radius-media);position:relative;background:var(--surface);aspect-ratio:4/5;overflow:hidden}
 .pdp__img{display:block;width:100%;height:100%;object-fit:cover}
 .pdp__stage--empty{background:var(--surface-alt)}
 .pdp__thumbs{display:flex;gap:var(--s2);margin-top:var(--s2);overflow-x:auto;
   scrollbar-width:thin}
-.pdp__thumb{flex:none;width:74px;min-height:44px;padding:0;background:none;
+.pdp__thumb{border-radius:var(--radius-sm);flex:none;width:74px;min-height:44px;padding:0;background:none;
   border:1px solid transparent;cursor:pointer;line-height:0}
-.pdp__thumb img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}
+.pdp__thumb img{border-radius:var(--radius-media);display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}
 .pdp__thumb.is-active{border-color:var(--surface-dark)}
 .pdp__thumb:hover{border-color:var(--border-hover)}
 .pdp__thumb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -811,7 +812,7 @@
   font-variant-numeric:tabular-nums}
 .pdp__price .now{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.6rem}
 .pdp__price s{color:var(--text-tertiary);font-size:1rem}
-.pdp__off{font-size:var(--fs-micro);font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+.pdp__off{border-radius:var(--radius-sm);font-size:var(--fs-micro);font-weight:600;letter-spacing:.14em;text-transform:uppercase;
   color:#fff;background:var(--sale);padding:.28rem .5rem}
 .pdp__oos{margin:var(--s4) 0 0;font-size:.86rem;color:var(--text-secondary)}
 .pdp__oos a{color:var(--accent);border-bottom:1px solid currentColor}
@@ -821,14 +822,14 @@
 .pdp__opt{display:grid;gap:.35rem}
 .pdp__opt-l{font-size:var(--fs-micro);font-weight:600;letter-spacing:.18em;text-transform:uppercase;
   color:var(--text-secondary)}
-.pdp__opt-s{min-height:46px;padding:0 .7rem;background:var(--bg);border:1px solid var(--border);
+.pdp__opt-s{border-radius:var(--radius);min-height:46px;padding:0 .7rem;background:var(--bg);border:1px solid var(--border);
   font-family:var(--font-ui);font-size:.9rem;color:var(--text)}
 .pdp__opt-s:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .pdp__buy{display:flex;gap:var(--s3);align-items:stretch;flex-wrap:wrap}
 .pdp__buy .qty{flex:none}
 /* taller than the 44 floor so the stepper lines up with Add to bag */
 .pdp__buy .qty__b,.pdp__buy .qty__i{height:54px}
-.pdp__atc{flex:1;min-width:180px;min-height:54px;display:flex;align-items:center;
+.pdp__atc{border-radius:var(--radius);flex:1;min-width:180px;min-height:54px;display:flex;align-items:center;
   justify-content:center;gap:.6rem;background:var(--accent);color:#fff;border:0;cursor:pointer;
   font-family:var(--font-ui);font-size:.7rem;font-weight:600;letter-spacing:.22em;
   text-transform:uppercase;transition:background .25s var(--ease)}
@@ -868,7 +869,7 @@
   padding:.7rem var(--s5);background:var(--surface-dark);color:#fff;
   font-family:var(--font-ui);font-size:.8rem;flex:none}
 .cundo__t{margin:0;flex:1;min-width:0}
-.cundo__go{min-height:44px;padding-inline:1rem;background:none;border:1px solid #fff;
+.cundo__go{border-radius:var(--radius);min-height:44px;padding-inline:1rem;background:none;border:1px solid #fff;
   color:#fff;cursor:pointer;font-family:var(--font-ui);font-size:var(--fs-micro);
   font-weight:600;letter-spacing:.18em;text-transform:uppercase;flex:none}
 .cundo__go:hover{background:#fff;color:var(--surface-dark)}
