@@ -1,18 +1,37 @@
 <section class="lada lada__hero">
+  {%- comment -%}
+    width/height are the image's REAL intrinsic dimensions, so the
+    browser reserves the right box and the page does not shift.
+
+    They used to be hardcoded 2400x1500 — an 8:5 landscape hint — on
+    lada-waistcoats.jpg, which is 1000x1250 portrait. Wrong ratio hint
+    means guaranteed layout shift, and the src asked Shopify for
+    width:2400 from a 1000px file, a 2.4x upscale that can only come
+    back soft. A picked image reports its own dimensions; the asset
+    fallback carries the file's real ones.
+
+    alt said "Macro detail of a Lada weave" — the photograph is a
+    waistcoat on a model, and Lada sells garments, not weave.
+  {%- endcomment -%}
   {%- if section.settings.image -%}
-    <img src="{{ section.settings.image | image_url: width: 2400 }}"
-         srcset="{{ section.settings.image | image_url: width: 1200 }} 1200w,
-                 {{ section.settings.image | image_url: width: 2400 }} 2400w"
-         sizes="100vw" width="2400" height="1500" fetchpriority="high" decoding="async"
-         alt="{{ section.settings.image.alt | default: 'Macro detail of a Lada weave' | escape }}">
+    {%- assign hero_w = section.settings.image.width -%}
+    {%- if hero_w > 2000 %}{% assign hero_w = 2000 %}{% endif -%}
+    <img src="{{ section.settings.image | image_url: width: hero_w }}"
+         srcset="{{ section.settings.image | image_url: width: 800 }} 800w,
+                 {{ section.settings.image | image_url: width: 1200 }} 1200w,
+                 {{ section.settings.image | image_url: width: hero_w }} {{ hero_w }}w"
+         sizes="100vw"
+         width="{{ section.settings.image.width }}" height="{{ section.settings.image.height }}"
+         fetchpriority="high" decoding="async"
+         alt="{{ section.settings.image.alt | default: 'A Lada waistcoat, cut in Sheikhupura' | escape }}">
   {%- else -%}
     <img src="{{ section.settings.asset_file | default: 'lada-waistcoats.jpg' | asset_url }}"
-         width="2400" height="1500" fetchpriority="high" decoding="async"
-         alt="Macro detail of a Lada weave">
+         width="1000" height="1250" fetchpriority="high" decoding="async"
+         alt="A Lada waistcoat, cut in Sheikhupura">
   {%- endif -%}
 
   <div class="lada__wrap lada__hero-in">
-    <p class="lada__eyebrow">{{ section.settings.eyebrow | default: 'Woven in-house · Khan Jee' }}</p>
+    <p class="lada__eyebrow">{{ section.settings.eyebrow | default: 'Cut in-house · Khan Jee, est. 1978' }}</p>
     {%- comment -%}
       The mark, not the word set in a typeface. This is the label's own
       artwork and it is the first thing on its own page, so it loads
@@ -22,11 +41,11 @@
     <h1 class="lada__wordmark lada__wordmark--mark">
       {%- render 'kj-mark', mark: 'lada', label: lada_label, loading: 'eager' -%}
     </h1>
-    <p class="lada__lede">{{ section.settings.lede | default: 'Spun, woven and finished under our own roof. The only cloth in this shop whose every thread we answer for.' }}</p>
+    <p class="lada__lede">{{ section.settings.lede | default: 'Eastern waistcoats and coats, cut in our own workshop in Sheikhupura.' }}</p>
 
     <div class="lada__ctas">
       <a class="btn-lada" href="{{ section.settings.primary_url | default: '#lada-collection' }}">
-        {{ section.settings.primary_label | default: 'The unstitched flagship' }}</a>
+        {{ section.settings.primary_label | default: 'See the range' }}</a>
       <a class="btn-lada btn-lada--ghost" href="{{ section.settings.secondary_url | default: '#lada-craft' }}">
         {{ section.settings.secondary_label | default: 'How it is made' }}</a>
     </div>
@@ -36,8 +55,8 @@
         {%- liquid
           case i
             when 1
-              assign t = section.settings.seal1_title | default: 'Woven in-house'
-              assign d = section.settings.seal1_text | default: 'Every metre from our own looms.'
+              assign t = section.settings.seal1_title | default: 'Cut in-house'
+              assign d = section.settings.seal1_text | default: 'Every piece made in our own workshop.'
             when 2
               assign t = section.settings.seal2_title | default: 'Unconditional guarantee'
               assign d = section.settings.seal2_text | default: 'Replaced or refunded, no conditions.'

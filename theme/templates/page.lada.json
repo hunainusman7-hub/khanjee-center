@@ -13,7 +13,7 @@
       "type": "lada-hero",
       "settings": {
         "asset_file": "lada-waistcoats.jpg",
-        "eyebrow": "Woven in-house · Khan Jee",
+        "eyebrow": "Woven in-house \u00b7 Khan Jee",
         "heading": "Lada",
         "lede": "Spun, woven and finished under our own roof. The only cloth in this shop whose every thread we answer for.",
         "primary_label": "The unstitched flagship",
@@ -53,7 +53,11 @@
           }
         }
       },
-      "block_order": ["s1", "s2", "s3"],
+      "block_order": [
+        "s1",
+        "s2",
+        "s3"
+      ],
       "settings": {
         "kicker": "The making",
         "heading": "Three hands, one bolt",
@@ -86,5 +90,11 @@
       }
     }
   },
-  "order": ["hero", "craft", "collection", "promise", "sizing"]
+  "order": [
+    "hero",
+    "collection",
+    "craft",
+    "promise",
+    "sizing"
+  ]
 }

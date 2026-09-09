@@ -296,24 +296,38 @@
 .lada__wrap{width:min(100% - 2.5rem,1180px);margin-inline:auto}
 @media (min-width:900px){.lada__wrap{width:min(100% - 4rem,1180px)}}
 
-.lada__hero{position:relative;min-height:clamp(520px,90svh,900px);display:flex;
+/* The photograph is the point, so it is shown at full strength.
+
+   It used to run at opacity .55 UNDER a gradient that was .78 opaque at
+   the top — so the one Lada photograph on the site rendered at roughly a
+   quarter strength. Worse, the gradient was pointing the wrong way: the
+   section is align-items:flex-end so every word sits at the BOTTOM, but
+   the darkness was spent at the top on empty sky, leaving the type over
+   the brightest part of the frame. None of the nine premium Pakistani
+   sites studied scrims a hero this hard; four run no scrim at all and
+   the heaviest is a flat .3.
+
+   So: opacity 1, and a single bottom-anchored gradient that is dark
+   exactly where the type is and clear where the garment is.
+
+   Height is down from 90svh to 66svh so the proof band below shows
+   above the fold — under-filling the fold deliberately is what khaadi
+   and ismailfarid do, and both teardowns credit it. */
+.lada__hero{position:relative;min-height:clamp(460px,66svh,720px);display:flex;
   align-items:flex-end;overflow:hidden;background:var(--lada-ground)}
-.lada__hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;
-  animation:ladaZoom 22s var(--ease) both}
-@keyframes ladaZoom{from{transform:scale(1.06)}to{transform:scale(1)}}
-/* The Lada hero's slow push-in was the one animation with no
-   reduced-motion escape. A 22s scale on a full-bleed image is exactly
-   the kind of large-area movement that triggers vestibular symptoms. */
-@media (prefers-reduced-motion:reduce){
-  .lada__hero img{animation:none;transform:none}
-}
+.lada__hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .lada__hero::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(to top,var(--lada-ground) 3%,rgba(14,14,15,.55) 45%,rgba(14,14,15,.78) 100%)}
+  background:linear-gradient(to top,rgba(14,14,15,.82) 0%,rgba(14,14,15,.55) 28%,rgba(14,14,15,0) 62%)}
 .lada__hero-in{position:relative;z-index:2;padding-block:clamp(3rem,9vh,6rem)}.lada__eyebrow{margin:0;font-size:var(--fs-micro);letter-spacing:.36em;text-transform:uppercase;
   color:var(--lada-champagne)}.lada__wordmark--mark{margin:var(--s4) 0 0;display:block;max-width:min(460px,74vw)}
 .lada__wordmark--mark .kj-mark{width:100%;height:auto}
 .lada__wordmark{margin:var(--s4) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:.88;
   font-size:clamp(3.4rem,12vw,8rem);letter-spacing:-.03em;color:var(--lada-bone)}
+/* Tracking is rationed, not sprayed. The Lada block shipped seven
+   letter-spacing values and nothing at 0, so nothing read as
+   deliberate. Body and headings sit at 0; the eyebrow keeps its .36em
+   and is now the only element on the page carrying any. */
+.lada__lede,.lada__p,.lada__h2,.lada__stage h3{letter-spacing:0}
 .lada__lede{margin:var(--s5) 0 0;max-width:48ch;color:var(--lada-muted);
   font-size:clamp(.98rem,1.5vw,1.08rem);line-height:1.8}
 .lada__ctas{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s6)}.btn-lada{display:inline-flex;align-items:center;justify-content:center;min-height:52px;
@@ -364,7 +378,6 @@
 /* Lada product cards invert to the dark register */
 .lada .pcard__media{background:var(--lada-panel)}
 .lada .pcard__title{color:var(--lada-bone)}
-.lada .pcard:hover .pcard__title{color:var(--lada-champagne)}
 .lada .pcard__meta{color:var(--lada-muted)}
 .lada .pcard__price{color:var(--lada-champagne)}
 
@@ -940,3 +953,47 @@
    gradient. Sizes stay as they were; only the source changed. */
 .kj-mark--lada{filter:drop-shadow(0 2px 14px rgba(0,0,0,.5))}
 .lband__mark .kj-mark,.hs__title--lada .kj-mark{height:auto}
+
+/* ============================================================
+   THE PRODUCT CARD INSIDE LADA
+
+   lada-collection renders the shared product-card snippet, whose
+   colours resolve against the house-of-brands LIGHT palette. Measured
+   against the Lada ground #0E0E0F, that means:
+
+     card title      --text        #14100E   1.02:1   invisible
+     meta, struck    --text-tertiary #6B615A 3.20:1   fails
+     hover, sale     --accent      #9A1B2F   2.36:1   fails
+     media placeholder --surface   #FAF8F6  18.2:1 against the ground,
+                                            i.e. a near-white rectangle
+                                            on near-black, which is what
+                                            every product shows today
+                                            because all 13 are imageless
+
+   So the one section that has to sell was the one section not on brand
+   and not legible. Remapped to the Lada register, which measures
+   15.80 / 5.26 / 7.95 — all clear of 4.5:1. The crimson goes entirely;
+   it does not exist in this colour scheme.
+   ============================================================ */
+.lada .pcard__media{background:var(--lada-panel)}
+.lada .pcard__img--main:not([src]),
+.lada .pcard__media span.pcard__img{background:var(--lada-panel)}
+.lada .pcard__title a{color:var(--lada-bone)}
+.lada .pcard:hover .pcard__title a,
+.lada .pcard__title a:hover{color:var(--lada-champagne)}
+.lada .pcard__meta{color:var(--lada-muted)}
+.lada .pcard__price{color:var(--lada-bone)}
+.lada .pcard__price s{color:var(--lada-muted)}
+.lada .pcard__price .now{color:var(--lada-champagne)}
+.lada .pcard__off,.lada .pcard__badge--seal{
+  background:var(--lada-champagne);color:var(--lada-ground)}
+.lada .pcard__pre{background:var(--lada-panel);color:var(--lada-bone);
+  border:1px solid var(--lada-line)}
+.lada .pcard__soldout{background:rgba(14,14,15,.82);color:var(--lada-bone)}
+.lada .pcard__quick{background:transparent;color:var(--lada-champagne);
+  border-color:var(--lada-champagne)}
+.lada .pcard__quick:hover{background:var(--lada-champagne);color:var(--lada-ground);
+  border-color:var(--lada-champagne)}
+.lada .pcard__err{color:#E88}
+.lada .pcard a:focus-visible,.lada .pcard__quick:focus-visible{
+  outline-color:var(--lada-champagne)}
