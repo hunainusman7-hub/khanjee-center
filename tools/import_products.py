@@ -227,8 +227,23 @@ def main():
     a = ap.parse_args()
 
     token = os.environ.get("SHOPIFY_ADMIN_TOKEN", "")
+    if not token:
+        # .env.local, if it exists. Gitignored, and it keeps the token out
+        # of a chat transcript and out of shell history — which is the only
+        # reason this file is read at all.
+        env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env.local")
+        if os.path.exists(env):
+            for line in open(env, encoding="utf-8"):
+                line = line.strip()
+                if line.startswith("SHOPIFY_ADMIN_TOKEN"):
+                    token = line.split("=", 1)[1].strip().strip("'\"")
+                    print("  token read from .env.local")
+                    break
     if not token and not a.dry_run:
-        sys.exit("SHOPIFY_ADMIN_TOKEN is not set. Export it, or use --dry-run.")
+        sys.exit("No token. Put SHOPIFY_ADMIN_TOKEN=shpat_... in .env.local, "
+                 "or export it, or use --dry-run.")
+    if token and not token.startswith("shpat_"):
+        print(f"  ! token does not start with shpat_ — is that an Admin API token?")
 
     rows = read_csv(a.csv)
     if a.in_stock_only:

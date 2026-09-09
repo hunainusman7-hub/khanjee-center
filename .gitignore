@@ -1,3 +1,9 @@
 .DS_Store
 private/
 _lab/
+
+# secrets — the Admin API token lives here and must never be committed
+.env
+.env.local
+.env.*
+*.token
