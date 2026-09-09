@@ -461,7 +461,16 @@
 .csplit{display:grid;gap:var(--s5);padding-block:var(--s7);align-items:center}
 @media (min-width:900px){.csplit{grid-template-columns:34% 1fr;gap:var(--s6)}}
 .csplit__copy{width:min(100% - 2.5rem,560px);margin-inline:auto}
-@media (min-width:900px){.csplit__copy{margin-inline-start:max(1.25rem,calc((100vw - 1280px)/2));margin-inline-end:0}}
+@media (min-width:900px){/* The page gutter belongs to the SECTION, not to the copy block.
+   It used to be margin-inline-start on .csplit__copy, inside a 34% grid
+   track — so the margin was added to the track's width rather than
+   taken out of it. At a 1856px viewport that is 288px of margin plus up
+   to 560px of copy inside a 631px track: the text ran 217px past its
+   own column and underneath the image rail, which is exactly the
+   reported "it is covering up the text". Padding on the grid container
+   is subtracted before the tracks are sized, so it cannot overflow. */
+  .csplit{padding-inline-start:max(1.25rem,calc((100vw - 1280px)/2))}
+  .csplit__copy{width:100%;max-width:560px;margin-inline:0}}
 .csplit__eyebrow{font-size:var(--fs-micro);font-weight:600;letter-spacing:.2em;color:var(--text)}
 .csplit__h{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);
   font-size:clamp(1.7rem,3.8vw,2.6rem);line-height:1.08}
@@ -474,13 +483,26 @@
   scroll-behavior:smooth;scrollbar-width:none}
 .csplit__rail::-webkit-scrollbar{display:none}
 .csplit__slide{position:relative;flex:0 0 auto;scroll-snap-align:start;
-  width:min(86vw,760px);aspect-ratio:4/3;overflow:hidden}
+  width:min(86vw,760px);aspect-ratio:4/3;overflow:hidden;
+  border-radius:var(--radius-media)}
 .csplit__slide img{width:100%;height:100%;object-fit:cover}
-.csplit__slide span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.4rem,4vw,3rem);letter-spacing:.24em;
-  text-transform:uppercase}
+/* Bottom-left, not centred. The rail bleeds off the right edge on
+   purpose, so a centred caption sits in the middle of a slide that is
+   half off-screen — "GENTS" arrived as "GENT". Anchored to the corner
+   it is readable as soon as any of the slide is, and the
+   padding-inline-end keeps the last letter's tracking inside the box. */
+.csplit__slide span{position:absolute;z-index:2;
+  inset-inline-start:clamp(1rem,3vw,2rem);inset-block-end:clamp(1rem,3vw,1.75rem);
+  color:#fff;font-family:var(--font-display);font-weight:var(--font-weight-heading);
+  font-size:clamp(1.2rem,3vw,2.2rem);letter-spacing:.18em;text-transform:uppercase;
+  padding-inline-end:.18em;text-shadow:0 1px 14px rgba(0,0,0,.55)}
+/* a scrim, so the caption does not depend on the photograph happening
+   to be dark where the words land */
+.csplit__slide::after{content:"";position:absolute;inset:0;z-index:1;
+  pointer-events:none;
+  background:linear-gradient(to top,rgba(20,16,14,.58),rgba(20,16,14,0) 48%)}
 .csplit__dots{display:flex;gap:.5rem;margin-top:var(--s5)}
-.csplit__dots button{width:34px;height:18px;padding:0;background:none;border:0;cursor:pointer;
+.csplit__dots button{width:34px;min-height:24px;padding:0;background:none;border:0;cursor:pointer;
   display:inline-flex;align-items:center}
 .csplit__dots span{display:block;width:100%;height:2px;background:var(--border-hover)}
 .csplit__dots .is-active span{background:var(--text)}
