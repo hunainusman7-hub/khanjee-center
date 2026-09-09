@@ -145,3 +145,46 @@ The Lada mark is the client's own gold-gradient artwork at
 a fixed-colour image: `currentColor` does nothing to it, and it must
 only ever sit on a dark ground, because gold on white is about 2:1. Its
 lockup already reads BY KHAN JEE — do not set that as text beside it.
+
+
+## 7. theme duplicate is ASYNC — wait before you push
+
+This cost a whole publish cycle. `shopify theme duplicate` returns a
+theme id immediately, but Shopify is still copying files into it. Push
+to it during that window and the installation finishes AFTER your push
+and overwrites it with the duplicated source. The theme id changes, the
+content does not, and nothing errors.
+
+The tell is that `theme publish` refuses with:
+
+    You can't publish this theme until the installation is complete.
+
+So the order is: duplicate, wait until publish stops refusing, THEN
+push, THEN publish. Polling publish is the cheapest readiness check
+there is:
+
+```bash
+for i in $(seq 1 12); do
+  out=$(shopify theme publish --theme <new-id> --force 2>&1)
+  echo "$out" | grep -qiE "success|live at" && break
+  sleep 20
+done
+```
+
+## 8. --only validates against the push, not the theme
+
+`push --only templates/page.lada.json` failed with
+
+    Section type 'lada-sizing' does not refer to an existing section file
+
+while `sections/lada-sizing.liquid` was sitting on the theme the whole
+time. A JSON template is validated against the files IN THAT PUSH, so
+push a template together with every section it references.
+
+## 9. Shopify minifies what it serves — grep the minified form
+
+A check for the CSS you wrote will fail against the CSS that ships.
+`rgba(14,14,15,.82)` comes back as `#0e0e0fd1`, `::after` as `:after`,
+`inset:0` as four longhand properties, and redundant `0%` stops are
+dropped. Verify by reading the served declaration and interpreting it,
+not by grepping for your own source text.
