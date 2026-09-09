@@ -13,7 +13,8 @@
             "heading": "Khan Jee",
             "sub": "Unstitched cloth for men and women. All brands under one roof.",
             "cta": "Shop the shelf",
-            "link": "/collections/all"
+            "link": "/collections/all",
+            "heading_mark": "kj"
           }
         },
         "s2": {
@@ -52,7 +53,8 @@
             "heading": "Lada",
             "sub": "Our own label. Every thread we answer for.",
             "cta": "Enter Lada",
-            "link": "/pages/lada"
+            "link": "/pages/lada",
+            "heading_mark": "lada"
           }
         }
       },

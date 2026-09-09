@@ -1,0 +1,259 @@
+{%- comment -%}
+  sections/main-product.liquid
+
+  The product page. Built for unstitched cloth, which is the shop's
+  whole trade: those products have no variants at all, so the variant
+  picker only appears when a product genuinely has options, and the
+  spec table is driven by the five custom.by_* metafields that the
+  facets already use — one source of truth for "what is this cloth".
+
+  White-label rule, same as the card and the bag: only Dynasty and
+  Pasha are sold under their own cloth name. For everything else the
+  supplier is never named anywhere a customer can see — not in the
+  title, not here, not in a meta tag. A Khan Jee piece shows its KJC
+  SKU instead.
+{%- endcomment -%}
+
+{%- liquid
+  assign v = product.selected_or_first_available_variant
+
+  assign named_houses = 'Dynasty,Pasha' | split: ','
+  assign show_vendor = false
+  for house in named_houses
+    if product.vendor == house
+      assign show_vendor = true
+    endif
+  endfor
+
+  assign fabric  = product.metafields.custom.by_fabric.value
+  assign pieces  = product.metafields.custom.by_pieces.value
+  assign colour  = product.metafields.custom.by_color.value
+  assign ptype   = product.metafields.custom.by_type.value
+  assign in_house = product.metafields.lada.in_house.value
+
+  assign has_options = false
+  unless product.has_only_default_variant
+    assign has_options = true
+  endunless
+-%}
+
+<div class="pdp">
+  <div class="pdp__wrap">
+
+    <nav class="pdp__crumbs" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a>
+      <span aria-hidden="true">/</span>
+      {%- if collection -%}
+        <a href="{{ collection.url }}">{{ collection.title }}</a>
+        <span aria-hidden="true">/</span>
+      {%- endif -%}
+      <span aria-current="page">{{ product.title | split: ' — ' | first }}</span>
+    </nav>
+
+    <div class="pdp__grid">
+
+      {%- comment -%} ---------- gallery ---------- {%- endcomment -%}
+      <div class="pdp__gal">
+        {%- if product.media.size > 0 -%}
+          <div class="pdp__stage">
+            {%- for media in product.media -%}
+              <img class="pdp__img{% if forloop.first %} is-active{% endif %}"
+                   id="pdp-media-{{ media.id }}"
+                   src="{{ media | image_url: width: 1400 }}"
+                   srcset="{{ media | image_url: width: 700 }} 700w,
+                           {{ media | image_url: width: 1400 }} 1400w"
+                   sizes="(min-width:900px) 52vw, 100vw"
+                   width="1400" height="1750"
+                   {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                   decoding="async"
+                   {% unless forloop.first %}hidden{% endunless %}
+                   alt="{{ media.alt | default: product.title | escape }}">
+            {%- endfor -%}
+          </div>
+
+          {%- if product.media.size > 1 -%}
+            <div class="pdp__thumbs" role="tablist" aria-label="Product images">
+              {%- for media in product.media -%}
+                <button class="pdp__thumb{% if forloop.first %} is-active{% endif %}"
+                        type="button" role="tab" data-pdp-thumb="{{ media.id }}"
+                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                        aria-controls="pdp-media-{{ media.id }}"
+                        aria-label="Image {{ forloop.index }} of {{ product.media.size }}">
+                  <img src="{{ media | image_url: width: 180 }}" width="90" height="112"
+                       loading="lazy" decoding="async" alt="">
+                </button>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+        {%- else -%}
+          <div class="pdp__stage pdp__stage--empty" aria-hidden="true"></div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} ---------- the buying column ---------- {%- endcomment -%}
+      <div class="pdp__info">
+
+        {%- if show_vendor -%}
+          <p class="pdp__house">{{ product.vendor }}</p>
+        {%- elsif in_house -%}
+          <p class="pdp__house pdp__house--own">Lada &middot; woven in-house</p>
+        {%- endif -%}
+
+        <h1 class="pdp__title">{{ product.title | split: ' — ' | first }}</h1>
+
+        {%- if v.sku != blank -%}
+          <p class="pdp__sku">{{ v.sku }}</p>
+        {%- endif -%}
+
+        <div class="pdp__price">
+          {%- if product.compare_at_price > product.price -%}
+            {%- assign off = product.compare_at_price | minus: product.price
+                             | times: 100.0 | divided_by: product.compare_at_price | round -%}
+            <s>{{ product.compare_at_price | money }}</s>
+            <span class="now">{{ product.price | money }}</span>
+            <span class="pdp__off">{{ off }}% off</span>
+          {%- else -%}
+            <span class="now">{{ product.price | money }}</span>
+          {%- endif -%}
+        </div>
+
+        {%- unless product.available -%}
+          <p class="pdp__oos">
+            Off the shelf for now.
+            {%- if section.settings.whatsapp != blank %}
+              <a href="https://wa.me/{{ section.settings.whatsapp }}?text={{ product.title | url_encode }}"
+                 target="_blank" rel="noopener">Ask us when it is back</a>.
+            {%- endif -%}
+          </p>
+        {%- endunless -%}
+
+        <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data"
+              class="pdp__form" data-kj-atc>
+
+          {%- if has_options -%}
+            {%- comment -%}
+              Only ever rendered for products that really do have
+              options. A plain <select> per option: it needs no
+              JavaScript to be usable, and the form posts the chosen
+              variant id either way.
+            {%- endcomment -%}
+            <div class="pdp__opts">
+              {%- for option in product.options_with_values -%}
+                <label class="pdp__opt">
+                  <span class="pdp__opt-l">{{ option.name }}</span>
+                  <select class="pdp__opt-s" data-pdp-option="{{ forloop.index0 }}">
+                    {%- for value in option.values -%}
+                      <option value="{{ value | escape }}"
+                        {% if option.selected_value == value %}selected{% endif %}>{{ value }}</option>
+                    {%- endfor -%}
+                  </select>
+                </label>
+              {%- endfor -%}
+            </div>
+
+            <script type="application/json" data-pdp-variants>
+              [
+                {%- for variant in product.variants -%}
+                  {"id":{{ variant.id }},
+                   "options":{{ variant.options | json }},
+                   "available":{{ variant.available }}}{% unless forloop.last %},{% endunless %}
+                {%- endfor -%}
+              ]
+            </script>
+          {%- endif -%}
+
+          <input type="hidden" name="id" value="{{ v.id }}" data-pdp-variant-id>
+
+          <div class="pdp__buy">
+            <div class="qty">
+              <button class="qty__b" type="button" data-pdp-qty-down
+                      aria-label="Reduce quantity">&minus;</button>
+              <input class="qty__i" type="number" inputmode="numeric" min="1" value="1"
+                     name="quantity" data-pdp-qty aria-label="Quantity">
+              <button class="qty__b" type="button" data-pdp-qty-up
+                      aria-label="Increase quantity">+</button>
+            </div>
+
+            <button class="pdp__atc" type="submit"
+                    {% unless product.available %}disabled{% endunless %}>
+              <span class="pdp__atc-t">
+                {%- if product.available -%}Add to bag{%- else -%}Sold out{%- endif -%}
+              </span>
+              <span class="pcard__spin" aria-hidden="true"></span>
+            </button>
+          </div>
+
+          <p class="pdp__err" data-kj-atc-error role="alert" hidden></p>
+        </form>
+
+        {%- if section.settings.whatsapp != blank -%}
+          <a class="pdp__wa"
+             href="https://wa.me/{{ section.settings.whatsapp }}?text={{ product.title | url_encode }}"
+             target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
+              <path d="M12 2a10 10 0 0 0-8.7 15L2 22l5.2-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5 0-1.1 0-1.9-.3a11 11 0 0 1-5.6-4.9c-.4-.7-.6-1.4-.6-2 0-.6.3-1.2.7-1.6.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .5.4l.7 1.7c0 .2 0 .3-.1.5l-.4.5c-.1.2-.2.3 0 .5a7.8 7.8 0 0 0 3.4 2.9c.2.1.4 0 .5 0l.7-.8c.2-.2.3-.1.5 0l1.6.8c.2.1.3.2.3.3v.8Z"/>
+            </svg>
+            Ask about this cloth on WhatsApp
+          </a>
+        {%- endif -%}
+
+        <ul class="pdp__trust">
+          <li>Cash on delivery nationwide</li>
+          <li>Cut to your measurement in the shop</li>
+          <li>Sheikhupura since 1978</li>
+        </ul>
+
+        {%- comment -%} ---------- spec table ---------- {%- endcomment -%}
+        {%- if fabric or pieces or colour or ptype -%}
+          <table class="pdp__spec">
+            <caption>Cloth details</caption>
+            <tbody>
+              {%- if ptype -%}<tr><th scope="row">Type</th><td>{{ ptype }}</td></tr>{%- endif -%}
+              {%- if fabric -%}<tr><th scope="row">Fabric</th><td>{{ fabric }}</td></tr>{%- endif -%}
+              {%- if pieces -%}<tr><th scope="row">Pieces</th><td>{{ pieces }}</td></tr>{%- endif -%}
+              {%- if colour -%}<tr><th scope="row">Colour</th><td>{{ colour }}</td></tr>{%- endif -%}
+              {%- if show_vendor -%}<tr><th scope="row">House</th><td>{{ product.vendor }}</td></tr>{%- endif -%}
+              {%- if v.sku != blank -%}<tr><th scope="row">Code</th><td>{{ v.sku }}</td></tr>{%- endif -%}
+            </tbody>
+          </table>
+        {%- endif -%}
+
+        {%- if product.description != blank -%}
+          <div class="pdp__desc rte">{{ product.description }}</div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- comment -%} ---------- related, from the product's own collection ---------- {%- endcomment -%}
+    {%- assign rel = product.collections.first -%}
+    {%- if rel and rel.products.size > 1 -%}
+      <section class="pdp__rel" aria-labelledby="pdp-rel-h">
+        <div class="sec__head--v2">
+          <h2 id="pdp-rel-h">More from {{ rel.title }}</h2>
+          <a class="more" href="{{ rel.url }}">View all</a>
+        </div>
+        <div class="pdp__rel-grid">
+          {%- assign shown = 0 -%}
+          {%- for p in rel.products limit: 9 -%}
+            {%- if p.id != product.id and shown < 4 -%}
+              {%- render 'product-card', product: p, index: forloop.index0 -%}
+              {%- assign shown = shown | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </section>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "whatsapp", "label": "WhatsApp number",
+      "default": "923019090590",
+      "info": "Country code, no + or spaces. Leave blank to hide the enquiry links." }
+  ]
+}
+{% endschema %}

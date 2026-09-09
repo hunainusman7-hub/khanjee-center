@@ -6,9 +6,9 @@
 <title>{{ page_title }}{% if page_title != shop.name %} &mdash; {{ shop.name }}{% endif %}</title>
 {% if page_description %}<meta name="description" content="{{ page_description }}">{% endif %}
 <link rel="canonical" href="{{ canonical_url }}">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ 'archivo-latin.woff2' | asset_url }}">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ 'archivo-black-latin.woff2' | asset_url }}">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ 'bodoni-moda-latin.woff2' | asset_url }}">
+{{ 'archivo-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+{{ 'archivo-black-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+{{ 'bodoni-moda-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
 <link rel="stylesheet" href="{{ 'fonts.css' | asset_url }}">
 <link rel="stylesheet" href="{{ 'site.css' | asset_url }}">
 <link rel="stylesheet" href="{{ 'kj-v2.css' | asset_url }}">
@@ -26,7 +26,15 @@
 
 {% section 'footer' %}
 
+{%- comment -%}
+  The bag lives in the layout so it can open from any page, and so the
+  Section Rendering API has a stable target to re-render after every
+  cart change.
+{%- endcomment -%}
+{% section 'kj-cart-drawer' %}
+
 <script src="{{ 'site.js' | asset_url }}" defer></script>
 <script src="{{ 'kj-v2.js' | asset_url }}" defer></script>
+<script src="{{ 'kj-cart.js' | asset_url }}" defer></script>
 </body>
 </html>

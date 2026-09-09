@@ -1,0 +1,193 @@
+{%- comment -%}
+  sections/main-cart.liquid
+
+  Written out in full rather than assembled from the stock theme's cart
+  blocks. Those blocks render "Translation missing:" on this theme
+  because the Khan Jee locale files do not carry the stock cart keys —
+  that has already bitten this store once. Everything here is literal
+  English, so there is nothing to miss.
+
+  data-kj-cart-page is the hook kj-cart.js re-renders through the
+  Section Rendering API, so quantity changes on this page update the
+  totals without a reload — and the same markup is what a visitor with
+  JS off gets from a plain form post.
+{%- endcomment -%}
+
+<div class="cartp" data-kj-cart-page>
+  <div class="cartp__wrap">
+
+    <header class="cartp__head">
+      <h1 class="cartp__h1">Your bag</h1>
+      {%- if cart.item_count > 0 -%}
+        <p class="cartp__count">
+          {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}
+        </p>
+      {%- endif -%}
+    </header>
+
+    {%- if cart.item_count == 0 -%}
+
+      <div class="cartp__empty">
+        <p class="cartp__empty-h">There is nothing in your bag yet</p>
+        <p class="cartp__empty-p">
+          Unstitched cloth for men and women, all brands under one roof.
+        </p>
+        <div class="cartp__empty-ctas">
+          <a class="btn-solid" href="{{ routes.all_products_collection_url }}">Shop the shelf</a>
+          <a class="btn-line" href="{{ routes.root_url }}pages/brands">Browse brands</a>
+        </div>
+      </div>
+
+    {%- else -%}
+
+      <form action="{{ routes.cart_url }}" method="post" novalidate class="cartp__form">
+        <div class="cartp__grid">
+
+          <div class="cartp__lines">
+            <div class="cartp__thead" aria-hidden="true">
+              <span>Item</span><span>Quantity</span><span>Total</span>
+            </div>
+
+            <ul class="cartp__list">
+              {%- for item in cart.items -%}
+                <li class="cline cline--page" data-kj-line="{{ forloop.index }}">
+                  <a class="cline__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+                    {%- if item.image -%}
+                      <img src="{{ item.image | image_url: width: 240 }}" width="120" height="150"
+                           loading="lazy" decoding="async" alt="">
+                    {%- endif -%}
+                  </a>
+
+                  <div class="cline__body">
+                    <a class="cline__title" href="{{ item.url }}">{{ item.product.title }}</a>
+
+                    {%- liquid
+                      assign named_houses = 'Dynasty,Pasha' | split: ','
+                      assign show_vendor = false
+                      for house in named_houses
+                        if item.product.vendor == house
+                          assign show_vendor = true
+                        endif
+                      endfor
+                    -%}
+                    <p class="cline__meta">
+                      {%- if show_vendor -%}{{ item.product.vendor }}
+                      {%- elsif item.sku != blank -%}{{ item.sku }}
+                      {%- endif -%}
+                    </p>
+
+                    {%- unless item.product.has_only_default_variant -%}
+                      <p class="cline__meta">{{ item.variant.title }}</p>
+                    {%- endunless -%}
+
+                    {%- for prop in item.properties -%}
+                      {%- unless prop.last == blank or prop.first[0] == '_' -%}
+                        <p class="cline__meta">{{ prop.first }}: {{ prop.last }}</p>
+                      {%- endunless -%}
+                    {%- endfor -%}
+
+                    <p class="cline__unit">{{ item.final_price | money }} each</p>
+
+                    <button class="cline__rm" type="button" data-kj-remove
+                            aria-label="Remove {{ item.product.title | escape }} from your bag">Remove</button>
+                  </div>
+
+                  <div class="cline__qty" data-kj-qty>
+                    <div class="qty">
+                      <button class="qty__b" type="button" data-kj-qty-down
+                              aria-label="Reduce quantity of {{ item.product.title | escape }}">&minus;</button>
+                      <input class="qty__i" type="number" inputmode="numeric" min="0"
+                             name="updates[]" value="{{ item.quantity }}" data-kj-qty-input
+                             aria-label="Quantity of {{ item.product.title | escape }}">
+                      <button class="qty__b" type="button" data-kj-qty-up
+                              aria-label="Increase quantity of {{ item.product.title | escape }}">+</button>
+                    </div>
+                  </div>
+
+                  <p class="cline__total">
+                    {%- if item.original_line_price > item.final_line_price -%}
+                      <s>{{ item.original_line_price | money }}</s>
+                      <span class="now">{{ item.final_line_price | money }}</span>
+                    {%- else -%}
+                      {{ item.final_line_price | money }}
+                    {%- endif -%}
+                  </p>
+
+                  {%- if item.line_level_discount_allocations.size > 0 -%}
+                    <ul class="cline__discounts">
+                      {%- for d in item.line_level_discount_allocations -%}
+                        <li>{{ d.discount_application.title }} (&minus;{{ d.amount | money }})</li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endif -%}
+                </li>
+              {%- endfor -%}
+            </ul>
+
+            {%- comment -%}
+              The no-JS path. kj-cart.js updates on change, so this
+              button is only ever needed by a visitor without it —
+              hidden from everyone else rather than shown as a control
+              that does nothing.
+            {%- endcomment -%}
+            <noscript>
+              <button class="btn-solid cartp__update" type="submit" name="update">Update bag</button>
+            </noscript>
+          </div>
+
+          <aside class="cartp__side" aria-labelledby="cartp-sum">
+            <h2 class="cartp__sum-h" id="cartp-sum">Summary</h2>
+
+            {%- if cart.cart_level_discount_applications.size > 0 -%}
+              <ul class="cartp__discounts">
+                {%- for d in cart.cart_level_discount_applications -%}
+                  <li><span>{{ d.title }}</span><span>&minus;{{ d.total_allocated_amount | money }}</span></li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+            <div class="cartp__row">
+              <span>Subtotal</span>
+              <strong>{{ cart.total_price | money }}</strong>
+            </div>
+            <p class="cartp__note">Shipping and any taxes are worked out at checkout.</p>
+
+            {%- if section.settings.show_note -%}
+              <label class="cartp__note-l" for="cart-note">Anything we should know?</label>
+              <textarea class="cartp__note-t" id="cart-note" name="note"
+                        rows="3" placeholder="Measurements, delivery notes, a phone number to call">{{ cart.note }}</textarea>
+            {%- endif -%}
+
+            <button class="cartp__checkout" type="submit" name="checkout">Checkout</button>
+
+            {%- if section.settings.whatsapp != blank -%}
+              <a class="cartp__wa" href="https://wa.me/{{ section.settings.whatsapp }}"
+                 target="_blank" rel="noopener">
+                Rather order on WhatsApp?
+              </a>
+            {%- endif -%}
+
+            <ul class="cartp__trust">
+              <li>Cash on delivery nationwide</li>
+              <li>Cut to your measurement in the shop</li>
+              <li>Sheikhupura since 1978</li>
+            </ul>
+          </aside>
+        </div>
+      </form>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Cart",
+  "tag": "section",
+  "settings": [
+    { "type": "checkbox", "id": "show_note", "label": "Show an order note field", "default": true },
+    { "type": "text", "id": "whatsapp", "label": "WhatsApp number",
+      "default": "923019090590",
+      "info": "Country code, no + or spaces. Leave blank to hide the link." }
+  ]
+}
+{% endschema %}

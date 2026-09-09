@@ -1,0 +1,73 @@
+{%- comment -%}
+  sections/lada-band.liquid
+
+  The homepage's one dark beat. Everything above it is the house of
+  brands on white; this band is the label Khan Jee owns, so it changes
+  register completely — dark ground, champagne mark, no product grid —
+  and hands off to /pages/lada.
+
+  index.json has referenced "lada-band" since the first build but the
+  file never existed, so the last section of the homepage was rendering
+  as nothing at all.
+
+  The wordmark is the real Lada mark rather than type: the whole point
+  of this band is that the label is ours.
+{%- endcomment -%}
+
+<section class="lband" aria-labelledby="lband-h">
+  {%- if section.settings.image != blank or section.settings.asset_file != blank -%}
+    {%- if section.settings.image -%}
+      <img class="lband__bg" src="{{ section.settings.image | image_url: width: 2400 }}"
+           srcset="{{ section.settings.image | image_url: width: 1200 }} 1200w,
+                   {{ section.settings.image | image_url: width: 2400 }} 2400w"
+           sizes="100vw" width="2400" height="1200" loading="lazy" decoding="async" alt="">
+    {%- else -%}
+      <img class="lband__bg" src="{{ section.settings.asset_file | asset_url }}"
+           width="2400" height="1200" loading="lazy" decoding="async" alt="">
+    {%- endif -%}
+  {%- endif -%}
+
+  <div class="lband__in" data-reveal>
+    <p class="lband__eyebrow">{{ section.settings.eyebrow | default: 'Our own label' }}</p>
+
+    {%- assign mark_label = section.settings.heading | default: 'Lada by Khan Jee' -%}
+    <h2 class="lband__mark" id="lband-h">
+      {%- render 'kj-mark', mark: 'lada', label: mark_label -%}
+    </h2>
+
+    <p class="lband__by">{{ section.settings.byline | default: 'by Khan Jee' }}</p>
+
+    {%- if section.settings.text != blank -%}
+      <p class="lband__text">{{ section.settings.text }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.cta != blank -%}
+      <a class="lband__btn" href="{{ section.settings.link | default: '/pages/lada' }}">
+        {{ section.settings.cta }}
+      </a>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lada band",
+  "tag": "section",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Background image" },
+    { "type": "text", "id": "asset_file", "label": "…or theme asset filename",
+      "default": "lada-waistcoats.jpg",
+      "info": "Used only when no image is picked" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our own label" },
+    { "type": "text", "id": "heading", "label": "Wordmark label",
+      "default": "Lada by Khan Jee",
+      "info": "The wordmark is drawn, not typed. This is the name a screen reader reads out." },
+    { "type": "text", "id": "byline", "label": "Byline", "default": "by Khan Jee" },
+    { "type": "textarea", "id": "text", "label": "Text",
+      "default": "Waistcoats and coats cut in the eastern manner, from cloth woven under our own roof. The one label in this shop whose every thread we answer for." },
+    { "type": "text", "id": "cta", "label": "Button label", "default": "Enter Lada" },
+    { "type": "url", "id": "link", "label": "Button link" }
+  ],
+  "presets": [{ "name": "Lada band" }]
+}
+{% endschema %}

@@ -44,6 +44,27 @@
   text-transform:uppercase;color:var(--gold)}
 .hs__title{margin:0;font-family:var(--font-heavy);font-weight:400;color:#fff;text-transform:uppercase;
   line-height:.88;letter-spacing:.015em;font-size:clamp(2.2rem,8vw,5.6rem);max-width:16ch}
+
+/* ============================================================
+   BRAND MARKS
+   Both marks come out of kj-svg-defs as <symbol>s and inherit
+   colour from their parent, so there is one file per mark and no
+   recolouring variants. A <use>d symbol has no intrinsic size, so
+   each variant carries its own aspect-ratio — without that the
+   svg falls back to 300x150 and the mark comes out squashed.
+   ============================================================ */
+.kj-mark{display:block;width:100%;height:auto}
+.kj-mark--kj{aspect-ratio:1021/617}
+.kj-mark--lada{aspect-ratio:19/10}
+
+/* --- the marks standing in for a hero heading --- */
+.hs__title--mark{width:100%;max-width:none;display:flex;justify-content:center}
+.hs__in[data-align="left"] .hs__title--mark{justify-content:flex-start}
+.hs__title--kj .kj-mark{width:clamp(190px,30vw,420px);color:#fff;
+  filter:drop-shadow(0 2px 18px rgba(0,0,0,.45))}
+.hs__title--lada .kj-mark{width:clamp(200px,32vw,400px);color:var(--gold);
+  filter:drop-shadow(0 2px 14px rgba(0,0,0,.5))}
+
 .hs__rule{width:70px;height:2px;background:var(--accent);margin:var(--s5) 0 0}
 .hs__in[data-align="centre"] .hs__rule{margin-inline:auto}
 .hs__sub{margin:var(--s4) 0 0;color:rgba(255,255,255,.82);font-size:clamp(.95rem,1.6vw,1.08rem);
@@ -172,16 +193,52 @@
 .pcard__price s{color:var(--text-tertiary);margin-right:.45rem;font-size:.84rem}
 .pcard__price .now{color:var(--sale)}
 .pcard__link::after{content:"";position:absolute;inset:0;z-index:1}
-.pcard a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.pcard__quick{position:absolute;z-index:3;inset-inline:var(--s3);bottom:var(--s3);
+/* the whole-card click target must not swallow the quick-add button */
+.pcard__add,.pcard__quick--link{position:relative;z-index:3}
+.pcard a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}/* Quick add.
+   Two things were wrong here. It was hidden outright below 900px, so
+   phone visitors — nearly all of them — had no way to add to the bag
+   from a listing at all. And it was revealed on :hover, which a touch
+   screen never fires, so even displayed it would have stayed invisible.
+
+   So: on pointer devices it still slides up on hover, which is the
+   nice behaviour and keeps the photograph clean. On anything without
+   hover it sits permanently below the image, in the card's own flow,
+   at a full 44px touch target. */
+.pcard__add{position:relative;z-index:3;margin-top:var(--s3)}
+.pcard__quick{display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;min-height:44px;
   background:rgba(var(--bg-rgb),.96);border:1px solid var(--border-strong);color:var(--text);
-  font-size:.66rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
-  padding:.72rem;text-align:center;opacity:0;transform:translateY(8px);
-  transition:opacity .3s var(--ease),transform .3s var(--ease);cursor:pointer}
-.pcard:hover .pcard__quick,.pcard:focus-within .pcard__quick{opacity:1;transform:none}
+  font-family:var(--font-ui);font-size:.66rem;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;padding:.72rem;text-align:center;cursor:pointer}
+.pcard__quick--link{margin-top:var(--s3);text-decoration:none}
 .pcard__quick:hover{background:var(--surface-dark);color:#fff;border-color:var(--surface-dark)}
-@media (max-width:899px){.pcard__quick{display:none}}
+.pcard__quick:disabled{cursor:progress}
+.pcard__quick[data-loading] .pcard__quick-t{opacity:.45}
+.pcard__spin{display:none;width:13px;height:13px;border:2px solid currentColor;
+  border-top-color:transparent;border-radius:50%;animation:kjSpin .6s linear infinite}
+.pcard__quick[data-loading] .pcard__spin{display:block}
+@keyframes kjSpin{to{transform:rotate(360deg)}}
+.pcard__err{margin:.45rem 0 0;font-family:var(--font-ui);font-size:.72rem;line-height:1.5;
+  color:var(--error)}
+
+/* On a real pointer, float it back over the photograph on hover. */
+@media (hover:hover) and (pointer:fine){
+  .pcard__add{position:absolute;inset-inline:var(--s3);bottom:var(--s3);margin-top:0}
+  .pcard__quick{opacity:0;transform:translateY(8px);
+    transition:opacity .3s var(--ease),transform .3s var(--ease)}
+  .pcard:hover .pcard__quick,.pcard:focus-within .pcard__quick{opacity:1;transform:none}
+  .pcard__quick--link{position:absolute;inset-inline:var(--s3);bottom:var(--s3);margin-top:0;
+    opacity:0;transform:translateY(8px);
+    transition:opacity .3s var(--ease),transform .3s var(--ease)}
+  .pcard:hover .pcard__quick--link,.pcard:focus-within .pcard__quick--link{opacity:1;transform:none}
+  /* An error has to stay put even after the pointer leaves. */
+  .pcard__add:has(.pcard__err:not([hidden])) .pcard__quick{opacity:1;transform:none}
+}
 @media (prefers-reduced-motion:reduce){
-  .pcard__media img,.pcard__quick{transition:none!important;transform:none!important}
+  .pcard__media img,.pcard__quick,.pcard__quick--link{
+    transition:none!important;transform:none!important}
+  .pcard__spin{animation:none}
 }
 
 /* ---------- LADA sits first in the nav, in brass ---------- */
@@ -208,6 +265,12 @@
 .lada__hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;
   animation:ladaZoom 22s var(--ease) both}
 @keyframes ladaZoom{from{transform:scale(1.06)}to{transform:scale(1)}}
+/* The Lada hero's slow push-in was the one animation with no
+   reduced-motion escape. A 22s scale on a full-bleed image is exactly
+   the kind of large-area movement that triggers vestibular symptoms. */
+@media (prefers-reduced-motion:reduce){
+  .lada__hero img{animation:none;transform:none}
+}
 .lada__hero::after{content:"";position:absolute;inset:0;
   background:linear-gradient(to top,var(--lada-ground) 3%,rgba(14,14,15,.55) 45%,rgba(14,14,15,.78) 100%)}
 .lada__hero-in{position:relative;z-index:2;padding-block:clamp(3rem,9vh,6rem)}.lada__eyebrow{margin:0;font-size:.6rem;letter-spacing:.36em;text-transform:uppercase;
@@ -408,3 +471,332 @@
 .bdir__fabh{margin:var(--s4) 0 var(--s2);font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--text)}
 .bdir__fab .chiprow{padding-bottom:var(--s2)}
 .bdir__cell--lada span{color:var(--gold);letter-spacing:.06em}
+
+/* ============================================================
+   LADA BAND — the homepage's one dark beat
+   Reuses the --lada-* register from the Lada page so the two
+   surfaces read as the same label, and nothing new is defined.
+   ============================================================ */
+.lband{position:relative;isolation:isolate;background:var(--lada-ground);
+  color:var(--lada-bone);overflow:hidden;text-align:center}
+.lband__bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:.30;z-index:-2}
+.lband::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(120% 100% at 50% 40%,rgba(14,14,15,.35) 0%,rgba(14,14,15,.86) 70%,var(--lada-ground) 100%)}
+.lband__in{position:relative;width:min(100% - 2.5rem,760px);margin-inline:auto;
+  padding-block:clamp(4rem,12vh,8rem);display:flex;flex-direction:column;align-items:center}
+.lband__eyebrow{margin:0;font-family:var(--font-ui);font-size:.62rem;font-weight:600;
+  letter-spacing:.36em;text-transform:uppercase;color:var(--lada-champagne)}
+.lband__mark{margin:var(--s5) 0 0;width:100%;display:flex;justify-content:center}
+.lband__mark .kj-mark{width:clamp(210px,38vw,360px);color:var(--lada-champagne)}
+.lband__by{margin:var(--s3) 0 0;font-family:var(--font-ui);font-size:.62rem;font-weight:400;
+  letter-spacing:.44em;text-transform:uppercase;color:var(--lada-champagne)}
+.lband__text{margin:var(--s6) 0 0;max-width:46ch;color:var(--lada-muted);
+  font-size:clamp(.95rem,1.5vw,1.05rem);line-height:1.75}
+.lband__btn{margin-top:var(--s6);display:inline-flex;align-items:center;justify-content:center;
+  min-height:52px;padding-inline:2.4rem;border:1px solid var(--lada-champagne);
+  background:transparent;color:var(--lada-champagne);font-family:var(--font-ui);
+  font-size:.66rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  transition:background .25s var(--ease),color .25s var(--ease)}
+.lband__btn:hover{background:var(--lada-champagne);color:var(--lada-ground)}
+
+/* ============================================================
+   THE BAG — drawer and cart page
+   Tokens only, --radius stays 0, and the type is the same four
+   families as everywhere else. Nothing here is new brand language;
+   it is the shop's own surfaces applied to a panel.
+   ============================================================ */
+.kj-noscroll{overflow:hidden}
+
+.cdrawer{position:fixed;inset:0;z-index:120;pointer-events:none;
+  font-family:var(--font-ui)}
+.cdrawer[data-open="true"]{pointer-events:auto}
+.cdrawer__scrim{position:absolute;inset:0;background:rgba(var(--dark-rgb),.5);
+  opacity:0;transition:opacity .32s var(--ease)}
+.cdrawer[data-open="true"] .cdrawer__scrim{opacity:1}
+
+.cdrawer__panel{position:absolute;inset-block:0;inset-inline-end:0;
+  width:min(100%,430px);display:flex;flex-direction:column;
+  background:var(--bg);color:var(--text);border-inline-start:1px solid var(--border);
+  transform:translateX(100%);transition:transform .36s var(--ease);
+  box-shadow:var(--shadow-raised)}
+.cdrawer[data-open="true"] .cdrawer__panel{transform:none}
+.cdrawer[data-busy="true"] .cdrawer__panel{cursor:progress}
+.cdrawer[data-busy="true"] .cdrawer__lines{opacity:.55;transition:opacity .2s}
+
+.cdrawer__head{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
+  padding:var(--s5);border-bottom:1px solid var(--border);flex:none}
+.cdrawer__title{margin:0;font-family:var(--font-display);font-weight:400;
+  font-size:1.32rem;letter-spacing:-.01em;display:flex;align-items:baseline;gap:.55rem}
+.cdrawer__count{font-family:var(--font-ui);font-size:.66rem;font-weight:600;
+  letter-spacing:.14em;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
+.cdrawer__x{display:grid;place-items:center;width:44px;height:44px;margin:-10px -10px -10px 0;
+  background:none;border:0;color:var(--text);cursor:pointer}
+.cdrawer__x:hover{color:var(--accent)}
+
+.cdrawer__empty{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:var(--s3);padding:var(--s7) var(--s5);text-align:center}
+.cdrawer__empty-h{margin:0;font-family:var(--font-display);font-size:1.25rem}
+.cdrawer__empty-p{margin:0;color:var(--text-tertiary);font-size:.9rem}
+.cdrawer__cta{margin-top:var(--s4);display:inline-flex;align-items:center;justify-content:center;
+  min-height:48px;padding-inline:2rem;background:var(--surface-dark);color:#fff;
+  font-size:.66rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+.cdrawer__cta:hover{background:var(--accent)}
+
+.cdrawer__lines{flex:1;overflow-y:auto;overscroll-behavior:contain;
+  margin:0;padding:0;list-style:none}
+.cline{display:grid;grid-template-columns:84px 1fr;gap:var(--s4);
+  padding:var(--s5);border-bottom:1px solid var(--border)}
+.cline__media{display:block;background:var(--surface)}
+.cline__media img{display:block;width:100%;height:auto;object-fit:cover;aspect-ratio:4/5}
+.cline__body{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.cline__title{font-family:var(--font-display);font-size:1rem;line-height:1.3;color:var(--text)}
+.cline__title:hover{color:var(--accent)}
+.cline__meta{margin:.3rem 0 0;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-tertiary)}
+.cline__meta:empty{display:none}
+.cline__foot{margin-top:var(--s3);width:100%;display:flex;align-items:center;
+  justify-content:space-between;gap:var(--s3);flex-wrap:wrap}
+.cline__price{margin:0;font-size:.92rem;font-variant-numeric:tabular-nums}
+.cline__price s{color:var(--text-tertiary);margin-right:.4rem;font-size:.82rem}
+.cline__price .now{color:var(--sale)}
+.cline__discounts{margin:.4rem 0 0;padding:0;list-style:none;font-size:.7rem;color:var(--success)}
+.cline__rm{margin-top:.35rem;padding:.42rem 0;min-height:24px;background:none;border:0;
+  cursor:pointer;font-family:var(--font-ui);font-size:.64rem;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--text-tertiary);
+  text-decoration:underline;text-decoration-color:var(--border-hover);
+  text-underline-offset:3px}
+.cline__rm:hover{color:var(--accent);text-decoration-color:var(--accent)}
+/* On touch, take it to the full 44pt. The underline stays put because
+   the padding grows, not the text. */
+@media (hover:none){
+  .cline__rm{padding-block:.85rem;min-height:44px}
+}
+
+/* 44x44 minimum on the stepper. It was 38x38, which is under the
+   44pt floor for a touch target and this shop is almost all phone
+   traffic — a miss on a minus button removes nothing, or removes the
+   wrong line. */
+.qty{display:flex;align-items:center;border:1px solid var(--border)}
+.qty__b{width:44px;height:44px;display:grid;place-items:center;background:none;border:0;
+  cursor:pointer;color:var(--text);font-size:1rem;line-height:1}
+.qty__b:hover{background:var(--surface-hover);color:var(--accent)}
+.qty__i{width:46px;height:44px;border:0;border-inline:1px solid var(--border);
+  text-align:center;font-family:var(--font-ui);font-size:.86rem;
+  font-variant-numeric:tabular-nums;color:var(--text);background:var(--bg);
+  -moz-appearance:textfield;appearance:textfield}
+.qty__i::-webkit-outer-spin-button,.qty__i::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0}
+.qty__i:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+.cdrawer__foot{flex:none;padding:var(--s5);border-top:1px solid var(--border);
+  background:var(--surface)}
+.cdrawer__discounts{margin:0 0 var(--s3);padding:0;list-style:none;font-size:.8rem;
+  color:var(--success);display:grid;gap:.25rem}
+.cdrawer__discounts li{display:flex;justify-content:space-between;gap:var(--s3)}
+.cdrawer__total{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4)}
+.cdrawer__total span{font-size:.66rem;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--text-secondary)}
+.cdrawer__total strong{font-family:var(--font-display);font-weight:400;font-size:1.4rem;
+  font-variant-numeric:tabular-nums}
+.cdrawer__note{margin:.4rem 0 var(--s4);font-size:.72rem;color:var(--text-tertiary)}
+.cdrawer__checkout{width:100%;min-height:52px;background:var(--accent);color:#fff;border:0;
+  cursor:pointer;font-family:var(--font-ui);font-size:.7rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;
+  transition:background .25s var(--ease)}
+.cdrawer__checkout:hover{background:var(--accent-hover)}
+.cdrawer__view{display:flex;align-items:center;justify-content:center;min-height:44px;
+  margin-top:var(--s2);text-align:center;font-size:.64rem;
+  font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text-tertiary)}
+.cdrawer__view:hover{color:var(--accent)}
+.cdrawer__live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);
+  white-space:nowrap}
+
+.cdrawer__panel :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* the panel is a container that receives focus on open, not a control */
+.cdrawer__panel:focus{outline:none}
+
+@media (prefers-reduced-motion:reduce){
+  .cdrawer__scrim,.cdrawer__panel{transition:none}
+}
+
+/* ============================================================
+   CART PAGE
+   ============================================================ */
+.cartp{font-family:var(--font-ui);padding-block:var(--s7) var(--s9)}
+.cartp__wrap{width:min(100% - 2.5rem,1280px);margin-inline:auto}
+@media (min-width:900px){.cartp__wrap{width:min(100% - 4rem,1280px)}}
+.cartp__head{display:flex;align-items:baseline;gap:var(--s4);
+  padding-bottom:var(--s5);border-bottom:1px solid var(--border)}
+.cartp__h1{margin:0;font-family:var(--font-display);font-weight:400;letter-spacing:-.015em;
+  font-size:clamp(1.8rem,4vw,2.8rem)}
+.cartp__count{margin:0;font-size:.66rem;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--text-tertiary)}
+
+.cartp__empty{padding-block:clamp(3rem,10vh,6rem);text-align:center}
+.cartp__empty-h{margin:0;font-family:var(--font-display);font-size:clamp(1.3rem,3vw,1.8rem)}
+.cartp__empty-p{margin:var(--s3) auto 0;max-width:44ch;color:var(--text-tertiary)}
+.cartp__empty-ctas{margin-top:var(--s6);display:flex;flex-wrap:wrap;gap:var(--s3);
+  justify-content:center}
+.btn-solid,.btn-line{display:inline-flex;align-items:center;justify-content:center;
+  min-height:52px;padding-inline:2.2rem;font-family:var(--font-ui);font-size:.66rem;
+  font-weight:600;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;
+  border:1px solid var(--surface-dark);transition:background .25s var(--ease),color .25s var(--ease)}
+.btn-solid{background:var(--surface-dark);color:#fff}
+.btn-solid:hover{background:var(--accent);border-color:var(--accent)}
+.btn-line{background:transparent;color:var(--text)}
+.btn-line:hover{background:var(--surface-dark);color:#fff}
+
+.cartp__grid{display:grid;gap:var(--s7);padding-top:var(--s6)}
+@media (min-width:900px){
+  .cartp__grid{grid-template-columns:minmax(0,1fr) 340px;gap:var(--s8);align-items:start}
+}
+.cartp__thead{display:none}
+@media (min-width:760px){
+  .cartp__thead{display:grid;grid-template-columns:120px minmax(0,1fr) 130px 120px;
+    gap:var(--s4);padding-bottom:var(--s3);border-bottom:1px solid var(--border);
+    font-size:.62rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--text-tertiary)}
+  .cartp__thead span:first-child{grid-column:1 / span 2}
+  .cartp__thead span:last-child{text-align:right}
+}
+.cartp__list{margin:0;padding:0;list-style:none}
+.cline--page{grid-template-columns:96px minmax(0,1fr);padding-inline:0}
+@media (min-width:760px){
+  .cline--page{grid-template-columns:120px minmax(0,1fr) 130px 120px;align-items:start}
+  .cline--page .cline__foot{display:none}
+}
+.cline__unit{margin:.45rem 0 0;font-size:.8rem;color:var(--text-tertiary);
+  font-variant-numeric:tabular-nums}
+.cline__qty,.cline__total{display:none}
+@media (min-width:760px){
+  .cline__qty{display:block}
+  .cline__total{display:block;margin:0;text-align:right;font-size:.95rem;
+    font-variant-numeric:tabular-nums}
+  .cline__total s{display:block;color:var(--text-tertiary);font-size:.82rem}
+  .cline__total .now{color:var(--sale)}
+}
+.cartp__update{margin-top:var(--s5)}
+.cartp[data-busy="true"] .cartp__list{opacity:.55;transition:opacity .2s}
+
+.cartp__side{border:1px solid var(--border);padding:var(--s5);background:var(--surface)}
+@media (min-width:900px){.cartp__side{position:sticky;top:var(--s6)}}
+.cartp__sum-h{margin:0 0 var(--s4);font-size:.66rem;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--text-secondary)}
+.cartp__discounts{margin:0 0 var(--s3);padding:0;list-style:none;font-size:.82rem;
+  color:var(--success);display:grid;gap:.25rem}
+.cartp__discounts li{display:flex;justify-content:space-between;gap:var(--s3)}
+.cartp__row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);
+  padding-top:var(--s3);border-top:1px solid var(--border)}
+.cartp__row span{font-size:.66rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-secondary)}
+.cartp__row strong{font-family:var(--font-display);font-weight:400;font-size:1.5rem;
+  font-variant-numeric:tabular-nums}
+.cartp__note{margin:.4rem 0 var(--s5);font-size:.74rem;color:var(--text-tertiary)}
+.cartp__note-l{display:block;margin-bottom:.4rem;font-size:.66rem;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary)}
+.cartp__note-t{width:100%;padding:.7rem;margin-bottom:var(--s5);background:var(--bg);
+  border:1px solid var(--border);font-family:var(--font-ui);font-size:.88rem;
+  color:var(--text);resize:vertical}
+.cartp__note-t:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.cartp__checkout{width:100%;min-height:54px;background:var(--accent);color:#fff;border:0;
+  cursor:pointer;font-family:var(--font-ui);font-size:.7rem;font-weight:600;
+  letter-spacing:.22em;text-transform:uppercase;transition:background .25s var(--ease)}
+.cartp__checkout:hover{background:var(--accent-hover)}
+.cartp__wa{display:block;margin-top:var(--s3);text-align:center;font-size:.66rem;
+  font-weight:600;letter-spacing:.14em;color:var(--text-tertiary)}
+.cartp__wa:hover{color:var(--accent)}
+.cartp__trust{margin:var(--s5) 0 0;padding:var(--s4) 0 0;list-style:none;
+  border-top:1px solid var(--border);display:grid;gap:.45rem;
+  font-size:.72rem;color:var(--text-tertiary)}
+
+/* ============================================================
+   PRODUCT PAGE
+   ============================================================ */
+.pdp{font-family:var(--font-ui);padding-block:var(--s6) var(--s9)}
+.pdp__wrap{width:min(100% - 2.5rem,1280px);margin-inline:auto}
+@media (min-width:900px){.pdp__wrap{width:min(100% - 4rem,1280px)}}
+.pdp__crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;
+  font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-tertiary);margin-bottom:var(--s5)}
+.pdp__crumbs a:hover{color:var(--accent)}
+.pdp__crumbs [aria-current]{color:var(--text)}
+
+.pdp__grid{display:grid;gap:var(--s6)}
+@media (min-width:900px){
+  .pdp__grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--s8);
+    align-items:start}
+}
+.pdp__stage{position:relative;background:var(--surface);aspect-ratio:4/5;overflow:hidden}
+.pdp__img{display:block;width:100%;height:100%;object-fit:cover}
+.pdp__stage--empty{background:var(--surface-alt)}
+.pdp__thumbs{display:flex;gap:var(--s2);margin-top:var(--s2);overflow-x:auto;
+  scrollbar-width:thin}
+.pdp__thumb{flex:none;width:74px;min-height:44px;padding:0;background:none;
+  border:1px solid transparent;cursor:pointer;line-height:0}
+.pdp__thumb img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}
+.pdp__thumb.is-active{border-color:var(--surface-dark)}
+.pdp__thumb:hover{border-color:var(--border-hover)}
+.pdp__thumb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.pdp__info{display:flex;flex-direction:column;align-items:flex-start}
+@media (min-width:900px){.pdp__info{position:sticky;top:var(--s6)}}
+.pdp__house{margin:0;font-size:.64rem;font-weight:600;letter-spacing:.28em;
+  text-transform:uppercase;color:var(--text-tertiary)}
+.pdp__house--own{color:var(--gold)}
+.pdp__title{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:400;
+  letter-spacing:-.015em;line-height:1.12;font-size:clamp(1.6rem,3.6vw,2.4rem)}
+.pdp__sku{margin:.5rem 0 0;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-tertiary)}
+.pdp__price{margin-top:var(--s4);display:flex;align-items:baseline;flex-wrap:wrap;gap:.6rem;
+  font-variant-numeric:tabular-nums}
+.pdp__price .now{font-family:var(--font-display);font-size:1.6rem}
+.pdp__price s{color:var(--text-tertiary);font-size:1rem}
+.pdp__off{font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:#fff;background:var(--sale);padding:.28rem .5rem}
+.pdp__oos{margin:var(--s4) 0 0;font-size:.86rem;color:var(--text-secondary)}
+.pdp__oos a{color:var(--accent);border-bottom:1px solid currentColor}
+
+.pdp__form{width:100%;margin-top:var(--s6)}
+.pdp__opts{display:grid;gap:var(--s3);margin-bottom:var(--s4)}
+.pdp__opt{display:grid;gap:.35rem}
+.pdp__opt-l{font-size:.64rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-secondary)}
+.pdp__opt-s{min-height:46px;padding:0 .7rem;background:var(--bg);border:1px solid var(--border);
+  font-family:var(--font-ui);font-size:.9rem;color:var(--text)}
+.pdp__opt-s:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.pdp__buy{display:flex;gap:var(--s3);align-items:stretch;flex-wrap:wrap}
+.pdp__buy .qty{flex:none}
+/* taller than the 44 floor so the stepper lines up with Add to bag */
+.pdp__buy .qty__b,.pdp__buy .qty__i{height:54px}
+.pdp__atc{flex:1;min-width:180px;min-height:54px;display:flex;align-items:center;
+  justify-content:center;gap:.6rem;background:var(--accent);color:#fff;border:0;cursor:pointer;
+  font-family:var(--font-ui);font-size:.7rem;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;transition:background .25s var(--ease)}
+.pdp__atc:hover:not(:disabled){background:var(--accent-hover)}
+.pdp__atc:disabled{background:var(--border-hover);color:var(--text-tertiary);cursor:not-allowed}
+.pdp__atc[data-loading] .pdp__atc-t{opacity:.5}
+.pdp__atc[data-loading] .pcard__spin{display:block}
+.pdp__err{margin:.6rem 0 0;font-size:.8rem;color:var(--error)}
+
+.pdp__wa{margin-top:var(--s4);display:inline-flex;align-items:center;gap:.5rem;
+  font-size:.68rem;font-weight:600;letter-spacing:.1em;color:var(--text-secondary)}
+.pdp__wa:hover{color:var(--accent)}
+.pdp__trust{margin:var(--s6) 0 0;padding:var(--s4) 0;list-style:none;width:100%;
+  border-block:1px solid var(--border);display:grid;gap:.45rem;
+  font-size:.74rem;color:var(--text-tertiary)}
+
+.pdp__spec{margin-top:var(--s6);width:100%;border-collapse:collapse;text-align:left}
+.pdp__spec caption{text-align:left;font-size:.64rem;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--text-secondary);padding-bottom:var(--s3)}
+.pdp__spec th,.pdp__spec td{padding:.62rem 0;border-bottom:1px solid var(--border);
+  font-size:.85rem;font-weight:400;vertical-align:top}
+.pdp__spec th{width:34%;color:var(--text-tertiary);font-size:.64rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;padding-inline-end:var(--s4)}
+.pdp__desc{margin-top:var(--s6);color:var(--text-secondary);line-height:1.75;
+  font-size:.92rem;max-width:var(--measure)}
+
+.pdp__rel{margin-top:var(--s9)}
+.pdp__rel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--s5) var(--s4);margin-top:var(--s5)}
+@media (min-width:760px){.pdp__rel-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}

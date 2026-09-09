@@ -1,0 +1,6 @@
+{
+  "sections": {
+    "main": { "type": "main-cart", "settings": { "show_note": true, "whatsapp": "923019090590" } }
+  },
+  "order": ["main"]
+}

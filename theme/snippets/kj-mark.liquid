@@ -1,0 +1,32 @@
+{%- comment -%}
+  snippets/kj-mark.liquid
+  {% render 'kj-mark' %}                       → the KJ ellipse mark
+  {% render 'kj-mark', mark: 'lada' %}         → the Lada script wordmark
+  {% render 'kj-mark', mark: 'lada', label: 'Lada by Khan Jee' %}
+
+  Both are <use> references into kj-svg-defs, so the geometry ships once.
+  Colour comes from currentColor — set it on the parent, never here.
+  Pass label to make the mark meaningful to a screen reader; leave it off
+  and the mark is decorative, which is right when readable text sits
+  beside it.
+
+  The Lada mark is a monoline script, so it is stroked rather than
+  filled — the stroke attributes live on the <symbol> and scale with it,
+  which is what keeps the mark looking like itself at any size.
+{%- endcomment -%}
+
+{%- liquid
+  assign m = mark | default: 'kj'
+  if m == 'lada'
+    assign href = '#lada-path'
+    assign ratio = 'kj-mark--lada'
+  else
+    assign href = '#kj-path'
+    assign ratio = 'kj-mark--kj'
+  endif
+-%}
+
+<svg class="kj-mark {{ ratio }}{% if class %} {{ class }}{% endif %}"
+     {% if label %}role="img" aria-label="{{ label | escape }}"{% else %}aria-hidden="true" focusable="false"{% endif %}>
+  <use href="{{ href }}"></use>
+</svg>

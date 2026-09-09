@@ -1,0 +1,153 @@
+{%- comment -%}
+  sections/kj-cart-drawer.liquid
+
+  A SECTION rather than a snippet on purpose: that makes it addressable
+  by Shopify's Section Rendering API, so after every /cart/add.js or
+  /cart/change.js the server hands back this markup already rendered —
+  prices, discounts and totals formatted by `money` in the shop's own
+  currency. No money formatting in JavaScript, and no way for the
+  drawer to disagree with the cart.
+
+  Rendered once from layout/theme.liquid, so it is present on every
+  page and the drawer can open from anywhere.
+{%- endcomment -%}
+
+<div class="cdrawer" id="kj-cart-drawer" data-kj-drawer data-open="false" aria-hidden="true">
+  <div class="cdrawer__scrim" data-kj-drawer-close tabindex="-1"></div>
+
+  {%- comment -%}
+    tabindex="-1" so the panel itself can take focus when the dialog
+    opens. Without it an <aside> is not focusable and focus would stay
+    behind the scrim on the page underneath.
+  {%- endcomment -%}
+  <aside class="cdrawer__panel" role="dialog" aria-modal="true" tabindex="-1"
+         aria-labelledby="cdrawer-title" data-kj-drawer-panel>
+
+    <header class="cdrawer__head">
+      <h2 class="cdrawer__title" id="cdrawer-title">
+        Your bag
+        <span class="cdrawer__count">{{ cart.item_count }}</span>
+      </h2>
+      <button class="cdrawer__x" type="button" data-kj-drawer-close aria-label="Close bag">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+             stroke-width="1.5" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </button>
+    </header>
+
+    {%- if cart.item_count == 0 -%}
+      <div class="cdrawer__empty">
+        <p class="cdrawer__empty-h">Your bag is empty</p>
+        <p class="cdrawer__empty-p">Cloth you add will show up here.</p>
+        <a class="cdrawer__cta" href="{{ routes.all_products_collection_url }}">Shop the shelf</a>
+      </div>
+    {%- else -%}
+
+      <ul class="cdrawer__lines" data-kj-lines>
+        {%- for item in cart.items -%}
+          <li class="cline" data-kj-line="{{ forloop.index }}">
+            <a class="cline__media" href="{{ item.url }}" tabindex="-1" aria-hidden="true">
+              {%- if item.image -%}
+                <img src="{{ item.image | image_url: width: 200 }}" width="100" height="125"
+                     loading="lazy" decoding="async" alt="">
+              {%- endif -%}
+            </a>
+
+            <div class="cline__body">
+              <a class="cline__title" href="{{ item.url }}">{{ item.product.title }}</a>
+
+              {%- comment -%}
+                Only Dynasty and Pasha are sold under their own cloth name;
+                everything else is a Khan Jee piece and shows its SKU. Same
+                rule as product-card.liquid — a supplier name must never
+                reach a customer-facing surface.
+              {%- endcomment -%}
+              {%- liquid
+                assign named_houses = 'Dynasty,Pasha' | split: ','
+                assign show_vendor = false
+                for house in named_houses
+                  if item.product.vendor == house
+                    assign show_vendor = true
+                  endif
+                endfor
+              -%}
+              <p class="cline__meta">
+                {%- if show_vendor -%}{{ item.product.vendor }}
+                {%- elsif item.sku != blank -%}{{ item.sku }}
+                {%- endif -%}
+              </p>
+
+              {%- unless item.product.has_only_default_variant -%}
+                <p class="cline__meta">{{ item.variant.title }}</p>
+              {%- endunless -%}
+
+              {%- for prop in item.properties -%}
+                {%- unless prop.last == blank or prop.first[0] == '_' -%}
+                  <p class="cline__meta">{{ prop.first }}: {{ prop.last }}</p>
+                {%- endunless -%}
+              {%- endfor -%}
+
+              <div class="cline__foot">
+                <div class="qty" data-kj-qty>
+                  <button class="qty__b" type="button" data-kj-qty-down
+                          aria-label="Reduce quantity of {{ item.product.title | escape }}">&minus;</button>
+                  <input class="qty__i" type="number" inputmode="numeric" min="0"
+                         value="{{ item.quantity }}" data-kj-qty-input
+                         aria-label="Quantity of {{ item.product.title | escape }}">
+                  <button class="qty__b" type="button" data-kj-qty-up
+                          aria-label="Increase quantity of {{ item.product.title | escape }}">+</button>
+                </div>
+
+                <p class="cline__price">
+                  {%- if item.original_line_price > item.final_line_price -%}
+                    <s>{{ item.original_line_price | money }}</s>
+                    <span class="now">{{ item.final_line_price | money }}</span>
+                  {%- else -%}
+                    {{ item.final_line_price | money }}
+                  {%- endif -%}
+                </p>
+              </div>
+
+              {%- if item.line_level_discount_allocations.size > 0 -%}
+                <ul class="cline__discounts">
+                  {%- for d in item.line_level_discount_allocations -%}
+                    <li>{{ d.discount_application.title }} (&minus;{{ d.amount | money }})</li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+
+              <button class="cline__rm" type="button" data-kj-remove
+                      aria-label="Remove {{ item.product.title | escape }} from your bag">Remove</button>
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <footer class="cdrawer__foot">
+        {%- if cart.cart_level_discount_applications.size > 0 -%}
+          <ul class="cdrawer__discounts">
+            {%- for d in cart.cart_level_discount_applications -%}
+              <li><span>{{ d.title }}</span><span>&minus;{{ d.total_allocated_amount | money }}</span></li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        <div class="cdrawer__total">
+          <span>Subtotal</span>
+          <strong>{{ cart.total_price | money }}</strong>
+        </div>
+        <p class="cdrawer__note">Shipping and any taxes are worked out at checkout.</p>
+
+        <form action="{{ routes.cart_url }}" method="post" novalidate>
+          <button class="cdrawer__checkout" type="submit" name="checkout">Checkout</button>
+        </form>
+        <a class="cdrawer__view" href="{{ routes.cart_url }}">View bag</a>
+      </footer>
+    {%- endif -%}
+
+    <p class="cdrawer__live" role="status" aria-live="polite" data-kj-cart-live></p>
+  </aside>
+</div>
+
+{% schema %}
+{ "name": "Cart drawer", "settings": [] }
+{% endschema %}

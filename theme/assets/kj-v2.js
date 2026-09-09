@@ -209,3 +209,98 @@
     }, { passive: true });
   });
 })();
+
+/* ---------------- product page: gallery, quantity, options ----------------
+   All three are enhancements. The gallery ships every image in the
+   markup with only the first visible, so with JS off a visitor still
+   sees the product; the thumbnails simply swap which one is shown. The
+   quantity buttons sit either side of a real number input, and the
+   option selects post the right variant id because the hidden field is
+   updated on change — with JS off the first available variant is
+   already in that field. */
+(function () {
+  'use strict';
+
+  /* --- gallery --- */
+  document.querySelectorAll('.pdp__gal').forEach(function (gal) {
+    var thumbs = Array.prototype.slice.call(gal.querySelectorAll('[data-pdp-thumb]'));
+    if (thumbs.length < 2) return;
+    var imgs = Array.prototype.slice.call(gal.querySelectorAll('.pdp__img'));
+
+    function show(id) {
+      imgs.forEach(function (img) {
+        var on = img.id === 'pdp-media-' + id;
+        img.hidden = !on;
+        img.classList.toggle('is-active', on);
+      });
+      thumbs.forEach(function (t) {
+        var on = t.dataset.pdpThumb === String(id);
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+
+    thumbs.forEach(function (t) {
+      t.addEventListener('click', function () { show(t.dataset.pdpThumb); });
+    });
+
+    /* Left/right arrows walk the thumbnails, which is what a tablist
+       is expected to do. */
+    gal.addEventListener('keydown', function (e) {
+      var i = thumbs.indexOf(document.activeElement);
+      if (i < 0) return;
+      var n = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : -1;
+      if (n < 0 || n >= thumbs.length) return;
+      e.preventDefault();
+      thumbs[n].focus();
+      show(thumbs[n].dataset.pdpThumb);
+    });
+  });
+
+  /* --- quantity stepper --- */
+  document.querySelectorAll('.pdp__buy').forEach(function (buy) {
+    var input = buy.querySelector('[data-pdp-qty]');
+    if (!input) return;
+    var up = buy.querySelector('[data-pdp-qty-up]');
+    var down = buy.querySelector('[data-pdp-qty-down]');
+    function step(by) {
+      var n = (parseInt(input.value, 10) || 1) + by;
+      input.value = Math.max(1, n);
+    }
+    if (up) up.addEventListener('click', function () { step(1); });
+    if (down) down.addEventListener('click', function () { step(-1); });
+  });
+
+  /* --- option selects -> variant id --- */
+  document.querySelectorAll('.pdp__form').forEach(function (form) {
+    var data = form.querySelector('[data-pdp-variants]');
+    var idField = form.querySelector('[data-pdp-variant-id]');
+    var selects = Array.prototype.slice.call(form.querySelectorAll('[data-pdp-option]'));
+    if (!data || !idField || !selects.length) return;
+
+    var variants;
+    try { variants = JSON.parse(data.textContent); } catch (e) { return; }
+
+    var atc = form.querySelector('.pdp__atc');
+    var label = form.querySelector('.pdp__atc-t');
+
+    function sync() {
+      var chosen = selects.map(function (s) { return s.value; });
+      var match = variants.filter(function (v) {
+        return v.options.every(function (o, i) { return o === chosen[i]; });
+      })[0];
+
+      if (!match) {
+        if (atc) atc.disabled = true;
+        if (label) label.textContent = 'Unavailable';
+        return;
+      }
+      idField.value = match.id;
+      if (atc) atc.disabled = !match.available;
+      if (label) label.textContent = match.available ? 'Add to bag' : 'Sold out';
+    }
+
+    selects.forEach(function (s) { s.addEventListener('change', sync); });
+    sync();
+  });
+})();

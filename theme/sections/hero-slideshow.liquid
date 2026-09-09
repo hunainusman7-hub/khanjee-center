@@ -39,7 +39,20 @@
           {%- if block.settings.eyebrow != blank -%}
             <p class="hs__eyebrow">{{ block.settings.eyebrow }}</p>
           {%- endif -%}
-          <h2 class="hs__title">{{ block.settings.heading }}</h2>
+          {%- if block.settings.heading_mark == 'kj' or block.settings.heading_mark == 'lada' -%}
+            {%- comment -%}
+              The mark IS the heading on these slides — the client asked for the
+              logo centred over Hiran Minar, and a wordmark under a duplicate
+              text heading reads as a mistake. The <h2> stays so the document
+              outline is intact; the mark carries the accessible name, so a
+              screen reader still hears "Khan Jee" / "Lada" here.
+            {%- endcomment -%}
+            <h2 class="hs__title hs__title--mark hs__title--{{ block.settings.heading_mark }}">
+              {%- render 'kj-mark', mark: block.settings.heading_mark, label: block.settings.heading -%}
+            </h2>
+          {%- else -%}
+            <h2 class="hs__title">{{ block.settings.heading }}</h2>
+          {%- endif -%}
           <div class="hs__rule"></div>
           {%- if block.settings.sub != blank -%}
             <p class="hs__sub">{{ block.settings.sub }}</p>
@@ -101,6 +114,13 @@
           ]},
         { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
         { "type": "text", "id": "heading", "label": "Heading", "default": "Khan Jee" },
+        { "type": "select", "id": "heading_mark", "label": "Show heading as a logo", "default": "none",
+          "info": "Draws the brand mark instead of the heading text. The heading is still used as the mark's screen-reader label, so keep it filled in.",
+          "options": [
+            { "value": "none", "label": "Text heading" },
+            { "value": "kj",   "label": "Khan Jee mark" },
+            { "value": "lada", "label": "Lada wordmark" }
+          ]},
         { "type": "textarea", "id": "sub", "label": "Subtitle" },
         { "type": "text", "id": "cta", "label": "Button label", "default": "Shop now" },
         { "type": "url", "id": "link", "label": "Button link" }

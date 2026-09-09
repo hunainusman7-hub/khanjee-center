@@ -75,11 +75,28 @@
     {%- endunless -%}
   </a>
 
+  {%- comment -%}
+    Quick add. Unstitched cloth has no variants, so a card can add
+    straight to the bag; anything with real options has to go through
+    the product page, where the options actually exist.
+
+    data-kj-atc hands the submit to kj-cart.js, which posts to
+    /cart/add.js and opens the bag. Without JS this is still a plain
+    form post to /cart/add and still works.
+  {%- endcomment -%}
   {%- if product.available and product.variants.size == 1 -%}
-    <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data">
+    <form class="pcard__add" action="{{ routes.cart_add_url }}" method="post"
+          enctype="multipart/form-data" data-kj-atc>
       <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-      <button type="submit" class="pcard__quick">Add to cart</button>
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="pcard__quick">
+        <span class="pcard__quick-t">Add to bag</span>
+        <span class="pcard__spin" aria-hidden="true"></span>
+      </button>
+      <p class="pcard__err" data-kj-atc-error role="alert" hidden></p>
     </form>
+  {%- elsif product.available -%}
+    <a class="pcard__quick pcard__quick--link" href="{{ product.url }}">Choose options</a>
   {%- endif -%}
 
   <h3 class="pcard__title">{{ product.title | split: ' — ' | first }}</h3>
