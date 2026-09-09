@@ -2,13 +2,59 @@
 
 Everything needed to pick this up on another machine. Current as of 8 Sep 2026.
 
+> **9 Sep 2026 — connected, merged and published.**
+>
+> Live theme is now **`158235164845`** "Khan Jee — v2.2 fonts, bag, HIG audit".
+> The previous live theme **`158223007917`** ("v2.1 marks + cart") is kept
+> unpublished as the rollback:
+>
+> ```bash
+> shopify theme publish --store qw4zqf-sv.myshopify.com --theme 158223007917 --force
+> ```
+>
+> `theme/` in this repo is the **whole theme** now — 553 files, not 53. The gap
+> the section below calls the biggest trap in this handoff is closed. Pull
+> before pushing anyway, because the theme editor can change JSON templates
+> underneath you.
+>
+> **NEVER round-trip this theme through `theme push`.** It is built on Horizon,
+> and pushing Horizon's own stock files back up fails validation on about
+> thirty of them — theme blocks whose schemas use features the push API
+> rejects (`default must be a color or dynamic source access path`, `block type
+> must be defined in the theme blocks folder`). The first attempt produced a
+> draft with a broken `templates/password.json`, which on a password-protected
+> store is the only page anyone can see. None of the failures were in our own
+> files; they were all Horizon's.
+>
+> The way that works, and the way the v2.2 push was done:
+>
+> ```bash
+> # 1. server-side copy of live — no files are re-validated
+> shopify theme duplicate --theme <live-id> --name "…" --force --json
+>
+> # 2. upload ONLY the files you changed
+> shopify theme push --theme <new-id> --nodelete --force \
+>   -o assets/kj-v2.css -o sections/header.liquid …
+>
+> # 3. publish once you have checked it
+> shopify theme publish --theme <new-id> --force
+> ```
+>
+> **Storefront rendering still cannot be checked from here.** `shopify theme
+> dev` needs the storefront password (`--store-password`), which nobody has
+> written down. Asset-level verification works without it — theme assets are
+> on the CDN and are not password-gated, so `curl` against
+> `/cdn/shop/t/<slot>/assets/…` confirms what actually shipped. The live
+> theme's slot is currently **8** (it was 6 before this publish); find it by
+> fetching `fonts.css` from slots 6-12 and seeing which one answers.
+
 > **Corrections, 9 Sep 2026 — read these before running anything below.**
 > Four facts in the original handoff are wrong and will waste your time.
 >
 > | The handoff says | Actually |
 > |---|---|
 > | store `khanjeecenter.myshopify.com` | **`qw4zqf-sv.myshopify.com`** — the handoff's handle 404s. `www.khanjeecenter.com` is the custom domain in front of it. |
-> | live theme `158157045933` | **`158223007917`** — something was published after the handoff was written. Read it back any time from the `theme;desc=` field of `curl -sI https://www.khanjeecenter.com/`. |
+> | live theme `158157045933` | was `158223007917`, now **`158235164845`** — something was published after the handoff was written. Read it back any time from the `theme;desc=` field of `curl -sI https://www.khanjeecenter.com/`. |
 > | (not stated) | The theme is built on **Horizon**, not Dawn — `theme_store_id 2481`, and the asset list includes `morph.js`, `section-hydration.js`, `view-transitions.js`, `theme-drawer.js`. That matters: Horizon drives its cart through web components, so a bare `<form action="/cart/add">` does a full page reload instead of opening a drawer. |
 > | `npm install -g @shopify/cli` | `@shopify/theme` is long gone; the theme commands are in the CLI. Just `npm install -g @shopify/cli`. |
 >
