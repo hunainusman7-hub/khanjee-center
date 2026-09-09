@@ -83,6 +83,19 @@
 
   function panel() { return $('[data-kj-drawer-panel]'); }
 
+  /* Everything at the top level except the drawer itself. Safer than
+     naming header/main/footer, which differ between this theme's own
+     sections and the stock ones. */
+  function setBackgroundInert(on) {
+    var d = $('[data-kj-drawer]');
+    if (!d) return;
+    Array.prototype.forEach.call(document.body.children, function (el) {
+      if (el === d || el.contains(d)) return;
+      if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+      if (on) { el.setAttribute('inert', ''); } else { el.removeAttribute('inert'); }
+    });
+  }
+
   function closeOtherPanels() {
     [['[data-nav]', '[data-nav-toggle]'],
      ['[data-filters]', '[data-filter-toggle]']].forEach(function (pair) {
@@ -106,6 +119,15 @@
     if (open) {
       if (!opts.silent) lastFocus = document.activeElement;
 
+      /* inert is what actually makes a dialog modal. aria-modal tells a
+         screen reader to confine itself, but it does nothing for Tab or
+         for clicks, so without inerting the page behind, a keyboard user
+         could tab straight out of the open bag and into the catalogue
+         underneath it. Doing it on both sides also means the closed
+         drawer's own fifteen controls are never in anybody's tab order. */
+      d.removeAttribute('inert');
+      setBackgroundInert(true);
+
       /* One modal at a time. The mobile nav and the filters panel are
          both driven by site.js and both take over the screen; if a tap
          on Add to bag opened the bag on top of an already-open nav, a
@@ -124,11 +146,19 @@
     } else {
       d.setAttribute('data-open', 'false');
       d.setAttribute('aria-hidden', 'true');
+      setBackgroundInert(false);
       document.documentElement.classList.remove('kj-noscroll');
       if (lastFocus && document.contains(lastFocus)) {
         lastFocus.focus({ preventScroll: true });
+      } else if (document.activeElement && d.contains(document.activeElement)) {
+        /* Nothing to go back to — get focus out of the panel anyway,
+           otherwise it stays on a node that is about to be inert. */
+        document.activeElement.blur();
       }
       lastFocus = null;
+      /* inert last: setting it while focus is still inside would leave
+         the document with no focused element and no way back. */
+      d.setAttribute('inert', '');
     }
   }
 

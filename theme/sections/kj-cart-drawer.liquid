@@ -12,7 +12,15 @@
   page and the drawer can open from anywhere.
 {%- endcomment -%}
 
-<div class="cdrawer" id="kj-cart-drawer" data-kj-drawer data-open="false" aria-hidden="true">
+{%- comment -%}
+  Ships closed, so it ships `inert`. aria-hidden alone does not take
+  anything out of the tab order — with only that, a keyboard user on
+  any page of the site tabbed straight from the page content into
+  fifteen invisible controls sitting off-screen in here. aria-hidden
+  containing focusable elements is also invalid ARIA. kj-cart.js
+  removes inert on open and puts it back on close.
+{%- endcomment -%}
+<div class="cdrawer" id="kj-cart-drawer" data-kj-drawer data-open="false" aria-hidden="true" inert>
   <div class="cdrawer__scrim" data-kj-drawer-close tabindex="-1"></div>
 
   {%- comment -%}
@@ -99,8 +107,8 @@
 
                 <p class="cline__price">
                   {%- if item.original_line_price > item.final_line_price -%}
-                    <s>{{ item.original_line_price | money }}</s>
-                    <span class="now">{{ item.final_line_price | money }}</span>
+                    <s><span class="vh">Was </span>{{ item.original_line_price | money }}</s>
+                    <span class="now"><span class="vh">Now </span>{{ item.final_line_price | money }}</span>
                   {%- else -%}
                     {{ item.final_line_price | money }}
                   {%- endif -%}

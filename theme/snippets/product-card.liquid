@@ -114,7 +114,7 @@
 
   <p class="pcard__price">
     {%- if product.compare_at_price > product.price -%}
-      <s>{{ product.compare_at_price | money }}</s><span class="now">{{ product.price | money }}</span>
+      <s><span class="vh">Was </span>{{ product.compare_at_price | money }}</s><span class="now"><span class="vh">Now </span>{{ product.price | money }}</span>
     {%- else -%}
       {{ product.price | money }}
     {%- endif -%}

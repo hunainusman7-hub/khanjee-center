@@ -57,8 +57,16 @@
         {%- if product.media.size > 0 -%}
           <div class="pdp__stage">
             {%- for media in product.media -%}
+              {%- comment -%}
+                Each image is the tabpanel its thumbnail controls, so the
+                tablist pattern is complete rather than half-declared.
+                tabindex="0" makes the panel reachable, which is what lets
+                someone move from the thumbnails into the image itself.
+              {%- endcomment -%}
               <img class="pdp__img{% if forloop.first %} is-active{% endif %}"
                    id="pdp-media-{{ media.id }}"
+                   role="tabpanel" tabindex="0"
+                   aria-label="{{ media.alt | default: product.title | escape }}"
                    src="{{ media | image_url: width: 1400 }}"
                    srcset="{{ media | image_url: width: 700 }} 700w,
                            {{ media | image_url: width: 1400 }} 1400w"
