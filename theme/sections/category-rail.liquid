@@ -23,15 +23,22 @@
       <a class="ccard" href="{{ block.settings.link | default: '#' }}" {{ block.shopify_attributes }}>
         <span class="ccard__media">
           {%- if block.settings.image -%}
+            {%- comment -%}
+              width/height are the picked image's own intrinsic size, so
+              the browser reserves the right box. They were hardcoded
+              900x1200 — 3:4 — against category art that is 4:5, which is
+              a guaranteed layout shift on every tile.
+            {%- endcomment -%}
             <img src="{{ block.settings.image | image_url: width: 900 }}"
                  srcset="{{ block.settings.image | image_url: width: 500 }} 500w,
                          {{ block.settings.image | image_url: width: 900 }} 900w"
                  sizes="(min-width:1100px) 22vw, (min-width:700px) 34vw, 62vw"
-                 width="900" height="1200" loading="lazy" decoding="async"
+                 width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}"
+                 loading="lazy" decoding="async"
                  alt="{{ block.settings.image.alt | default: block.settings.label | escape }}">
           {%- elsif block.settings.asset_file != blank -%}
             <img src="{{ block.settings.asset_file | asset_url }}"
-                 width="900" height="1200" loading="lazy" decoding="async"
+                 width="1000" height="1250" loading="lazy" decoding="async"
                  alt="{{ block.settings.label | escape }}">
           {%- endif -%}
         </span>
