@@ -58,7 +58,7 @@
             collection until then, rather than at a 404.
           {%- endcomment -%}
           {%- capture cell_url -%}
-            {%- render 'kj-collection-url', handle: brand_handle, fallback: fallback_handle -%}
+            {%- render 'kj-collection-url', handle: brand_handle, fallback: fallback_handle, vendor: name -%}
           {%- endcapture -%}
           <a class="bdir__cell" href="{{ cell_url | strip }}">
             {%- if logo_file != '' -%}

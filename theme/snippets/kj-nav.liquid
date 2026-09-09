@@ -24,15 +24,15 @@
         <div class="nav__grp">
           <h4><a href="{{ routes.root_url }}collections/gents-unstitched">Shop by Brand</a></h4>
           <ul>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-dynasty', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Dynasty</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-pasha', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Pasha</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-grace', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Grace</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-narkins', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Narkins</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-shabbir', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Shabbir</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-shaffer', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Shaffer</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-sitara', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Sitara</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-chawla', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Chawla</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-ghani-sons', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Ghani &amp; Sons</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-dynasty', vendor: 'Dynasty', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Dynasty</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-pasha', vendor: 'Pasha', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Pasha</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-grace', vendor: 'Grace', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Grace</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-narkins', vendor: 'Narkins', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Narkins</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-shabbir', vendor: 'Shabbir', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Shabbir</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-shaffer', vendor: 'Shaffer', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Shaffer</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-sitara', vendor: 'Sitara', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Sitara</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-chawla', vendor: 'Chawla', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Chawla</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-ghani-sons', vendor: 'Ghani & Sons', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Ghani &amp; Sons</a></li>
             <li><a href="{{ routes.root_url }}pages/brands">All gents brands &rarr;</a></li>
           </ul>
         </div>
@@ -60,15 +60,15 @@
         <div class="nav__grp">
           <h4><a href="{{ routes.root_url }}collections/ladies-unstitched">Shop by Brand</a></h4>
           <ul>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-maria-b', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Maria B</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-alkaram', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Alkaram</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-asim-jofa', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Asim Jofa</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-elan', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Elan</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-gul-ahmad', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Gul Ahmad</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-charizma', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Charizma</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-crimson', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Crimson</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-zellbury', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Zellbury</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-khoobsoorat', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Khoobsoorat</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-maria-b', vendor: 'Maria B', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Maria B</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-alkaram', vendor: 'Alkaram', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Alkaram</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-asim-jofa', vendor: 'Asim Jofa', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Asim Jofa</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-elan', vendor: 'Elan', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Elan</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-gul-ahmad', vendor: 'Gul Ahmad', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Gul Ahmad</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-charizma', vendor: 'Charizma', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Charizma</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-crimson', vendor: 'Crimson', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Crimson</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-zellbury', vendor: 'Zellbury', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Zellbury</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-khoobsoorat', vendor: 'Khoobsoorat', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a href="{{ u | strip }}">Khoobsoorat</a></li>
             <li><a href="{{ routes.root_url }}pages/brands">All ladies brands &rarr;</a></li>
           </ul>
         </div>
@@ -97,13 +97,13 @@
         <div class="nav__grp">
           <h4><a href="{{ routes.root_url }}collections/bridal">Bridal &amp; Formal</a></h4>
           <ul>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-ayla-zahra', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Ayla Zahra</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-zahra-shahjahan', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Zahra Shahjahan</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-sobia-nazir', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Sobia Nazir</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-shiza-hassan', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Shiza Hassan</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-saira-rizwan', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Saira Rizwan</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-saira-shakira', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Saira Shakira</a></li>
-            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-sadia-noor', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Sadia Noor</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-ayla-zahra', vendor: 'Ayla Zahra', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Ayla Zahra</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-zahra-shahjahan', vendor: 'Zahra Shahjahan', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Zahra Shahjahan</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-sobia-nazir', vendor: 'Sobia Nazir', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Sobia Nazir</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-shiza-hassan', vendor: 'Shiza Hassan', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Shiza Hassan</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-saira-rizwan', vendor: 'Saira Rizwan', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Saira Rizwan</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-saira-shakira', vendor: 'Saira Shakira', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Saira Shakira</a></li>
+            <li>{%- capture u -%}{%- render 'kj-collection-url', handle: 'bridal-sadia-noor', vendor: 'Sadia Noor', fallback: 'bridal' -%}{%- endcapture -%}<a href="{{ u | strip }}">Sadia Noor</a></li>
             <li><a href="{{ routes.root_url }}pages/brands">All bridal brands &rarr;</a></li>
           </ul>
         </div>

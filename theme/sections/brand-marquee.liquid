@@ -82,7 +82,7 @@
               endif
             -%}
             {%- capture brand_url -%}
-              {%- render 'kj-collection-url', handle: brand_handle, fallback: fallback_handle -%}
+              {%- render 'kj-collection-url', handle: brand_handle, fallback: fallback_handle, vendor: name -%}
             {%- endcapture -%}
             <a class="bmq__item" href="{{ brand_url | strip }}"
                aria-label="{% if has_own %}{{ name | escape }} — shop the brand{% else %}{{ name | escape }} — see what we have{% endif %}">

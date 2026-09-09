@@ -1,21 +1,34 @@
 {%- comment -%}
   snippets/kj-collection-url.liquid
 
-  Echoes a URL that is guaranteed to resolve:
-    the collection named by `handle`, if it exists;
-    otherwise the one named by `fallback`;
-    otherwise the all-products collection.
+  Echoes a URL that both resolves AND shows the right products:
 
-  Use it anywhere a hardcoded /collections/<handle> would otherwise be
-  a link to a Shopify 404. The brand strip and the brand directory both
-  list every house the shop carries, but a house only has a collection
-  once someone creates it — 52 of 60 brand handles did not exist, so
-  most of those links were dead. This resolves at render time, so each
-  link starts working by itself the moment its collection appears.
+    1. the collection named by `handle`, if it exists;
+    2. otherwise the `fallback` collection with a native Shopify vendor
+       filter applied, when a `vendor` is given — so the page shows that
+       brand's products even though the brand has no collection;
+    3. otherwise the plain `fallback` collection;
+    4. otherwise all products.
+
+  Step 2 is the important one and it is new. Creating sixty collections
+  needs the Admin API; filtering an existing one does not. Verified
+  against the live store: /collections/all?filter.p.vendor=Alkaram
+  returns 200 and the parameter is echoed back into the page, so the
+  filter is live rather than ignored. Since the product import sets
+  Vendor to the brand, every brand link lands on that brand's products
+  with no collection created and no token needed.
+
+  DEPENDENCY: Shopify's storefront filters are configured in the free
+  Search & Discovery app. The Vendor filter has to be enabled there or
+  the parameter is dropped. If brand links start showing everything,
+  that setting is the first thing to check.
 
   Usage:
     {%- capture url -%}
-      {%- render 'kj-collection-url', handle: 'ladies-alkaram', fallback: 'ladies-unstitched' -%}
+      {%- render 'kj-collection-url',
+            handle: 'ladies-alkaram',
+            fallback: 'ladies-unstitched',
+            vendor: 'Alkaram' -%}
     {%- endcapture -%}
 {%- endcomment -%}
 {%- liquid
@@ -24,8 +37,18 @@
     echo target.url
   else
     assign alt = collections[fallback]
+    if alt.id == nil
+      assign alt = collections['all']
+    endif
     if alt.id
-      echo alt.url
+      if vendor != blank
+        # url_encode the VALUE only. Piping the whole string through it
+        # would encode the ? and the / as well and the link would 404.
+        assign v = vendor | url_encode
+        echo alt.url | append: '?filter.p.vendor=' | append: v
+      else
+        echo alt.url
+      endif
     else
       echo routes.all_products_collection_url
     endif
