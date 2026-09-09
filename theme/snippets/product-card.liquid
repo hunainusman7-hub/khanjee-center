@@ -37,7 +37,16 @@
 -%}
 
 <article class="pcard" data-pcard>
-  <a class="pcard__media pcard__link" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+  {%- comment -%}
+    Quick add is positioned against THIS box, not against the card.
+    .pcard is position:relative and the form used to be a direct child of
+    it, so `bottom` resolved to the bottom of the whole card — the button
+    popped up over the title and the price instead of over the bottom of
+    the photograph. This wrapper is what gives it something to sit on.
+  {%- endcomment -%}
+  <div class="pcard__top">
+  <a class="pcard__media pcard__link" href="{{ product.url }}"
+     tabindex="-1" aria-hidden="true">
     {%- if product.featured_media -%}
       <img class="pcard__img pcard__img--main"
            src="{{ product.featured_media | image_url: width: 800 }}"
@@ -98,8 +107,17 @@
   {%- elsif product.available -%}
     <a class="pcard__quick pcard__quick--link" href="{{ product.url }}">Choose options</a>
   {%- endif -%}
+  </div>
 
-  <h3 class="pcard__title">{{ product.title | split: ' — ' | first }}</h3>
+  {%- comment -%}
+    The title is the link people actually aim for, so it is a real one.
+    The image link above is marked decorative rather than adding a second
+    link to the same product, which would make every card announce itself
+    twice and double the tab stops in a grid.
+  {%- endcomment -%}
+  <h3 class="pcard__title">
+    <a href="{{ product.url }}">{{ product.title | split: ' — ' | first }}</a>
+  </h3>
 
   <p class="pcard__meta">
     {%- if show_vendor -%}

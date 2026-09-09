@@ -25,9 +25,15 @@
 <title>{{ page_title }}{% if page_title != shop.name %} &mdash; {{ shop.name }}{% endif %}</title>
 {% if page_description %}<meta name="description" content="{{ page_description }}">{% endif %}
 <link rel="canonical" href="{{ canonical_url }}">
-{{ 'archivo-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
-{{ 'archivo-black-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
-{{ 'bodoni-moda-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+{%- comment -%}
+  One preload, because the site is now one typeface. Montserrat's
+  variable latin file covers every weight the theme asks for, so
+  preloading it covers the header, the hero and all body copy. Archivo,
+  Archivo Black, Bodoni Moda and Italianno are still served by fonts.css
+  for anything that still asks for them, but nothing above the fold does,
+  so preloading them was costing three requests for no paint.
+{%- endcomment -%}
+{{ 'montserrat-latin.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
 <link rel="stylesheet" href="{{ 'fonts.css' | asset_url }}">
 <link rel="stylesheet" href="{{ 'site.css' | asset_url }}">
 <link rel="stylesheet" href="{{ 'kj-v2.css' | asset_url }}">

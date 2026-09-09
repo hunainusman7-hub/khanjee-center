@@ -3,6 +3,9 @@
    ============================================================ */
 
 :root{
+  /* Lede and body copy take Maria.B's light weight. Anything at
+     --fs-micro keeps 400 — see the note in site.css. */
+
   /* The one micro type size. 11px is the mobile legibility floor; the
      values this replaced ran from 9.6px to 10.88px. Defined here rather
      than in site.css so site.css's tokens stay untouched. */
@@ -15,7 +18,7 @@
 /* ---------- shared section heading ---------- */
 .sec__head--v2{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);
   padding-block:var(--s7) var(--s4);border-bottom:1px solid var(--border)}
-.sec__head--v2 h2{font-family:var(--font-display);font-weight:400;letter-spacing:-.015em;
+.sec__head--v2 h2{font-family:var(--font-display);font-weight:var(--font-weight-heading);letter-spacing:-.015em;
   font-size:clamp(1.6rem,3.4vw,2.5rem)}.sec__head--v2 .more{font-size:var(--fs-micro);font-weight:600;letter-spacing:.22em;text-transform:uppercase;
   white-space:nowrap;color:var(--text-tertiary);padding-bottom:3px;border-bottom:1px solid var(--border-hover)}
 .sec__head--v2 .more:hover{color:var(--accent);border-color:var(--accent)}
@@ -47,7 +50,7 @@
 @media (min-width:900px){.hs__in{width:min(100% - 4rem,1280px)}}
 .hs__in[data-align="centre"]{align-items:center;text-align:center;justify-content:center}.hs__eyebrow{margin:0 0 var(--s4);font-size:var(--fs-micro);font-weight:600;letter-spacing:.34em;
   text-transform:uppercase;color:var(--gold)}
-.hs__title{margin:0;font-family:var(--font-heavy);font-weight:400;color:#fff;text-transform:uppercase;
+.hs__title{margin:0;font-family:var(--font-heavy);font-weight:var(--font-weight-heavy);color:#fff;text-transform:uppercase;
   line-height:.88;letter-spacing:.015em;font-size:clamp(2.2rem,8vw,5.6rem);max-width:16ch}
 
 /* ============================================================
@@ -60,7 +63,8 @@
    ============================================================ */
 .kj-mark{display:block;width:100%;height:auto}
 .kj-mark--kj{aspect-ratio:1021/617}
-.kj-mark--lada{aspect-ratio:19/10}
+/* the supplied artwork's own proportions */
+.kj-mark--lada{aspect-ratio:600/447}
 
 /* --- the marks standing in for a hero heading --- */
 .hs__title--mark{width:100%;max-width:none;display:flex;justify-content:center}
@@ -125,7 +129,7 @@
    ============================================================ */
 .bmq{padding-block:var(--s8);border-block:1px solid var(--border);background:var(--surface)}
 .bmq__lead{text-align:center;width:min(100% - 2.5rem,720px);margin-inline:auto}
-.bmq__lead h2{font-family:var(--font-display);font-weight:400;line-height:1.05;
+.bmq__lead h2{font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:1.05;
   font-size:clamp(1.7rem,4.2vw,2.9rem)}
 .bmq__lead p{margin:var(--s3) 0 0;color:var(--text-secondary);font-size:.95rem}
 /* overflow:clip, not hidden. `hidden` makes this a scroll container,
@@ -149,10 +153,19 @@
    so hover/click never fight an animation, and reduced-motion simply never starts it */
 .bmq__item{flex:0 0 auto;height:58px;display:flex;align-items:center;justify-content:center;
   padding-inline:var(--s4);min-width:132px;color:inherit;text-decoration:none}
+/* Logos are shown as they are, not greyed out.
+   grayscale(1) at opacity .6 was the old resting state, and it assumed
+   every logo is dark and high-contrast. The light ones — Saira Shakira's
+   thin gold script especially — dropped to near-invisible against the
+   off-white ground, which fails the 3:1 floor for a graphical object and
+   defeats the point of the strip: the client wants a visitor to see at a
+   glance how many well-known houses are stocked. A faint grey smudge does
+   not do that. A light unifying desaturation is kept so sixty clashing
+   palettes still read as one row, and hover clears it. */
 .bmq__item img{max-height:38px;width:auto;object-fit:contain;
-  filter:grayscale(1);opacity:.6;transition:filter .35s var(--ease),opacity .35s var(--ease)}
+  filter:grayscale(.3);opacity:.94;transition:filter .35s var(--ease),opacity .35s var(--ease)}
 .bmq__item:hover img,.bmq__item:focus-visible img{filter:none;opacity:1}
-.bmq__item span{font-family:var(--font-display);font-size:1.15rem;letter-spacing:.03em;
+.bmq__item span{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.15rem;letter-spacing:.03em;
   color:var(--text-tertiary);white-space:nowrap;transition:color .3s var(--ease)}
 .bmq__item:hover span,.bmq__item:focus-visible span{color:var(--accent)}
 .bmq__item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -172,7 +185,7 @@
 .bdir__cell img{max-height:38px;max-width:100%;width:auto;object-fit:contain;
   filter:grayscale(1);opacity:.75;transition:filter .3s var(--ease),opacity .3s var(--ease)}
 .bdir__cell:hover img{filter:none;opacity:1}
-.bdir__cell span{font-family:var(--font-display);font-size:1.08rem;letter-spacing:.01em;
+.bdir__cell span{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.08rem;letter-spacing:.01em;
   color:var(--text);transition:color .25s var(--ease)}
 .bdir__cell::after{content:"";position:absolute;inset-inline:50%;bottom:calc(var(--s4) - 6px);
   height:1px;background:var(--accent);transition:left .3s var(--ease),right .3s var(--ease)}
@@ -187,6 +200,9 @@
 @media (min-width:1100px){.pgrid{grid-template-columns:repeat(4,1fr);gap:var(--s7) var(--s5)}}
 
 .pcard{position:relative;display:flex;flex-direction:column}
+/* The box the quick-add overlays. Without it, `bottom` on the form
+   resolved against .pcard and the button covered the title and price. */
+.pcard__top{position:relative}
 .pcard__media{position:relative;display:block;aspect-ratio:4/5;overflow:hidden;
   background:var(--surface);margin-bottom:var(--s3)}
 .pcard__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
@@ -204,7 +220,9 @@
   background:rgba(var(--dark-rgb),.84);color:#fff;font-size:var(--fs-micro);letter-spacing:.22em;
   text-transform:uppercase;padding:.55rem}
 
-.pcard:hover .pcard__title{color:var(--accent)}.pcard__meta{margin:.3rem 0 0;font-size:var(--fs-micro);letter-spacing:.16em;text-transform:uppercase;
+.pcard__title a{color:inherit}
+.pcard:hover .pcard__title a,.pcard__title a:hover{color:var(--accent)}
+.pcard__title a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.pcard__meta{margin:.3rem 0 0;font-size:var(--fs-micro);letter-spacing:.16em;text-transform:uppercase;
   color:var(--text-tertiary)}
 .pcard__price{margin:.5rem 0 0;font-size:.92rem;font-variant-numeric:tabular-nums}
 .pcard__price s{color:var(--text-tertiary);margin-inline-end:.45rem;font-size:.84rem}
@@ -241,6 +259,7 @@
 
 /* On a real pointer, float it back over the photograph on hover. */
 @media (hover:hover) and (pointer:fine){
+  /* over the bottom of the photograph — .pcard__top is the reference */
   .pcard__add{position:absolute;inset-inline:var(--s3);bottom:var(--s3);margin-top:0}
   .pcard__quick{opacity:0;transform:translateY(8px);
     transition:opacity .3s var(--ease),transform .3s var(--ease)}
@@ -291,7 +310,9 @@
 .lada__hero::after{content:"";position:absolute;inset:0;
   background:linear-gradient(to top,var(--lada-ground) 3%,rgba(14,14,15,.55) 45%,rgba(14,14,15,.78) 100%)}
 .lada__hero-in{position:relative;z-index:2;padding-block:clamp(3rem,9vh,6rem)}.lada__eyebrow{margin:0;font-size:var(--fs-micro);letter-spacing:.36em;text-transform:uppercase;
-  color:var(--lada-champagne)}.lada__wordmark{margin:var(--s4) 0 0;font-family:var(--font-display);font-weight:400;line-height:.88;
+  color:var(--lada-champagne)}.lada__wordmark--mark{margin:var(--s4) 0 0;display:block;max-width:min(460px,74vw)}
+.lada__wordmark--mark .kj-mark{width:100%;height:auto}
+.lada__wordmark{margin:var(--s4) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:.88;
   font-size:clamp(3.4rem,12vw,8rem);letter-spacing:-.03em;color:var(--lada-bone)}
 .lada__lede{margin:var(--s5) 0 0;max-width:48ch;color:var(--lada-muted);
   font-size:clamp(.98rem,1.5vw,1.08rem);line-height:1.8}
@@ -309,7 +330,7 @@
 @media (min-width:760px){.lada__seals{grid-template-columns:repeat(3,1fr);gap:var(--s6)}}.lada__seal dt{font-size:var(--fs-micro);letter-spacing:.26em;text-transform:uppercase;color:var(--lada-champagne)}
 .lada__seal dd{margin:var(--s2) 0 0;font-size:.86rem;line-height:1.7;color:var(--lada-muted)}
 
-.lada__sec{padding-block:clamp(3.5rem,10vh,7rem)}.lada__kicker{font-size:var(--fs-micro);letter-spacing:.32em;text-transform:uppercase;color:var(--lada-champagne)}.lada__h2{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:400;line-height:1.06;
+.lada__sec{padding-block:clamp(3.5rem,10vh,7rem)}.lada__kicker{font-size:var(--fs-micro);letter-spacing:.32em;text-transform:uppercase;color:var(--lada-champagne)}.lada__h2{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:1.06;
   font-size:clamp(1.9rem,4.6vw,3.2rem);color:var(--lada-bone)}
 .lada__p{margin:var(--s4) 0 0;max-width:60ch;color:var(--lada-muted);font-size:.98rem;line-height:1.8}
 
@@ -317,12 +338,12 @@
 @media (min-width:820px){.lada__stages{grid-template-columns:repeat(3,1fr);gap:var(--s5)}}
 .lada__stage{border-top:1px solid var(--lada-line);padding-top:var(--s4)}
 .lada__stage img{aspect-ratio:4/5;object-fit:cover;width:100%;margin-bottom:var(--s4);
-  filter:saturate(.8) contrast(1.06)}.lada__stage .n{font-size:var(--fs-micro);letter-spacing:.28em;color:var(--lada-champagne);text-transform:uppercase}.lada__stage h3{margin:var(--s2) 0 0;font-family:var(--font-display);font-weight:400;font-size:1.4rem}
+  filter:saturate(.8) contrast(1.06)}.lada__stage .n{font-size:var(--fs-micro);letter-spacing:.28em;color:var(--lada-champagne);text-transform:uppercase}.lada__stage h3{margin:var(--s2) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem}
 .lada__stage p{margin:var(--s2) 0 0;color:var(--lada-muted);font-size:.9rem;line-height:1.75}
 
 .lada__split{display:grid;gap:var(--s6);margin-top:var(--s6)}
 @media (min-width:900px){.lada__split{grid-template-columns:1fr 1fr;gap:var(--s8)}}
-.lada__panel{border:1px solid var(--lada-line);background:var(--lada-panel);padding:var(--s6)}.lada__panel h3{margin:0;font-family:var(--font-display);font-weight:400;font-size:1.35rem;
+.lada__panel{border:1px solid var(--lada-line);background:var(--lada-panel);padding:var(--s6)}.lada__panel h3{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.35rem;
   color:var(--lada-bone)}
 .lada__panel ul{margin:var(--s4) 0 0;padding:0;list-style:none}
 .lada__panel li{padding:.6rem 0;border-bottom:1px solid var(--lada-line);
@@ -336,7 +357,7 @@
 .lada__sizes td{color:var(--lada-muted);font-variant-numeric:tabular-nums}
 
 .lada__empty{border:1px solid var(--lada-line);background:var(--lada-panel);
-  padding:clamp(2.5rem,6vh,4rem) var(--s5);text-align:center}.lada__empty h3{margin:0;font-family:var(--font-display);font-weight:400;font-size:1.6rem;
+  padding:clamp(2.5rem,6vh,4rem) var(--s5);text-align:center}.lada__empty h3{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.6rem;
   color:var(--lada-bone)}
 .lada__empty p{margin:var(--s3) auto var(--s5);max-width:48ch;color:var(--lada-muted);font-size:.92rem}
 
@@ -356,7 +377,7 @@
 /* ---------- section head: left heading + grey sub, action right ---------- */
 .shead{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);
   padding-block:var(--s8) var(--s4)}
-.shead__t{font-family:var(--font-display);font-weight:400;line-height:1.05;letter-spacing:-.015em;
+.shead__t{font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:1.05;letter-spacing:-.015em;
   font-size:clamp(1.6rem,3.6vw,2.6rem)}
 .shead__s{margin:var(--s2) 0 0;color:var(--text-tertiary);font-size:.92rem}
 .shead__act{display:flex;align-items:center;gap:var(--s3);white-space:nowrap}.shead__act .more{font-size:var(--fs-micro);font-weight:600;letter-spacing:.2em;text-transform:uppercase;
@@ -392,7 +413,7 @@
 .crail{padding-block:var(--s6) var(--s7)}
 .crail__head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s5);
   padding-block:var(--s7) 0}
-.crail__h{font-family:var(--font-display);font-weight:400;letter-spacing:-.015em;
+.crail__h{font-family:var(--font-display);font-weight:var(--font-weight-heading);letter-spacing:-.015em;
   font-size:clamp(1.6rem,3.6vw,2.6rem)}
 .crail__sub{margin:var(--s2) 0 0;color:var(--text-tertiary);font-size:.92rem}
 .crail__track{display:flex;gap:var(--s3);overflow-x:auto;scroll-snap-type:x mandatory;
@@ -409,7 +430,7 @@
 .ccard__media::after{content:"";position:absolute;inset:0;border-radius:var(--radius-media);
   background:linear-gradient(to top,rgba(var(--dark-rgb),.72) 0%,rgba(var(--dark-rgb),.18) 38%,transparent 62%)}
 .ccard__label{position:absolute;z-index:2;inset-inline:var(--s4);bottom:var(--s4);
-  color:#fff;font-family:var(--font-display);font-size:1.15rem;letter-spacing:.01em;line-height:1.25}
+  color:#fff;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.15rem;letter-spacing:.01em;line-height:1.25}
 
 /* ---------- editorial pair ---------- */
 .epair{display:grid;gap:var(--s3);padding-block:var(--s6)}
@@ -420,7 +441,7 @@
 .epair__item:hover img{transform:scale(1.04)}
 .epair__item::after{content:"";position:absolute;inset:0;background:rgba(var(--dark-rgb),.22)}
 .epair__label{position:absolute;z-index:2;inset:0;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-family:var(--font-display);font-size:clamp(1.2rem,2.6vw,1.9rem);letter-spacing:.16em;
+  color:#fff;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.2rem,2.6vw,1.9rem);letter-spacing:.16em;
   text-transform:uppercase}
 
 /* ---------- split: copy left, image carousel right ---------- */
@@ -429,7 +450,7 @@
 .csplit__copy{width:min(100% - 2.5rem,560px);margin-inline:auto}
 @media (min-width:900px){.csplit__copy{margin-inline-start:max(1.25rem,calc((100vw - 1280px)/2));margin-inline-end:0}}
 .csplit__eyebrow{font-size:var(--fs-micro);font-weight:600;letter-spacing:.2em;color:var(--text)}
-.csplit__h{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:400;
+.csplit__h{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);
   font-size:clamp(1.7rem,3.8vw,2.6rem);line-height:1.08}
 .csplit__p{margin:var(--s3) 0 0;color:var(--text-tertiary);font-size:.95rem;line-height:1.7;max-width:46ch}
 .csplit__btn{margin-top:var(--s5);display:inline-flex;align-items:center;gap:.6rem;min-height:48px;
@@ -443,7 +464,7 @@
   width:min(86vw,760px);aspect-ratio:4/3;overflow:hidden}
 .csplit__slide img{width:100%;height:100%;object-fit:cover}
 .csplit__slide span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-family:var(--font-display);font-size:clamp(1.4rem,4vw,3rem);letter-spacing:.24em;
+  color:#fff;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.4rem,4vw,3rem);letter-spacing:.24em;
   text-transform:uppercase}
 .csplit__dots{display:flex;gap:.5rem;margin-top:var(--s5)}
 .csplit__dots button{width:34px;height:18px;padding:0;background:none;border:0;cursor:pointer;
@@ -456,7 +477,7 @@
   font-size:var(--fs-micro);font-weight:600;letter-spacing:.04em;padding:.34rem .5rem;border-radius:3px}.pcard__pre{position:absolute;z-index:2;top:var(--s3);inset-inline-start:var(--s3);background:#fff;color:var(--text);
   font-size:var(--fs-micro);font-weight:600;letter-spacing:.14em;text-transform:uppercase;
   padding:.4rem .6rem;border-radius:3px}
-.pcard__title{font-family:var(--font-display);font-size:1.02rem;font-weight:400;line-height:1.3;
+.pcard__title{font-family:var(--font-display);font-size:1.02rem;font-weight:var(--font-weight-heading);line-height:1.3;
   color:var(--text)}
 .pcard__price{font-weight:600}
 
@@ -472,7 +493,7 @@
 .lada__sizes th,.lada__sizes td,.lada__empty p{font-family:var(--font-ui)}
 
 .shead__t,.crail__h,.bmq__lead h2,.bmq__item span,.lada__h2,.lada__stage h3,.lada__panel h3,
-.lada__empty h3{font-family:var(--font-display);font-weight:400}
+.lada__empty h3{font-family:var(--font-display);font-weight:var(--font-weight-heading)}
 
 /* ---------- moved out of inline style= attributes ---------- */
 .foot__about{margin:var(--s4) 0 0;max-width:32ch;color:var(--text-tertiary);font-size:.9rem}
@@ -556,7 +577,7 @@
 .cdrawer__head{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
   padding:var(--s5);border-bottom:1px solid var(--border);flex:none;
   padding-top:calc(var(--s5) + env(safe-area-inset-top,0px))}
-.cdrawer__title{margin:0;font-family:var(--font-display);font-weight:400;
+.cdrawer__title{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);
   font-size:1.32rem;letter-spacing:-.01em;display:flex;align-items:baseline;gap:.55rem}
 .cdrawer__count{font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
   letter-spacing:.14em;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
@@ -566,7 +587,7 @@
 
 .cdrawer__empty{flex:1;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:var(--s3);padding:var(--s7) var(--s5);text-align:center}
-.cdrawer__empty-h{margin:0;font-family:var(--font-display);font-size:1.25rem}
+.cdrawer__empty-h{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.25rem}
 .cdrawer__empty-p{margin:0;color:var(--text-tertiary);font-size:.9rem}
 .cdrawer__cta{margin-top:var(--s4);display:inline-flex;align-items:center;justify-content:center;
   min-height:48px;padding-inline:2rem;background:var(--surface-dark);color:#fff;
@@ -581,7 +602,7 @@
 .cline__media{display:block;background:var(--surface)}
 .cline__media img{display:block;width:100%;height:auto;object-fit:cover;aspect-ratio:4/5}
 .cline__body{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
-.cline__title{font-family:var(--font-display);font-size:1rem;line-height:1.3;color:var(--text)}
+.cline__title{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1rem;line-height:1.3;color:var(--text)}
 .cline__title:hover{color:var(--accent)}
 .cline__meta{margin:.3rem 0 0;font-size:var(--fs-micro);letter-spacing:.14em;text-transform:uppercase;
   color:var(--text-tertiary)}
@@ -631,7 +652,7 @@
 .cdrawer__total{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4)}
 .cdrawer__total span{font-size:var(--fs-micro);font-weight:600;letter-spacing:.22em;
   text-transform:uppercase;color:var(--text-secondary)}
-.cdrawer__total strong{font-family:var(--font-display);font-weight:400;font-size:1.4rem;
+.cdrawer__total strong{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem;
   font-variant-numeric:tabular-nums}
 .cdrawer__note{margin:.4rem 0 var(--s4);font-size:.72rem;color:var(--text-tertiary)}
 .cdrawer__checkout{width:100%;min-height:52px;background:var(--accent);color:#fff;border:0;
@@ -662,13 +683,13 @@
 @media (min-width:900px){.cartp__wrap{width:min(100% - 4rem,1280px)}}
 .cartp__head{display:flex;align-items:baseline;gap:var(--s4);
   padding-bottom:var(--s5);border-bottom:1px solid var(--border)}
-.cartp__h1{margin:0;font-family:var(--font-display);font-weight:400;letter-spacing:-.015em;
+.cartp__h1{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);letter-spacing:-.015em;
   font-size:clamp(1.8rem,4vw,2.8rem)}
 .cartp__count{margin:0;font-size:var(--fs-micro);font-weight:600;letter-spacing:.2em;
   text-transform:uppercase;color:var(--text-tertiary)}
 
 .cartp__empty{padding-block:clamp(3rem,10vh,6rem);text-align:center}
-.cartp__empty-h{margin:0;font-family:var(--font-display);font-size:clamp(1.3rem,3vw,1.8rem)}
+.cartp__empty-h{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.3rem,3vw,1.8rem)}
 .cartp__empty-p{margin:var(--s3) auto 0;max-width:44ch;color:var(--text-tertiary)}
 .cartp__empty-ctas{margin-top:var(--s6);display:flex;flex-wrap:wrap;gap:var(--s3);
   justify-content:center}
@@ -724,7 +745,7 @@
   padding-top:var(--s3);border-top:1px solid var(--border)}
 .cartp__row span{font-size:var(--fs-micro);font-weight:600;letter-spacing:.2em;text-transform:uppercase;
   color:var(--text-secondary)}
-.cartp__row strong{font-family:var(--font-display);font-weight:400;font-size:1.5rem;
+.cartp__row strong{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.5rem;
   font-variant-numeric:tabular-nums}
 .cartp__note{margin:.4rem 0 var(--s5);font-size:.74rem;color:var(--text-tertiary)}
 /* Not uppercased, unlike the other labels. This one is a question put
@@ -782,13 +803,13 @@
 .pdp__house{margin:0;font-size:var(--fs-micro);font-weight:600;letter-spacing:.28em;
   text-transform:uppercase;color:var(--text-tertiary)}
 .pdp__house--own{color:var(--gold)}
-.pdp__title{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:400;
+.pdp__title{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);
   letter-spacing:-.015em;line-height:1.12;font-size:clamp(1.6rem,3.6vw,2.4rem)}
 .pdp__sku{margin:.5rem 0 0;font-size:var(--fs-micro);letter-spacing:.18em;text-transform:uppercase;
   color:var(--text-tertiary)}
 .pdp__price{margin-top:var(--s4);display:flex;align-items:baseline;flex-wrap:wrap;gap:.6rem;
   font-variant-numeric:tabular-nums}
-.pdp__price .now{font-family:var(--font-display);font-size:1.6rem}
+.pdp__price .now{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.6rem}
 .pdp__price s{color:var(--text-tertiary);font-size:1rem}
 .pdp__off{font-size:var(--fs-micro);font-weight:600;letter-spacing:.14em;text-transform:uppercase;
   color:#fff;background:var(--sale);padding:.28rem .5rem}
@@ -903,3 +924,18 @@
   .cdrawer__panel,.cartp__side{border-width:2px}
   :focus-visible{outline-width:3px}
 }
+
+/* ---- Maria.B's weight rhythm ----
+   Their body copy sits at 300 and their headings at 500, and the whole
+   hierarchy comes from that rather than from a second typeface. These
+   are the places in this theme that are genuinely body copy, so they
+   take the 300; everything small stays at 400. */
+.hs__sub,.lband__text,.pdp__desc,.cartp__empty-p,.crail__sub,
+.bmq__lead p,.lada__lede,.lada__p,.csplit__p,.sec__head p{
+  font-weight:var(--font-weight-lede)}
+
+/* The Lada mark is a fixed-colour image, so drop-shadow is the only
+   treatment it takes — no currentColor, no filters that would fight the
+   gradient. Sizes stay as they were; only the source changed. */
+.kj-mark--lada{filter:drop-shadow(0 2px 14px rgba(0,0,0,.5))}
+.lband__mark .kj-mark,.hs__title--lada .kj-mark{height:auto}

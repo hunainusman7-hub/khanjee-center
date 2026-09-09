@@ -1,32 +1,54 @@
 {%- comment -%}
   snippets/kj-mark.liquid
-  {% render 'kj-mark' %}                       → the KJ ellipse mark
-  {% render 'kj-mark', mark: 'lada' %}         → the Lada script wordmark
+  {% render 'kj-mark' %}                        → the KJ ellipse mark
+  {% render 'kj-mark', mark: 'lada' %}          → the Lada script wordmark
   {% render 'kj-mark', mark: 'lada', label: 'Lada by Khan Jee' %}
 
-  Both are <use> references into kj-svg-defs, so the geometry ships once.
-  Colour comes from currentColor — set it on the parent, never here.
-  Pass label to make the mark meaningful to a screen reader; leave it off
-  and the mark is decorative, which is right when readable text sits
-  beside it.
+  THE viewBox AND fill BELONG HERE, NOT IN THE DEFS.
 
-  The Lada mark is a monoline script, so it is stroked rather than
-  filled — the stroke attributes live on the <symbol> and scale with it,
-  which is what keeps the mark looking like itself at any size.
+  kj-svg-defs stores the KJ mark as a bare <path id="kj-path"> inside
+  <defs>. A <path> carries no coordinate system and no fill of its own,
+  so both have to come from the <svg> that instances it. Leave the
+  viewBox off and the path draws at its native 1021x617 user units
+  inside a 44px box — you see the top-left corner and nothing else.
+  Leave the fill off and it paints black, so the mark stays black on the
+  dark hero where it is supposed to be white.
+
+  Both of those shipped once. Do not "simplify" them away again.
+
+  The Lada mark is the client's own artwork (assets/lada-mark.png), so
+  it is an <img>, not an SVG path. It has a metallic gold gradient, which
+  currentColor cannot express — any attempt to recolour it would flatten
+  the thing that makes it the mark. It was supplied on a black card and
+  has been keyed to real transparency, so it composites over the hero
+  photograph as well as over the flat dark grounds.
+
+  Because it is a fixed-colour image it must only ever be placed on a
+  dark ground. Gold on white is around 2:1, which is why nothing puts it
+  on the white surfaces.
+
+  The lockup already reads "BY KHAN JEE", so do not set that line as
+  text next to it.
+
+  Colour comes from currentColor: set it on the parent, never here.
+  Pass label to give the mark an accessible name; omit it and the mark
+  is decorative, which is right when readable text sits beside it.
 {%- endcomment -%}
 
 {%- liquid
   assign m = mark | default: 'kj'
-  if m == 'lada'
-    assign href = '#lada-path'
-    assign ratio = 'kj-mark--lada'
-  else
-    assign href = '#kj-path'
-    assign ratio = 'kj-mark--kj'
-  endif
 -%}
 
-<svg class="kj-mark {{ ratio }}{% if class %} {{ class }}{% endif %}"
-     {% if label %}role="img" aria-label="{{ label | escape }}"{% else %}aria-hidden="true" focusable="false"{% endif %}>
-  <use href="{{ href }}"></use>
-</svg>
+{%- if m == 'lada' -%}
+  <img class="kj-mark kj-mark--lada{% if class %} {{ class }}{% endif %}"
+       src="{{ 'lada-mark.png' | asset_url }}"
+       width="600" height="447" decoding="async"
+       {% if loading %}loading="{{ loading }}"{% else %}loading="lazy"{% endif %}
+       {% if label %}alt="{{ label | escape }}"{% else %}alt="" aria-hidden="true"{% endif %}>
+{%- else -%}
+  <svg class="kj-mark kj-mark--kj{% if class %} {{ class }}{% endif %}"
+       viewBox="0 0 1021 617" fill="currentColor"
+       {% if label %}role="img" aria-label="{{ label | escape }}"{% else %}aria-hidden="true" focusable="false"{% endif %}>
+    <use href="#kj-path"></use>
+  </svg>
+{%- endif -%}

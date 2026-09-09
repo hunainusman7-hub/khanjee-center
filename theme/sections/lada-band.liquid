@@ -35,7 +35,10 @@
       {%- render 'kj-mark', mark: 'lada', label: mark_label -%}
     </h2>
 
-    <p class="lband__by">{{ section.settings.byline | default: 'by Khan Jee' }}</p>
+    {%- comment -%}
+      No byline element. The supplied lockup already reads "BY KHAN JEE"
+      underneath the script, so setting it again as text printed it twice.
+    {%- endcomment -%}
 
     {%- if section.settings.text != blank -%}
       <p class="lband__text">{{ section.settings.text }}</p>
@@ -62,7 +65,6 @@
     { "type": "text", "id": "heading", "label": "Wordmark label",
       "default": "Lada by Khan Jee",
       "info": "The wordmark is drawn, not typed. This is the name a screen reader reads out." },
-    { "type": "text", "id": "byline", "label": "Byline", "default": "by Khan Jee" },
     { "type": "textarea", "id": "text", "label": "Text",
       "default": "Waistcoats and coats cut in the eastern manner, from cloth woven under our own roof. The one label in this shop whose every thread we answer for." },
     { "type": "text", "id": "cta", "label": "Button label", "default": "Enter Lada" },

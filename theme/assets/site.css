@@ -15,10 +15,29 @@
   --bg-rgb:255,255,255; --accent-rgb:154,27,47; --dark-rgb:20,16,14;
   --success:#1E6B4F; --error:#A32020; --warning:#A8720E; --sale:#9A1B2F;
 
-  --font-display:"Bodoni Moda","Didot","Times New Roman",serif;
-  --font-ui:"Archivo","Helvetica Neue",Arial,sans-serif;
-  --font-heavy:"Archivo Black","Archivo",Impact,sans-serif;
+  /* ---- type ----
+     Matched to mariab.pk, which is a single-typeface site: Montserrat
+     throughout, body at weight 300 and headings at 500. So --font-display
+     and --font-ui are now the same family and the hierarchy is carried by
+     weight, which is how their site does it.
+
+     --font-weight-body is 400, not Maria.B's 300. Their 300 is fine on
+     16px body copy but this shop sets a lot of 11px letterspaced labels,
+     and a 300 weight at 11px with .3em tracking is genuinely hard to
+     read — the typography guideline is explicit that a thin custom face
+     needs to go LARGER than the minimum, not sit at it. So 300 is used
+     for real body copy and 400 is the floor for anything small.
+
+     Bodoni Moda, Archivo, Archivo Black and Italianno are still served
+     by fonts.css. Putting any of them back is a one-line change here. */
+  --font-display:"Montserrat","Helvetica Neue",Arial,sans-serif;
+  --font-ui:"Montserrat","Helvetica Neue",Arial,sans-serif;
+  --font-heavy:"Montserrat","Helvetica Neue",Arial,sans-serif;
   --font-script:"Italianno","Snell Roundhand",cursive;
+  --font-weight-body:400;
+  --font-weight-lede:300;
+  --font-weight-heading:500;
+  --font-weight-heavy:700;
 
   --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s5:1.5rem;
   --s6:2rem; --s7:3rem; --s8:4.5rem; --s9:7rem; --s10:10rem;
@@ -55,7 +74,7 @@ button{font:inherit}
   min-height:60px;padding-block:var(--s2)}
 .hdr__brand{display:flex;align-items:center;gap:var(--s3);min-height:44px;color:var(--accent)}
 .hdr__brand .kj-mark{width:44px}
-.hdr__brand b{font-family:var(--font-heavy);font-size:1rem;letter-spacing:.02em;color:var(--text);text-transform:uppercase}
+.hdr__brand b{font-family:var(--font-heavy);font-weight:var(--font-weight-heavy);font-size:1rem;letter-spacing:.02em;color:var(--text);text-transform:uppercase}
 .hdr__tools{display:flex;align-items:center;gap:var(--s1)}
 .iconbtn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;
   background:none;border:0;color:var(--text);cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -124,7 +143,7 @@ button{font:inherit}
 .hero__in{position:relative;z-index:2;padding:var(--s6) var(--s5);
   transform:translateY(calc(var(--p)*-46px)) scale(calc(1 - var(--p)*.1));opacity:calc(1 - var(--p)*1.35)}
 .hero__mark{width:clamp(88px,12vw,140px);margin:0 auto var(--s5);color:#fff}
-.hero__h1{font-family:var(--font-heavy);color:#fff;text-transform:uppercase;
+.hero__h1{font-family:var(--font-heavy);font-weight:var(--font-weight-heavy);color:#fff;text-transform:uppercase;
   font-size:clamp(2.2rem,8vw,5.6rem);letter-spacing:.015em;line-height:.88}
 .hero__rule{width:70px;height:2px;background:var(--accent);margin:var(--s5) auto}
 .hero__tag{color:rgba(255,255,255,.9);font-size:clamp(.66rem,1.4vw,.8rem)}
@@ -144,7 +163,7 @@ button{font:inherit}
   opacity:.72;transition:opacity .3s var(--ease)}
 .strip__item:hover{opacity:1}
 .strip__item img{max-height:100%;width:auto;object-fit:contain}
-.strip__item span{font-family:var(--font-display);font-size:1.35rem;white-space:nowrap;color:var(--text)}
+.strip__item span{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.35rem;white-space:nowrap;color:var(--text)}
 @media (max-width:640px){.strip__item{height:32px}.strip__item span{font-size:1.1rem}}
 
 /* ---------- sections ---------- */
@@ -152,7 +171,7 @@ button{font:inherit}
 .sec--alt{background:var(--surface-alt)}
 .sec__head{margin-bottom:var(--s7)}
 .sec__head--c{text-align:center}
-.sec__h2{font-family:var(--font-display);font-size:clamp(1.9rem,4vw,3.1rem);letter-spacing:-.01em}
+.sec__h2{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.9rem,4vw,3.1rem);letter-spacing:-.01em}
 .sec__rule{width:54px;height:2px;background:var(--accent);margin-top:var(--s4)}
 .sec__head--c .sec__rule{margin-inline:auto}
 .sec__sub{margin:var(--s4) 0 0;max-width:var(--measure);color:var(--text-secondary)}
@@ -178,7 +197,7 @@ button{font:inherit}
 .cat__media::after{content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(20,16,14,0) 26%,rgba(20,16,14,.46) 56%,rgba(12,8,7,.88) 82%,rgba(12,8,7,.95) 100%)}
 .cat__label{position:absolute;left:var(--s5);right:var(--s5);bottom:var(--s5);z-index:1;color:#fff;
-  font-family:var(--font-display);font-size:clamp(1.05rem,1.6vw,1.4rem);
+  font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.05rem,1.6vw,1.4rem);
   text-shadow:0 1px 10px rgba(0,0,0,.6)} /* unslop-ignore — legibility over photography */
 .cat__label::after{content:"";display:block;height:1px;margin-top:var(--s3);background:var(--accent);
   transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
@@ -189,7 +208,7 @@ button{font:inherit}
 .arch__media{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--surface-alt);clip-path:url(#kj-arch)}
 .arch__media img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.04);transition:transform .7s var(--ease)}
 .arch:hover .arch__media img{transform:scale(1.04)}
-.arch__label{display:block;margin-top:var(--s4);font-family:var(--font-display);font-size:1.05rem}
+.arch__label{display:block;margin-top:var(--s4);font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.05rem}
 .arch__label::after{content:"";display:block;width:26px;height:1px;margin:var(--s2) auto 0;background:var(--accent);
   transform:scaleX(0);transition:transform .5s var(--ease)}
 .arch:hover .arch__label::after,.arch:focus-visible .arch__label::after{transform:scaleX(1)}
@@ -202,7 +221,7 @@ button{font:inherit}
 .bcard:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .bcard__logo{display:flex;align-items:center;justify-content:center;height:38px;width:100%}
 .bcard__logo img{max-height:100%;max-width:100%;width:auto;object-fit:contain}
-.bcard__wm{font-family:var(--font-display);font-size:1.4rem;color:var(--text)}
+.bcard__wm{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem;color:var(--text)}
 .bcard__name{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text-tertiary);font-weight:600}
 
 /* ---------- breadcrumb + chip row ---------- */
@@ -226,7 +245,7 @@ button{font:inherit}
 /* ---------- listing layout ---------- */
 .listing{display:grid;gap:var(--s6);grid-template-columns:1fr;padding-bottom:var(--s9)}
 @media (min-width:1000px){.listing{grid-template-columns:248px 1fr;gap:var(--s7)}}
-.ptitle{font-family:var(--font-display);font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.005em}
+.ptitle{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.005em}
 .psub{margin:var(--s3) 0 0;color:var(--text-secondary);max-width:var(--measure)}
 .phead{padding-block:var(--s5) var(--s6);border-bottom:1px solid var(--border)}
 .phead__logo{display:flex;align-items:center;height:44px;margin-bottom:var(--s4)}
@@ -270,11 +289,13 @@ button{font:inherit}
 
 /* ---------- empty state ---------- */
 .empty{border:1px dashed var(--border-hover);background:var(--surface);padding:var(--s8) var(--s5);text-align:center}
-.empty h3{font-family:var(--font-display);font-size:1.5rem;margin-bottom:var(--s3)}
+.empty h3{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.5rem;margin-bottom:var(--s3)}
 .empty p{margin:0 auto;max-width:46ch;color:var(--text-secondary);font-size:.95rem}
 
 /* ---------- lada band ---------- */
 .lada{background:var(--surface-dark);color:#fff;padding-block:var(--s9);text-align:center}
+/* unused since the Lada band took the real mark; kept in case a
+   merchant-authored page still carries the class */
 .lada__script{font-family:var(--font-script);font-size:clamp(4rem,11vw,8rem);line-height:.8;color:var(--gold)}
 .lada__by{margin-top:var(--s4);color:rgba(255,255,255,.72)}
 .lada__copy{margin:var(--s5) auto 0;max-width:46ch;color:rgba(255,255,255,.66);font-size:.95rem}
@@ -313,5 +334,5 @@ button{font:inherit}
 .arch__media--type{display:flex;align-items:flex-end;justify-content:center;
   background:var(--surface-alt);padding-bottom:18%;transition:background .3s var(--ease)}
 .arch:hover .arch__media--type{background:var(--surface-hover)}
-.arch__word{font-family:var(--font-display);font-size:clamp(1.1rem,2vw,1.6rem);color:var(--text);
+.arch__word{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.1rem,2vw,1.6rem);color:var(--text);
   text-align:center;padding-inline:var(--s3)}
