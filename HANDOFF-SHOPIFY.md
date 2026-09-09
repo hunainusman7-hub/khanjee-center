@@ -2,6 +2,49 @@
 
 Everything needed to pick this up on another machine. Current as of 8 Sep 2026.
 
+> **Corrections, 9 Sep 2026 — read these before running anything below.**
+> Four facts in the original handoff are wrong and will waste your time.
+>
+> | The handoff says | Actually |
+> |---|---|
+> | store `khanjeecenter.myshopify.com` | **`qw4zqf-sv.myshopify.com`** — the handoff's handle 404s. `www.khanjeecenter.com` is the custom domain in front of it. |
+> | live theme `158157045933` | **`158223007917`** — something was published after the handoff was written. Read it back any time from the `theme;desc=` field of `curl -sI https://www.khanjeecenter.com/`. |
+> | (not stated) | The theme is built on **Horizon**, not Dawn — `theme_store_id 2481`, and the asset list includes `morph.js`, `section-hydration.js`, `view-transitions.js`, `theme-drawer.js`. That matters: Horizon drives its cart through web components, so a bare `<form action="/cart/add">` does a full page reload instead of opening a drawer. |
+> | `npm install -g @shopify/cli` | `@shopify/theme` is long gone; the theme commands are in the CLI. Just `npm install -g @shopify/cli`. |
+>
+> **You do not need the CLI to read the theme's CSS or JS.** Theme assets are
+> served from the CDN and are *not* behind the storefront password:
+>
+> ```bash
+> curl -s https://www.khanjeecenter.com/cdn/shop/t/6/assets/site.css
+> ```
+>
+> That is how `site.css`, `site.js` and `fonts.css` were recovered without a
+> login. Liquid is not exposed this way — templates still need a `theme pull`.
+>
+> **The fonts bug is fixed, and it was the whole complaint.** The theme's
+> `fonts.css` had been copied from the static site, where the CSS and the
+> `.woff2` files live in sibling folders, so every one of the ten `@font-face`
+> rules pointed at `../fonts/`. A Shopify theme has exactly one flat asset
+> directory, so all ten resolved to `/cdn/shop/t/6/fonts/*.woff2` and returned
+> 404 — the entire storefront was rendering in whatever the device happened to
+> have, which is precisely why the type looked different on every phone.
+> Confirmed against the live CDN: `.../fonts/archivo-latin.woff2` is 404,
+> `.../assets/archivo-latin.woff2` is 200. `theme/assets/fonts.css` now uses
+> flat paths and the faces are committed to the repo. **Do not ever copy
+> `assets/css/fonts.css` over it.**
+>
+> **Before you push.** This repo now carries `sections/main-cart.liquid`,
+> `sections/main-product.liquid`, `templates/cart.json` and
+> `templates/product.json`. Pushing will replace whatever the theme currently
+> has at those paths. Two things to check on the pull first:
+> - if the theme has `templates/cart.liquid` or `templates/product.liquid`,
+>   **delete it** — Shopify refuses a theme that has both `.liquid` and `.json`
+>   for the same template;
+> - `sections/header.liquid` and `sections/footer.liquid` still are not in this
+>   repo. Pull before you push or you will delete them.
+
+---
 > The older `HANDOFF.md` / `BUILD-NOTES.md` describe the **static landing-page
 > comparison** that came before this. The business facts in `HANDOFF.md` §1 are
 > still correct and still worth reading. Its design decisions have been
@@ -18,8 +61,8 @@ cd khanjee-center
 git checkout claude/shopify-store-integration-f96pko
 
 # 2. Shopify CLI
-npm install -g @shopify/cli @shopify/theme
-shopify auth login --store khanjeecenter.myshopify.com
+npm install -g @shopify/cli
+shopify theme list --store qw4zqf-sv.myshopify.com   # triggers the login
 
 # 3. pull the FULL theme (see the warning below)
 shopify theme pull --theme 158200332461 --path ./shopify-theme
