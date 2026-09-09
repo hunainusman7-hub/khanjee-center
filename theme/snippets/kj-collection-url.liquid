@@ -1,0 +1,33 @@
+{%- comment -%}
+  snippets/kj-collection-url.liquid
+
+  Echoes a URL that is guaranteed to resolve:
+    the collection named by `handle`, if it exists;
+    otherwise the one named by `fallback`;
+    otherwise the all-products collection.
+
+  Use it anywhere a hardcoded /collections/<handle> would otherwise be
+  a link to a Shopify 404. The brand strip and the brand directory both
+  list every house the shop carries, but a house only has a collection
+  once someone creates it — 52 of 60 brand handles did not exist, so
+  most of those links were dead. This resolves at render time, so each
+  link starts working by itself the moment its collection appears.
+
+  Usage:
+    {%- capture url -%}
+      {%- render 'kj-collection-url', handle: 'ladies-alkaram', fallback: 'ladies-unstitched' -%}
+    {%- endcapture -%}
+{%- endcomment -%}
+{%- liquid
+  assign target = collections[handle]
+  if target.id
+    echo target.url
+  else
+    assign alt = collections[fallback]
+    if alt.id
+      echo alt.url
+    else
+      echo routes.all_products_collection_url
+    endif
+  endif
+-%}

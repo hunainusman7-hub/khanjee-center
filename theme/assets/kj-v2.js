@@ -63,58 +63,195 @@
     start();
   });
 
-  /* ---------------- brand marquee: base drift + scroll velocity, clickable ----------------
-     Each row is duplicated once so the loop is seamless, then moved with a
-     transform every frame. Scrolling adds to the speed and flips direction on
-     scroll-up; hovering eases the rows to a crawl so the links can be clicked.
-     Reduced-motion users get static, hand-scrollable rows (see kj-v2.css). */
+  /* ---------------- brand marquee ----------------
+     Two rows of brand logos drifting in opposite directions, each one a
+     link to that brand's collection. Scrolling the page adds to the
+     speed and scrolling up reverses it, so the strip reads as connected
+     to the page rather than as decoration running on its own clock.
+
+     Reduced-motion users get static rows they can scroll by hand
+     instead (see kj-v2.css). */
   (function () {
-    var rows = Array.prototype.slice.call(document.querySelectorAll('[data-bmq-row]'));
-    if (!rows.length || reduce) return;
-    var wrap = rows[0].parentElement;
-    var hover = false, lastY = window.scrollY, vel = 0, state = [];
+    var wraps = Array.prototype.slice.call(document.querySelectorAll('[data-bmq]'));
+    if (!wraps.length || reduce) return;
 
-    rows.forEach(function (row, i) {
-      if (row.dataset.bmqReady) return;
-      row.dataset.bmqReady = '1';
-      var half = row.children.length;
-      row.innerHTML += row.innerHTML;
-      /* the clone exists only to make the loop seamless: hide it from AT and the tab order */
-      Array.prototype.slice.call(row.children, half).forEach(function (el) {
-        el.setAttribute('aria-hidden', 'true'); el.setAttribute('tabindex', '-1');
-      });
-      var dir = parseInt(row.dataset.bmqDir, 10) || (i % 2 ? 1 : -1);
-      state.push({ row: row, x: 0, dir: dir, w: 0 });
-    });
-    function measure() {
-      state.forEach(function (s) { s.w = s.row.scrollWidth / 2; if (s.dir > 0 && s.x === 0) s.x = -s.w; });
-    }
-    measure();
-    window.addEventListener('resize', measure, { passive: true });
-    window.addEventListener('scroll', function () {
-      vel += (window.scrollY - lastY) * 0.28; lastY = window.scrollY;
-    }, { passive: true });
-    wrap.addEventListener('mouseenter', function () { hover = true; });
-    wrap.addEventListener('mouseleave', function () { hover = false; });
-    wrap.addEventListener('focusin',  function () { hover = true; });
-    wrap.addEventListener('focusout', function () { hover = false; });
+    /* Motion is expressed per second and scaled by frame time, not
+       applied per frame. Per-frame constants run at double speed on a
+       120Hz phone, which is most new phones here. */
+    var DRIFT = 25;      /* px per second at rest */
+    var HOVER_DRIFT = 3; /* eased to a crawl so the links can be clicked */
+    var VEL_MAX = 900;   /* px per second, clamped */
+    var DECAY = 0.06;    /* velocity half-life, in seconds-ish */
 
-    (function tick() {
-      vel *= 0.90;                                  /* decay */
-      if (Math.abs(vel) < 0.01) vel = 0;
-      var base = hover ? 0.05 : 0.42;               /* px per frame at rest */
-      state.forEach(function (s) {
-        if (!s.w) return;
-        s.x += base * s.dir + vel * s.dir * 0.9;    /* scroll down speeds both rows along their own direction */
-        if (s.x <= -s.w) s.x += s.w;
-        if (s.x > 0)     s.x -= s.w;
+    wraps.forEach(function (wrap) { init(wrap); });
+
+    function init(wrap) {
+      var rows = Array.prototype.slice.call(wrap.querySelectorAll('[data-bmq-row]'));
+      if (!rows.length) return;
+
+      var raf = null, hover = false, lastY = window.scrollY, vel = 0, last = 0;
+      var state = rows.map(function (row, i) {
+        var half = row.children.length;
+        if (!half) return null;
+        row.innerHTML += row.innerHTML;
+        /* The clone is only there to make the loop seamless. Keep it out
+           of the tab order and out of the accessibility tree, or every
+           brand is announced twice and Tab walks through a duplicate set. */
+        Array.prototype.slice.call(row.children, half).forEach(function (el) {
+          el.setAttribute('aria-hidden', 'true');
+          el.setAttribute('tabindex', '-1');
+        });
+        return {
+          row: row, half: half, x: 0, w: 0,
+          dir: parseInt(row.dataset.bmqDir, 10) || (i % 2 ? 1 : -1)
+        };
+      }).filter(Boolean);
+      if (!state.length) return;
+
+      /* The loop period is the distance to the first clone, which is
+         the item run PLUS a full gap. scrollWidth/2 is short by half a
+         gap — 2*W + (2n-1)*g halved is W + (n-0.5)*g — and the strip
+         visibly jumps by that much on every wrap. Read the clone's own
+         offset instead and the gap takes care of itself. */
+      function paint(s) {
         s.row.style.transform = 'translate3d(' + s.x.toFixed(2) + 'px,0,0)';
+      }
+
+      function measure() {
+        state.forEach(function (s) {
+          var first = s.row.children[0];
+          var clone = s.row.children[s.half];
+          var w = (first && clone) ? clone.offsetLeft - first.offsetLeft
+                                   : s.row.scrollWidth / 2;
+          if (w <= 0) return;
+
+          if (!s.w) {
+            /* First measure. x lives in [-w, 0), so a row travelling
+               right has to START at -w — from 0 it would go positive on
+               the very first frame and snap a whole period backwards,
+               which reads as the strip glitching the moment it loads. */
+            s.x = s.dir > 0 ? -w : 0;
+          } else {
+            /* Later measures happen when the logos finish loading or
+               Bodoni swaps in. Carry the position across proportionally
+               so the strip does not jump to a different place in the
+               loop every time a width settles. */
+            s.x = s.x / s.w * w;
+          }
+          s.w = w;
+          s.x = ((s.x % w) - w) % w;
+          if (s.x === 0) s.x = -w;                        /* -0 lands here */
+          paint(s);
+        });
+      }
+      measure();
+
+      /* Width changes after first paint, twice: the logos are lazy and
+         Bodoni replaces the fallback in the typographic items. Measuring
+         once at init leaves the period wrong for the life of the page. */
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+      wrap.querySelectorAll('img').forEach(function (img) {
+        if (!img.complete) img.addEventListener('load', measure, { once: true });
       });
-      if (!document.hidden) window.requestAnimationFrame(tick);
-      else document.addEventListener('visibilitychange', function once() {
-        document.removeEventListener('visibilitychange', once); window.requestAnimationFrame(tick);
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(measure);
+        ro.observe(wrap);
+      } else {
+        window.addEventListener('resize', measure, { passive: true });
+      }
+
+      function onScroll() {
+        var y = window.scrollY;
+        var dy = y - lastY;
+        lastY = y;
+        /* Scroll restoration and anchor jumps arrive as one enormous
+           delta; without a clamp the strip teleports. */
+        if (Math.abs(dy) > 240) dy = dy > 0 ? 240 : -240;
+        vel += dy * 14;
+        if (vel > VEL_MAX) vel = VEL_MAX;
+        if (vel < -VEL_MAX) vel = -VEL_MAX;
+        if (raf === null) start();
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+
+      wrap.addEventListener('mouseenter', function () { hover = true; });
+      wrap.addEventListener('mouseleave', function () { hover = false; });
+
+      /* .bmq__rows uses overflow:clip, not hidden, so it is not a scroll
+         container and Tab cannot scroll the strip sideways behind the
+         mask. Belt and braces: if anything does scroll it, put it back,
+         and translate the focused row so the focused link is on screen
+         rather than parked outside the clip. */
+      wrap.addEventListener('focusin', function (e) {
+        hover = true;
+        if (wrap.scrollLeft) wrap.scrollLeft = 0;
+        var item = e.target.closest('[data-bmq-row] > *');
+        if (!item) return;
+        var s = state.filter(function (st) { return st.row === item.parentElement; })[0];
+        if (!s || !s.w) return;
+        var pad = 24;
+        var itemLeft = item.offsetLeft;
+        var visible = wrap.clientWidth;
+        var pos = itemLeft + s.x;
+        if (pos < pad) s.x += pad - pos;
+        else if (pos + item.offsetWidth > visible - pad) {
+          s.x -= (pos + item.offsetWidth) - (visible - pad);
+        }
+        paint(s);
       });
-    })();
+      wrap.addEventListener('focusout', function () { hover = false; });
+
+      function frame(now) {
+        var dt = last ? (now - last) / 1000 : 0.016;
+        last = now;
+        if (dt > 0.1) dt = 0.1;                       /* a tab that was backgrounded */
+
+        vel *= Math.pow(DECAY, dt);
+        if (Math.abs(vel) < 0.5) vel = 0;
+
+        var base = hover ? HOVER_DRIFT : DRIFT;
+        state.forEach(function (s) {
+          if (!s.w) return;
+          s.x += (base * s.dir + vel * s.dir) * dt;
+          s.x = ((s.x % s.w) - s.w) % s.w;            /* one wrap, any overshoot */
+          paint(s);
+        });
+
+        raf = window.requestAnimationFrame(frame);
+      }
+
+      /* The document.hidden guard matters: a background tab never runs
+         animation frames, so calling this while hidden would leave a raf
+         id that never fires — and the visibilitychange handler below
+         would then see raf !== null and bail, leaving the strip frozen
+         for good once the tab was finally opened. Opening a shop in a
+         new tab is common enough that this is not a corner case. */
+      function start() {
+        if (raf !== null || document.hidden) return;
+        last = 0;
+        raf = window.requestAnimationFrame(frame);
+      }
+      function stop() {
+        if (raf !== null) { window.cancelAnimationFrame(raf); raf = null; }
+      }
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stop(); else start();
+      });
+
+      /* The theme editor replaces a section's DOM wholesale. Without
+         this the old loop keeps writing transforms to detached nodes
+         while the new markup sits still, un-duplicated. */
+      document.addEventListener('shopify:section:unload', function (e) {
+        if (e.target.contains(wrap)) stop();
+      });
+
+      start();
+    }
+
+    document.addEventListener('shopify:section:load', function (e) {
+      e.target.querySelectorAll('[data-bmq]').forEach(init);
+    });
   })();
 
   /* ---------------- product card image swap on touch ---------------- */

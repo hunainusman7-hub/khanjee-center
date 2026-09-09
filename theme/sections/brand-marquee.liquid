@@ -57,8 +57,35 @@
                 endif
               endfor
             -%}
-            <a class="bmq__item" href="{{ routes.collections_url }}/{{ prefix }}{{ handle }}"
-               aria-label="{{ name | escape }} — shop the brand">
+            {%- comment -%}
+              Resolve the destination instead of assuming it. The strip
+              lists every brand the shop carries, but a brand only has a
+              collection once someone has created it — 52 of these 60
+              handles did not exist, so 52 of the logos were links to a
+              Shopify 404. This lands on the gender collection until the
+              brand's own collection appears, and switches to it by
+              itself the moment it does.
+            {%- endcomment -%}
+            {%- liquid
+              assign brand_handle = prefix | append: handle
+              case grp
+                when 'gents'
+                  assign fallback_handle = 'gents-unstitched'
+                when 'ladies'
+                  assign fallback_handle = 'ladies-unstitched'
+                else
+                  assign fallback_handle = 'bridal'
+              endcase
+              assign has_own = false
+              if collections[brand_handle].id
+                assign has_own = true
+              endif
+            -%}
+            {%- capture brand_url -%}
+              {%- render 'kj-collection-url', handle: brand_handle, fallback: fallback_handle -%}
+            {%- endcapture -%}
+            <a class="bmq__item" href="{{ brand_url | strip }}"
+               aria-label="{% if has_own %}{{ name | escape }} — shop the brand{% else %}{{ name | escape }} — see what we have{% endif %}">
               {%- if logo_file != '' -%}
                 <img src="{{ logo_file | asset_url }}" alt="{{ name | escape }}"
                      loading="lazy" decoding="async" width="140" height="38">

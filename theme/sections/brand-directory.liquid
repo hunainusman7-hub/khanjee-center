@@ -23,14 +23,17 @@
           assign list = gents
           assign label = 'Gents'
           assign prefix = 'gents-'
+          assign fallback_handle = 'gents-unstitched'
         when 2
           assign list = ladies
           assign label = 'Ladies'
           assign prefix = 'ladies-'
+          assign fallback_handle = 'ladies-unstitched'
         when 3
           assign list = bridal
           assign label = 'Bridal & Formal'
           assign prefix = 'bridal-'
+          assign fallback_handle = 'bridal'
       endcase
     -%}
     <section class="bdir">
@@ -47,8 +50,17 @@
                 assign logo_file = kv[1]
               endif
             endfor
+            assign brand_handle = prefix | append: handle
           -%}
-          <a class="bdir__cell" href="{{ routes.collections_url }}/{{ prefix }}{{ handle }}">
+          {%- comment -%}
+            Same resolution as the brand strip: a cell points at the
+            brand's own collection once that exists, and at the gender
+            collection until then, rather than at a 404.
+          {%- endcomment -%}
+          {%- capture cell_url -%}
+            {%- render 'kj-collection-url', handle: brand_handle, fallback: fallback_handle -%}
+          {%- endcapture -%}
+          <a class="bdir__cell" href="{{ cell_url | strip }}">
             {%- if logo_file != '' -%}
               <img src="{{ logo_file | asset_url }}" alt="{{ name | escape }}"
                    loading="lazy" decoding="async" width="150" height="40">
@@ -65,28 +77,28 @@
     <div class="bdir__fab">
       <h3 class="bdir__fabh">Gents</h3>
       <div class="chiprow" role="list">
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-shirting">Shirting</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-khaddar">Khaddar</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-boski">Boski</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-cotton">Cotton</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-wash-wear">Wash &amp; Wear</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-wool">Wool &amp; Winter</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-premium-suiting">Premium Suiting</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-silk">Gents Silk</a>
-        <a class="chip" href="{{ routes.collections_url }}/gents-fabric-shawls">Shawls</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-shirting', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Shirting</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-khaddar', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Khaddar</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-boski', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Boski</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-cotton', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Cotton</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-wash-wear', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Wash &amp; Wear</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-wool', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Wool &amp; Winter</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-premium-suiting', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Premium Suiting</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-silk', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Gents Silk</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'gents-fabric-shawls', fallback: 'gents-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Shawls</a>
       </div>
       <h3 class="bdir__fabh">Ladies</h3>
       <div class="chiprow" role="list">
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-lawn">Lawn</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-khaddar">Khaddar</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-cambric">Cambric</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-chiffon">Chiffon</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-karandi">Karandi</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-jacquard">Jacquard</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-organza">Organza</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-velvet">Velvet</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-net">Net</a>
-        <a class="chip" href="{{ routes.collections_url }}/ladies-fabric-abaya">Abaya</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-lawn', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Lawn</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-khaddar', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Khaddar</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-cambric', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Cambric</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-chiffon', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Chiffon</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-karandi', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Karandi</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-jacquard', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Jacquard</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-organza', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Organza</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-velvet', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Velvet</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-net', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Net</a>
+        {%- capture u -%}{%- render 'kj-collection-url', handle: 'ladies-fabric-abaya', fallback: 'ladies-unstitched' -%}{%- endcapture -%}<a class="chip" href="{{ u | strip }}">Abaya</a>
       </div>
     </div>
   </section>

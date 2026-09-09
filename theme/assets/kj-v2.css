@@ -123,9 +123,21 @@
 .bmq__lead h2{font-family:var(--font-display);font-weight:400;line-height:1.05;
   font-size:clamp(1.7rem,4.2vw,2.9rem)}
 .bmq__lead p{margin:var(--s3) 0 0;color:var(--text-secondary);font-size:.95rem}
-.bmq__rows{margin-top:var(--s6);display:grid;gap:var(--s4);overflow:hidden;
+/* overflow:clip, not hidden. `hidden` makes this a scroll container,
+   so tabbing to a logo that has drifted past the edge scrolls the strip
+   sideways behind the mask — both rows shift, a blank band appears, and
+   focus can land on a link that is not on screen. `clip` clips without
+   ever scrolling. overflow-clip-margin keeps the focus ring from being
+   sliced off at the boundary. */
+.bmq__rows{margin-top:var(--s6);display:grid;gap:var(--s4);
+  overflow:clip;overflow-clip-margin:4px;
   -webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);
   mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent)}
+/* Safari below 16 has no overflow:clip; hidden is the lesser evil there
+   and the focusin handler in kj-v2.js resets scrollLeft to cover it. */
+@supports not (overflow:clip){
+  .bmq__rows{overflow:hidden}
+}
 .bmq__row{display:flex;gap:var(--s6);width:max-content;will-change:transform;
   transform:translate3d(0,0,0)}
 /* motion is driven by kj-v2.js (base drift + scroll velocity); no keyframes here,
