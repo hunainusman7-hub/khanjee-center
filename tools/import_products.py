@@ -100,6 +100,19 @@ mutation($id: ID!, $input: InventoryItemInput!) {
   }
 }"""
 
+Q_AUDIT = """
+query($cursor: String) {
+  products(first: 100, after: $cursor) {
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      id title status
+      variants(first: 1) { nodes { sku inventoryQuantity } }
+      media(first: 10) { nodes { mediaContentType status
+        ... on MediaImage { image { url } } } }
+    }
+  }
+}"""
+
 M_ACTIVATE = """
 mutation($inventoryItemId: ID!, $locationId: ID!, $available: Int) {
   inventoryActivate(inventoryItemId: $inventoryItemId, locationId: $locationId,
@@ -216,6 +229,69 @@ def make_product(r, token, qty, dry):
     print(f"    {r['Variant SKU']}  {prod['handle'][:52]}")
 
 
+def audit(token):
+    """Read back what actually landed.
+
+    productCreate returns BEFORE Shopify has finished fetching remote
+    media, so a create can report success while the image quietly ends
+    up FAILED — which is the same wall the native CSV importer hit on
+    23,602 remote fetches. Reporting "imported 515 products" without
+    checking this would be reporting a number, not a result.
+    """
+    print("  reading back every product…")
+    rows, cursor = [], None
+    while True:
+        d = gql(Q_AUDIT, {"cursor": cursor}, token)
+        pr = d["products"]
+        for p in pr["nodes"]:
+            v = ((p.get("variants") or {}).get("nodes") or [{}])[0]
+            media = (p.get("media") or {}).get("nodes") or []
+            rows.append({
+                "sku": v.get("sku") or "",
+                "title": p.get("title") or "",
+                "status": p.get("status"),
+                "qty": v.get("inventoryQuantity"),
+                "media_total": len(media),
+                "media_ready": sum(1 for m in media if m.get("status") == "READY"),
+                "media_failed": sum(1 for m in media if m.get("status") == "FAILED"),
+                "media_processing": sum(1 for m in media
+                                        if m.get("status") == "PROCESSING"),
+            })
+        if not pr["pageInfo"]["hasNextPage"]:
+            break
+        cursor = pr["pageInfo"]["endCursor"]
+        time.sleep(0.25)
+
+    mine = [r for r in rows if re.match(r"^KJC-[A-Z]{2}-[A-Z0-9]{3}-\d{5}$", r["sku"])]
+    print(f"  {len(rows)} products on the store, {len(mine)} created by this importer\n")
+    if not mine:
+        return
+
+    no_media   = [r for r in mine if r["media_total"] == 0]
+    failed     = [r for r in mine if r["media_failed"]]
+    processing = [r for r in mine if r["media_processing"]]
+    zero_qty   = [r for r in mine if not r["qty"]]
+    draft      = [r for r in mine if r["status"] == "DRAFT"]
+
+    print(f"  images ready        : {sum(r['media_ready'] for r in mine)}")
+    print(f"  images still fetching: {sum(r['media_processing'] for r in mine)}"
+          f"  ({len(processing)} products)")
+    print(f"  images FAILED       : {sum(r['media_failed'] for r in mine)}"
+          f"  ({len(failed)} products)")
+    print(f"  products with NO image at all: {len(no_media)}")
+    print(f"  products at quantity 0       : {len(zero_qty)}")
+    print(f"  products still DRAFT         : {len(draft)}")
+    for label, group in (("no image", no_media), ("failed image", failed)):
+        if group:
+            print(f"\n  first few with {label}:")
+            for r in group[:8]:
+                print(f"    {r['sku']:22} {r['title'][:48]}")
+    if failed or no_media:
+        print("\n  Re-run the importer for those SKUs, or check whether the source")
+        print("  brand blocks hotlinking — some do, and then the URL has to be")
+        print("  downloaded and re-uploaded rather than handed to Shopify.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -224,6 +300,9 @@ def main():
     ap.add_argument("--in-stock-only", action="store_true",
                     help="skip rows the source brand has already sold out")
     ap.add_argument("--csv", default=CSV_PATH)
+    ap.add_argument("--audit", action="store_true",
+                    help="read back what landed and report failed/missing images; "
+                         "creates nothing")
     a = ap.parse_args()
 
     token = os.environ.get("SHOPIFY_ADMIN_TOKEN", "")
@@ -244,6 +323,10 @@ def main():
                  "or export it, or use --dry-run.")
     if token and not token.startswith("shpat_"):
         print(f"  ! token does not start with shpat_ — is that an Admin API token?")
+
+    if a.audit:
+        audit(token)
+        return
 
     rows = read_csv(a.csv)
     if a.in_stock_only:
@@ -273,6 +356,10 @@ def main():
             print(f"    … {i}/{len(rows)}")
 
     print(f"\n  done. {len(rows)} products, all DRAFT — nothing is published.")
+    if not a.dry_run:
+        print("\n  Shopify is still fetching the images. Wait a few minutes, then:")
+        print("    python3 tools/import_products.py --audit")
+        print("  which reports any that came back FAILED or with no image at all.")
 
 
 if __name__ == "__main__":
