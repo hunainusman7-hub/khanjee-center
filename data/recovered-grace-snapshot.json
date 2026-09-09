@@ -1,0 +1,356 @@
+{
+ "products": [
+  {
+   "id": 8751324725421,
+   "title": "Grace Cartier Superine \u2013 Maroon",
+   "handle": "grace-cartier-superine-maroon",
+   "body_html": "Unstitched wash-n-wear fabric from Grace's Cartier Superine line, crafted for the modern man. 4 metres. Maroon shown.",
+   "published_at": "2026-09-07T02:45:25+05:00",
+   "created_at": "2026-09-07T02:45:24+05:00",
+   "updated_at": "2026-09-09T17:08:56+05:00",
+   "vendor": "Grace",
+   "product_type": "Wash n wear",
+   "tags": [],
+   "variants": [
+    {
+     "id": 47421728293037,
+     "title": "Default Title",
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": null,
+     "available": true,
+     "price": "4200.00",
+     "grams": 0,
+     "compare_at_price": null,
+     "position": 1,
+     "product_id": 8751324725421,
+     "created_at": "2026-09-07T02:45:24+05:00",
+     "updated_at": "2026-09-09T17:08:56+05:00"
+    }
+   ],
+   "images": [
+    {
+     "id": 40630412640429,
+     "created_at": "2026-09-07T02:45:24+05:00",
+     "position": 1,
+     "updated_at": "2026-09-07T02:45:26+05:00",
+     "product_id": 8751324725421,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-cartier-maroon-1.jpg?v=1788731126",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630412673197,
+     "created_at": "2026-09-07T02:45:24+05:00",
+     "position": 2,
+     "updated_at": "2026-09-07T02:45:26+05:00",
+     "product_id": 8751324725421,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-cartier-maroon-2.jpg?v=1788731126",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630412705965,
+     "created_at": "2026-09-07T02:45:24+05:00",
+     "position": 3,
+     "updated_at": "2026-09-07T02:45:26+05:00",
+     "product_id": 8751324725421,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-cartier-maroon-3.jpg?v=1788731126",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630412738733,
+     "created_at": "2026-09-07T02:45:24+05:00",
+     "position": 4,
+     "updated_at": "2026-09-07T02:45:26+05:00",
+     "product_id": 8751324725421,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-cartier-maroon-4.jpg?v=1788731126",
+     "width": 1024,
+     "height": 1024
+    }
+   ],
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 8751324692653,
+   "title": "Grace Monforts \u2013 Brown",
+   "handle": "grace-monforts-brown",
+   "body_html": "Unstitched wash-n-wear fabric from Grace's Monforts line. 4 metres, available in 10 colours. Brown / Chaska shown.",
+   "published_at": "2026-09-07T02:45:16+05:00",
+   "created_at": "2026-09-07T02:45:15+05:00",
+   "updated_at": "2026-09-09T17:08:56+05:00",
+   "vendor": "Grace",
+   "product_type": "Wash n wear",
+   "tags": [],
+   "variants": [
+    {
+     "id": 47421727965357,
+     "title": "Default Title",
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": null,
+     "available": true,
+     "price": "4000.00",
+     "grams": 0,
+     "compare_at_price": null,
+     "position": 1,
+     "product_id": 8751324692653,
+     "created_at": "2026-09-07T02:45:15+05:00",
+     "updated_at": "2026-09-09T17:08:56+05:00"
+    }
+   ],
+   "images": [
+    {
+     "id": 40630412378285,
+     "created_at": "2026-09-07T02:45:15+05:00",
+     "position": 1,
+     "updated_at": "2026-09-07T02:45:17+05:00",
+     "product_id": 8751324692653,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-monforts-brown-1.jpg?v=1788731117",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630412411053,
+     "created_at": "2026-09-07T02:45:15+05:00",
+     "position": 2,
+     "updated_at": "2026-09-07T02:45:17+05:00",
+     "product_id": 8751324692653,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-monforts-brown-2.jpg?v=1788731117",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630412443821,
+     "created_at": "2026-09-07T02:45:15+05:00",
+     "position": 3,
+     "updated_at": "2026-09-07T02:45:17+05:00",
+     "product_id": 8751324692653,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-monforts-brown-3.jpg?v=1788731117",
+     "width": 1024,
+     "height": 1024
+    }
+   ],
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 8751324659885,
+   "title": "Grace Super Toyobo \u2013 Black",
+   "handle": "grace-super-toyobo-black",
+   "body_html": "Unstitched wash-n-wear fabric from Grace's Super Toyobo line. 4 metres, available in 8 colours. Black shown.",
+   "published_at": "2026-09-07T02:45:02+05:00",
+   "created_at": "2026-09-07T02:45:01+05:00",
+   "updated_at": "2026-09-09T17:08:56+05:00",
+   "vendor": "Grace",
+   "product_type": "Wash n wear",
+   "tags": [],
+   "variants": [
+    {
+     "id": 47421727637677,
+     "title": "Default Title",
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": null,
+     "available": true,
+     "price": "3600.00",
+     "grams": 0,
+     "compare_at_price": null,
+     "position": 1,
+     "product_id": 8751324659885,
+     "created_at": "2026-09-07T02:45:01+05:00",
+     "updated_at": "2026-09-09T17:08:56+05:00"
+    }
+   ],
+   "images": [
+    {
+     "id": 40630412148909,
+     "created_at": "2026-09-07T02:45:01+05:00",
+     "position": 1,
+     "updated_at": "2026-09-07T02:45:03+05:00",
+     "product_id": 8751324659885,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-supertoyobo-black-1.jpg?v=1788731103",
+     "width": 1024,
+     "height": 1024
+    }
+   ],
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 8751324463277,
+   "title": "Grace Bumper \u2013 Teal",
+   "handle": "grace-bumper-teal",
+   "body_html": "Unstitched wash-n-wear fabric from Grace's Bumper line. 4 metres, available in 6 colours. Teal shown.",
+   "published_at": "2026-09-07T02:44:36+05:00",
+   "created_at": "2026-09-07T02:44:21+05:00",
+   "updated_at": "2026-09-09T17:08:56+05:00",
+   "vendor": "Grace",
+   "product_type": "Wash n wear",
+   "tags": [],
+   "variants": [
+    {
+     "id": 47421726064813,
+     "title": "Default Title",
+     "option1": "Default Title",
+     "option2": null,
+     "option3": null,
+     "sku": null,
+     "requires_shipping": true,
+     "taxable": true,
+     "featured_image": null,
+     "available": true,
+     "price": "3612.00",
+     "grams": 0,
+     "compare_at_price": null,
+     "position": 1,
+     "product_id": 8751324463277,
+     "created_at": "2026-09-07T02:44:21+05:00",
+     "updated_at": "2026-09-09T17:08:56+05:00"
+    }
+   ],
+   "images": [
+    {
+     "id": 40630410838189,
+     "created_at": "2026-09-07T02:44:21+05:00",
+     "position": 1,
+     "updated_at": "2026-09-07T02:44:23+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-1.jpg?v=1788731063",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630410870957,
+     "created_at": "2026-09-07T02:44:21+05:00",
+     "position": 2,
+     "updated_at": "2026-09-07T02:44:23+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-2.jpg?v=1788731063",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630410903725,
+     "created_at": "2026-09-07T02:44:21+05:00",
+     "position": 3,
+     "updated_at": "2026-09-07T02:44:23+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-3.jpg?v=1788731063",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630410936493,
+     "created_at": "2026-09-07T02:44:21+05:00",
+     "position": 4,
+     "updated_at": "2026-09-07T02:44:23+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-4.jpg?v=1788731063",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630411428013,
+     "created_at": "2026-09-07T02:44:36+05:00",
+     "position": 5,
+     "updated_at": "2026-09-07T02:44:38+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-1_128b0577-430c-4422-8974-85883b4debc8.jpg?v=1788731078",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630411460781,
+     "created_at": "2026-09-07T02:44:36+05:00",
+     "position": 6,
+     "updated_at": "2026-09-07T02:44:38+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-2_a023569f-5fc5-436e-b9b0-bed5a53ce877.jpg?v=1788731078",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630411493549,
+     "created_at": "2026-09-07T02:44:36+05:00",
+     "position": 7,
+     "updated_at": "2026-09-07T02:44:38+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-3_cc19481c-829b-4c79-90fe-49d1fb06b742.jpg?v=1788731078",
+     "width": 1024,
+     "height": 1024
+    },
+    {
+     "id": 40630411526317,
+     "created_at": "2026-09-07T02:44:36+05:00",
+     "position": 8,
+     "updated_at": "2026-09-07T02:44:38+05:00",
+     "product_id": 8751324463277,
+     "variant_ids": [],
+     "src": "https://cdn.shopify.com/s/files/1/0786/5856/8365/files/grace-bumper-teal-4_f1f78ab3-37b0-41f5-a82a-7668475657f1.jpg?v=1788731078",
+     "width": 1024,
+     "height": 1024
+    }
+   ],
+   "options": [
+    {
+     "name": "Title",
+     "position": 1,
+     "values": [
+      "Default Title"
+     ]
+    }
+   ]
+  }
+ ]
+}
