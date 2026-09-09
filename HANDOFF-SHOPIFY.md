@@ -4,12 +4,12 @@ Everything needed to pick this up on another machine. Current as of 8 Sep 2026.
 
 > **9 Sep 2026 — connected, merged and published.**
 >
-> Live theme is now **`158240669869`** "Khan Jee — v2.5 category photography".
+> Live theme is now **`158241357997`** "Khan Jee — v2.6 collection split fixes".
 > The previous live theme **`158223007917`** ("v2.1 marks + cart") is kept
 > unpublished as the rollback:
 >
 > ```bash
-> shopify theme publish --store qw4zqf-sv.myshopify.com --theme 158239031469 --force
+> shopify theme publish --store qw4zqf-sv.myshopify.com --theme 158240669869 --force
 > ```
 >
 > `theme/` in this repo is the **whole theme** now — 553 files, not 53. The gap
