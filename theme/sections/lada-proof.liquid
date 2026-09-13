@@ -1,0 +1,54 @@
+{%- comment -%}
+  The three seals, moved out of the hero.
+
+  They used to sit inside lada-hero, stacked under the CTAs and on top
+  of the photograph — so the one thing the page has to prove was
+  competing with the one photograph the label owns, and losing. The
+  spec's call is to rehouse them in a band of their own directly under
+  the plate, where the hero's 66svh clamp leaves the top edge of this
+  band visible above the fold.
+
+  Drawn in lines and type only: no icons, no boxes, no shadows, no
+  fill beyond the panel ground. That is khaadi's PDP rule — the
+  information architecture is drawn entirely with lines — and it is
+  what keeps three claims from reading as three marketing tiles.
+{%- endcomment -%}
+<section class="lada lada__proof" id="lada-proof">
+  <div class="lada__wrap">
+    <dl class="lada__proof-list">
+      {%- for i in (1..3) -%}
+        {%- liquid
+          case i
+            when 1
+              assign t = section.settings.seal1_title | default: 'Cut in-house'
+              assign d = section.settings.seal1_text | default: 'Cut in our own workshop in Sheikhupura.'
+            when 2
+              assign t = section.settings.seal2_title | default: 'Unconditional guarantee'
+              assign d = section.settings.seal2_text | default: 'Replaced or refunded, no conditions, no time limit.'
+            when 3
+              assign t = section.settings.seal3_title | default: 'Cut to measure'
+              assign d = section.settings.seal3_text | default: '38R to 46R as standard, measured in the shop at no charge.'
+          endcase
+        -%}
+        <div class="lada__proof-item"><dt>{{ t }}</dt><dd>{{ d }}</dd></div>
+      {%- endfor -%}
+    </dl>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lada proof",
+  "tag": "section",
+  "settings": [
+    { "type": "paragraph", "content": "Three claims, directly under the hero. Drawn in lines and type — no icons." },
+    { "type": "text", "id": "seal1_title", "label": "Seal 1 title" },
+    { "type": "text", "id": "seal1_text", "label": "Seal 1 text" },
+    { "type": "text", "id": "seal2_title", "label": "Seal 2 title" },
+    { "type": "text", "id": "seal2_text", "label": "Seal 2 text" },
+    { "type": "text", "id": "seal3_title", "label": "Seal 3 title" },
+    { "type": "text", "id": "seal3_text", "label": "Seal 3 text" }
+  ],
+  "presets": [{ "name": "Lada proof" }]
+}
+{% endschema %}

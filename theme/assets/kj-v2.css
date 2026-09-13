@@ -291,7 +291,22 @@
 /* ============================================================
    LADA — premium dark register
    ============================================================ */
-.lada{background:var(--lada-ground);color:var(--lada-bone)}
+/* site.css still carries `.lada{...padding-block:var(--s9);text-align:center}`
+   from the old homepage Lada band. That band is `.lband` now, so the
+   only things left wearing `class="lada"` are this page's eight
+   sections — and both declarations were leaking into every one of them.
+
+   text-align:center meant the eyebrow centred itself across the full
+   1180px wrap while the mark and the button sat at its left edge, so
+   the hero was aligned three different ways at once. padding-block
+   added 112px top and bottom ON TOP of .lada__sec's own 90px, making
+   the vertical rhythm 202px of two rules colliding rather than one
+   stated value — and giving the proof band, which is meant to be a
+   hairline, 112px of padding it never asked for.
+
+   Reset both here. .lada__sec owns the rhythm; .lada__empty and
+   .lada__sizes set their own alignment explicitly. */
+.lada{background:var(--lada-ground);color:var(--lada-bone);padding-block:0;text-align:start}
 .lada ::selection{background:var(--lada-champagne);color:var(--lada-ground)}
 .lada__wrap{width:min(100% - 2.5rem,1180px);margin-inline:auto}
 @media (min-width:900px){.lada__wrap{width:min(100% - 4rem,1180px)}}
@@ -315,10 +330,17 @@
    and ismailfarid do, and both teardowns credit it. */
 .lada__hero{position:relative;min-height:clamp(460px,66svh,720px);display:flex;
   align-items:flex-end;overflow:hidden;background:var(--lada-ground)}
-.lada__hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* DIRECT CHILD. `.lada__hero img` matched every image in the hero,
+   which meant the Lada mark — an <img>, nested in the h1 — was also
+   getting position:absolute, width:100% and object-fit:cover. Absolute
+   positioning made its 100% resolve against .lada__hero-in instead of
+   its own 460px h1, so the mark rendered 1180px wide and bled off both
+   edges of the label's own page. Live since the mark shipped.
+   The plate is the section's only direct img child. */
+.lada__hero > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .lada__hero::after{content:"";position:absolute;inset:0;
   background:linear-gradient(to top,rgba(14,14,15,.82) 0%,rgba(14,14,15,.55) 28%,rgba(14,14,15,0) 62%)}
-.lada__hero-in{position:relative;z-index:2;padding-block:clamp(3rem,9vh,6rem)}.lada__eyebrow{margin:0;font-size:var(--fs-micro);letter-spacing:.36em;text-transform:uppercase;
+.lada__hero-in{position:relative;z-index:2;padding-block:clamp(3rem,9vh,6rem)}.lada__eyebrow{margin:0;font-size:var(--fs-micro);letter-spacing:.24em;text-transform:uppercase;
   color:var(--lada-champagne)}.lada__wordmark--mark{margin:var(--s4) 0 0;display:block;max-width:min(460px,74vw)}
 .lada__wordmark--mark .kj-mark{width:100%;height:auto}
 .lada__wordmark{margin:var(--s4) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:.88;
@@ -327,32 +349,137 @@
    letter-spacing values and nothing at 0, so nothing read as
    deliberate. Body and headings sit at 0; the eyebrow keeps its .36em
    and is now the only element on the page carrying any. */
-.lada__lede,.lada__p,.lada__h2,.lada__stage h3{letter-spacing:0}
+.lada__lede,.lada__p,.lada__stage h3{letter-spacing:0}
 .lada__lede{margin:var(--s5) 0 0;max-width:48ch;color:var(--lada-muted);
   font-size:clamp(.98rem,1.5vw,1.08rem);line-height:1.8}
 .lada__ctas{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s6)}.btn-lada{display:inline-flex;align-items:center;justify-content:center;min-height:52px;
   padding-inline:2.3rem;background:var(--lada-champagne);color:var(--lada-ground);
   border:1px solid var(--lada-champagne);font-size:var(--fs-micro);font-weight:600;
-  letter-spacing:.22em;text-transform:uppercase;
+  letter-spacing:.24em;text-transform:uppercase;
   transition:background .25s var(--ease),color .25s var(--ease)}
 .btn-lada:hover{background:transparent;color:var(--lada-champagne)}
 .btn-lada--ghost{background:transparent;color:var(--lada-bone);border-color:var(--lada-line)}
 .btn-lada--ghost:hover{border-color:var(--lada-champagne);color:var(--lada-champagne)}
 
-.lada__seals{display:grid;gap:var(--s5);margin-top:clamp(2.5rem,6vh,4.5rem);
-  padding-top:var(--s5);border-top:1px solid var(--lada-line)}
-@media (min-width:760px){.lada__seals{grid-template-columns:repeat(3,1fr);gap:var(--s6)}}.lada__seal dt{font-size:var(--fs-micro);letter-spacing:.26em;text-transform:uppercase;color:var(--lada-champagne)}
-.lada__seal dd{margin:var(--s2) 0 0;font-size:.86rem;line-height:1.7;color:var(--lada-muted)}
+/* ---------- proof band ----------
+   The three seals, out of the hero and into a band of their own
+   directly under it. Lines and type only: rule above, rules between,
+   nothing else. No icon, no box, no shadow, no fill beyond the panel.
 
-.lada__sec{padding-block:clamp(3.5rem,10vh,7rem)}.lada__kicker{font-size:var(--fs-micro);letter-spacing:.32em;text-transform:uppercase;color:var(--lada-champagne)}.lada__h2{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:1.06;
-  font-size:clamp(1.9rem,4.6vw,3.2rem);color:var(--lada-bone)}
+   dd runs --lada-muted #8B8579 on --lada-panel #17171A, which measures
+   4.88:1 — over the 4.5:1 floor, so 13px at weight 300 is legible and
+   still recessive. It is a slightly harder ground than --lada-ground
+   (5.6:1); do not darken the type to match the hero. */
+.lada__proof{background:var(--lada-panel);border-top:1px solid var(--lada-line)}
+.lada__proof-list{display:grid;gap:0;margin:0}
+.lada__proof-item{padding-block:var(--s5)}
+.lada__proof-item + .lada__proof-item{border-top:1px solid var(--lada-line)}
+@media (min-width:760px){
+  .lada__proof-list{grid-template-columns:repeat(3,1fr)}
+  .lada__proof-item{padding-block:var(--s6);padding-inline-end:var(--s6)}
+  .lada__proof-item + .lada__proof-item{border-top:0;
+    border-inline-start:1px solid var(--lada-line);padding-inline-start:var(--s6)}
+}
+.lada__proof-item dt{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+.lada__proof-item dd{margin:var(--s3) 0 0;font-size:.8125rem;font-weight:300;line-height:1.7;
+  color:var(--lada-muted)}
+
+/* ---------- measure ----------
+   Copy on the left across both rows; the photograph and the two routes
+   stack down the right. With no photograph the grid collapses to one
+   column and the routes simply follow the copy, so the section ships
+   before the shoot does. */
+.lada__measure{background:var(--lada-panel)}
+.lada__measure-grid{display:grid;gap:var(--s6)}
+@media (min-width:900px){
+  .lada__measure-grid{grid-template-columns:1fr 1fr;column-gap:var(--s8);row-gap:var(--s5);
+    grid-template-areas:"copy media" "copy act";align-items:start}
+  .lada__measure-copy{grid-area:copy}
+  .lada__measure-media{grid-area:media}
+  .lada__measure-act{grid-area:act}
+  .lada__measure-grid--solo{grid-template-columns:minmax(0,68ch);grid-template-areas:"copy" "act"}
+}
+.lada__steps{margin:var(--s6) 0 0;padding:0;list-style:none}
+.lada__steps li{display:grid;grid-template-columns:auto 1fr;gap:var(--s4);align-items:baseline;
+  padding-block:var(--s4);border-top:1px solid var(--lada-line);
+  font-size:.9375rem;font-weight:300;line-height:1.75;color:var(--lada-bone)}
+.lada__steps li:last-child{border-bottom:1px solid var(--lada-line)}
+.lada__steps .n{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  color:var(--lada-champagne);font-variant-numeric:tabular-nums}
+.lada__lead{margin:var(--s5) 0 0}
+.lada__lead>div{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;
+  gap:var(--s2) var(--s4);padding-block:var(--s3);border-bottom:1px solid var(--lada-line)}
+.lada__lead dt{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+.lada__lead dd{margin:0;font-size:.8125rem;font-weight:300;line-height:1.7;color:var(--lada-muted)}
+.lada__measure-act{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s5)}
+.lada__measure-media{margin:0}
+.lada__measure-media img{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;
+  filter:saturate(.8) contrast(1.06)}
+
+/* The underline that completes itself rather than changing colour:
+   half a rule at rest, anchored right, finishing on hover. */
+.lada__link{position:relative;display:inline-block;font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-bone);text-decoration:none}
+.lada__link::before{content:"";position:absolute;inset-inline-end:0;bottom:-8px;
+  width:50%;height:1px;background:var(--lada-champagne);transition:width .3s var(--ease)}
+.lada__link:hover::before,.lada__link:focus-visible::before{width:100%}
+.lada__link:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:4px}
+
+/* ---------- the house ----------
+   Address, hours and landline as selectable text. Hours and the
+   landline render only when they are filled in — the section must not
+   publish an opening time nobody has confirmed. */
+.lada__house{border-top:1px solid var(--lada-line)}
+.lada__house-grid{display:grid;gap:var(--s6);margin-top:var(--s6)}
+@media (min-width:900px){.lada__house-grid{grid-template-columns:1fr 1fr;
+  column-gap:var(--s8);align-items:start}}
+.lada__address{font-style:normal;max-width:36ch;
+  font-size:.9375rem;font-weight:300;line-height:1.75;color:var(--lada-bone)}
+.lada__house-facts{margin:var(--s5) 0 0}
+.lada__house-facts>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2) var(--s4);
+  padding-block:var(--s3);border-top:1px solid var(--lada-line)}
+.lada__house-facts>div:last-child{border-bottom:1px solid var(--lada-line)}
+.lada__house-facts dt{min-width:9ch;font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+.lada__house-facts dd{margin:0;font-size:.8125rem;font-weight:300;line-height:1.7;
+  color:var(--lada-muted)}
+.lada__house-facts a{color:var(--lada-bone);text-decoration:none;
+  border-bottom:1px solid var(--lada-line)}
+.lada__house-facts a:hover{border-bottom-color:var(--lada-champagne)}
+.lada__house-facts a:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:3px}
+.lada__house-media{margin:0}
+.lada__house-media img{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;
+  filter:saturate(.8) contrast(1.06)}
+.lada__routes{display:grid;gap:var(--s5);margin-top:clamp(2.5rem,6vh,4rem);
+  padding-top:var(--s5);border-top:1px solid var(--lada-line)}
+@media (min-width:760px){.lada__routes{grid-template-columns:repeat(2,1fr);gap:var(--s6)}}
+.lada__route-h{margin:0 0 var(--s4);font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+
+/* One launcher, on-register — champagne on ground, radius 0, 44px.
+   z-index 55 is deliberately BELOW the header (60), the filter sheet
+   (70), the skip link (100) and the cart drawer (120), so it can never
+   sit on top of anything a customer is trying to use. */
+.lada__wa{position:fixed;inset-inline-end:var(--s4);bottom:var(--s4);z-index:55;
+  display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;padding-inline:var(--s4);
+  background:var(--lada-champagne);color:var(--lada-ground);border-radius:0;
+  font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;text-decoration:none;
+  transition:background .25s var(--ease),color .25s var(--ease)}
+.lada__wa:hover{background:var(--lada-bone)}
+.lada__wa:focus-visible{outline:2px solid var(--lada-bone);outline-offset:3px}
+
+.lada__sec{padding-block:clamp(3.5rem,10vh,7rem)}.lada__kicker{font-size:var(--fs-micro);letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}.lada__h2{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:1.06;
+  font-size:clamp(1.75rem,3.2vw,2.5rem);letter-spacing:-.01em;color:var(--lada-bone)}
 .lada__p{margin:var(--s4) 0 0;max-width:60ch;color:var(--lada-muted);font-size:.98rem;line-height:1.8}
 
 .lada__stages{display:grid;gap:var(--s6);margin-top:var(--s7)}
 @media (min-width:820px){.lada__stages{grid-template-columns:repeat(3,1fr);gap:var(--s5)}}
 .lada__stage{border-top:1px solid var(--lada-line);padding-top:var(--s4)}
 .lada__stage img{aspect-ratio:4/5;object-fit:cover;width:100%;margin-bottom:var(--s4);
-  filter:saturate(.8) contrast(1.06)}.lada__stage .n{font-size:var(--fs-micro);letter-spacing:.28em;color:var(--lada-champagne);text-transform:uppercase}.lada__stage h3{margin:var(--s2) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem}
+  filter:saturate(.8) contrast(1.06)}.lada__stage .n{font-size:var(--fs-micro);letter-spacing:.24em;color:var(--lada-champagne);text-transform:uppercase}.lada__stage h3{margin:var(--s2) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem}
 .lada__stage p{margin:var(--s2) 0 0;color:var(--lada-muted);font-size:.9rem;line-height:1.75}
 
 .lada__split{display:grid;gap:var(--s6);margin-top:var(--s6)}
@@ -524,8 +651,10 @@
 .hs__eyebrow,.hs__sub,.hs__btn,.shead__s,.crail__sub,.csplit__eyebrow,.csplit__p,.csplit__btn,
 .stab,.pcard__meta,.pcard__price,.pcard__off,.pcard__pre,.pcard__badge,.pcard__quick,.pcard__soldout,
 .foot__trust span,.bdir__h,.bmq__lead p,.more,.lada__eyebrow,.lada__kicker,.lada__lede,.lada__p,
-.btn-lada,.lada__seal dt,.lada__seal dd,.lada__stage .n,.lada__stage p,.lada__panel li,
-.lada__sizes th,.lada__sizes td,.lada__empty p{font-family:var(--font-ui)}
+.btn-lada,.lada__proof-item dt,.lada__proof-item dd,.lada__stage .n,.lada__stage p,
+.lada__panel li,.lada__sizes th,.lada__sizes td,.lada__empty p,.lada__steps li,.lada__steps .n,
+.lada__lead dt,.lada__lead dd,.lada__link,.lada__address,.lada__house-facts dt,
+.lada__house-facts dd,.lada__route-h,.lada__wa{font-family:var(--font-ui)}
 
 .shead__t,.crail__h,.bmq__lead h2,.bmq__item span,.lada__h2,.lada__stage h3,.lada__panel h3,
 .lada__empty h3{font-family:var(--font-display);font-weight:var(--font-weight-heading)}
