@@ -1,3 +1,7 @@
+> **Start at [HANDOFF.md](HANDOFF.md) instead.** This file is the static landing pages that came before the store.
+> It is still worth reading for the business rules and the SKU scheme, but the
+> store facts at the top of HANDOFF.md supersede anything here.
+
 # Khan Jee Center — landing page, three directions
 
 Three complete landing-page directions for the client to compare. Open

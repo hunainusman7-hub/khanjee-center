@@ -1,3 +1,7 @@
+> **Start at [HANDOFF.md](HANDOFF.md) instead.** This file is the Shopify build as of 8 Sep, with corrections.
+> It is still worth reading for the business rules and the SKU scheme, but the
+> store facts at the top of HANDOFF.md supersede anything here.
+
 # Handoff — Khan Jee Center Shopify build
 
 Everything needed to pick this up on another machine. Current as of 8 Sep 2026.
