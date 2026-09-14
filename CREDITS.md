@@ -91,3 +91,24 @@ Two things done on install, recorded so nobody wonders later:
 - women-unstitched.jpg is geotagged Dubai. No signage, script or faces place
   it anywhere, and the stock is what a Punjabi cloth market carries, but the
   next person should know rather than discover it.
+
+## Storefront photograph, added 14 Sep 2026
+
+### khanjee-storefront.jpg, the shop on Civil Quarters Road
+
+**Client's own material.** Supplied by Hunain, photographed at dusk. No licence
+required and no attribution owed, unlike everything under "Category
+photographs" above.
+
+Cropped from the 1086x1448 original to 740x1285 (2:3.5). The crop is
+deliberate, not just framing: the full frame carries the neighbouring units on
+both sides, including a competitor's "BUY 1 GET 1 FREE" poster on the left and
+a "50% off" sign on the right. Neither belongs on Khan Jee's own storefront
+band. The bottom was trimmed to drop the busiest pavement while keeping the lit
+entrance and the Dynasty banner, Dynasty being one of the two labels the shop
+does sell under its own name.
+
+The original is not in this repo. If the crop ever needs redoing, ask the
+client for the full-resolution file; 740px is enough for a half-column at 1x
+but it is not a retina asset, and the section takes an image_picker so a better
+file can be dropped in from the theme editor without touching code.

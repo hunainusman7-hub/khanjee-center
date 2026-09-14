@@ -441,3 +441,401 @@
     sync();
   });
 })();
+
+
+/* ================================================================
+   LADA PAGE COMPLETION  —  merged 14 Sep 2026
+   Two self-contained IIFEs, appended rather than inlined per section
+   so the page costs no extra request. Each no-ops when its markup is
+   absent, so they are harmless on every page that is not Lada.
+   ================================================================ */
+
+
+/* ---------------- sizing ---------------- */
+/* ---------------- Lada size chart: inches / centimetres ----------------
+   Progressive enhancement, and nothing else. The chart ships in inches
+   as markup; this reveals the toggle and rewrites the cells. With the
+   script absent or broken the customer still reads a correct chart and
+   never sees a control that cannot answer.
+
+   Every cell carries its inch value verbatim in data-lada-in, so
+   switching back to inches restores exactly what the client typed,
+   including a stray unit ("38 in"), rather than a number this file has
+   rounded twice. parseFloat reads through that suffix.
+
+   Scoped per table: the same snippet renders again inside the PDP size
+   popover, and two instances on one page must not drive each other. */
+(function () {
+  'use strict';
+
+  function toCm(inches) {
+    /* One decimal. 38 in reads 96.5, not 96.52, because nobody measures
+       a chest to a tenth of a millimetre. */
+    var v = Math.round(inches * 25.4) / 10;
+    return String(v);
+  }
+
+  function setUnit(root, unit) {
+    var cells = root.querySelectorAll('[data-lada-in]');
+    var i, raw, num;
+    for (i = 0; i < cells.length; i++) {
+      raw = cells[i].getAttribute('data-lada-in');
+      num = parseFloat(raw);
+      if (isNaN(num)) continue;
+      cells[i].textContent = unit === 'cm' ? toCm(num) : raw;
+    }
+    var cap = root.querySelector('[data-lada-caption]');
+    var next = root.getAttribute(unit === 'cm' ? 'data-cap-cm' : 'data-cap-in');
+    if (cap && next) cap.textContent = next;
+  }
+
+  function init(scope) {
+    var roots = (scope || document).querySelectorAll('[data-lada-sizetable]');
+    if (!roots.length) return;
+
+    Array.prototype.forEach.call(roots, function (root) {
+      if (root.getAttribute('data-lada-ready')) return;
+
+      var radios = root.querySelectorAll('[data-lada-unit]');
+      if (!radios.length) return;
+
+      var group = root.querySelector('[data-lada-units]');
+      if (group) group.removeAttribute('hidden');
+
+      /* The caption is the one line that states the unit, so it is also
+         the right thing to announce. Set here rather than in the markup:
+         with no script nothing ever changes and a live region would be
+         a promise the page does not keep. */
+      var cap = root.querySelector('[data-lada-caption]');
+      if (cap) cap.setAttribute('aria-live', 'polite');
+
+      Array.prototype.forEach.call(radios, function (radio) {
+        radio.addEventListener('change', function () {
+          if (radio.checked) setUnit(root, radio.value);
+        });
+      });
+
+      /* Firefox restores radio state across a reload, so trust the DOM
+         rather than assuming inches. */
+      var on = root.querySelector('[data-lada-unit]:checked');
+      if (on) setUnit(root, on.value);
+
+      root.setAttribute('data-lada-ready', 'true');
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { init(document); });
+  } else {
+    init(document);
+  }
+
+  /* The client fills this page in the theme editor, where a section is
+     re-rendered on every keystroke and arrives without our listeners. */
+  document.addEventListener('shopify:section:load', function (e) { init(e.target); });
+})();
+
+
+/* ---------------- interactions ---------------- */
+/* ============================================================
+   LADA INTERACTION LAYER: behaviour for _lab/build/interactions.css.
+   Merge target: kj-v2.js, appended as its own IIFE at the end of the
+   file. It is deliberately self-contained (no shared state, no
+   exported helpers) so it can be dropped in without touching a line
+   of what is already there.
+
+   Progressive enhancement throughout. With this file blocked, 404ing
+   or still parsing: every element is visible, because the hidden
+   state lives behind the .js-lada-reveal class that only this script
+   adds; the CTA arrow is drawn by CSS and needs nothing from here;
+   and the header stays transparent over a page whose every section
+   is already --lada-ground, so nothing becomes unreadable, it just
+   stops flipping.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function slice(list) { return Array.prototype.slice.call(list); }
+
+  /* ---------------- 1. staggered scroll reveal, once ----------------
+
+     WHAT GETS REVEALED. Two sources, and the second one is the point.
+
+     A hand-written class="lada-reveal" is honoured. But no Lada
+     section emits that class: the first version of this file was an
+     opt-in contract that nothing had opted into, so the whole reveal
+     layer was inert on the live page. So the script also marks the
+     element children of the grids named in REVEAL_GROUPS. That is
+     the spec's own framing of the effect ("a --animation-order
+     custom property on each grid child"), and keeping the list here
+     rather than in nine section files means one place to edit and no
+     coupling to any single section's internals: if a container is
+     renamed the effect stops, and stopping means content that was
+     never hidden stays visible, which is the safe direction to fail.
+
+     .lada__frames (the lookbook) is deliberately absent. The lookbook
+     puts scroll-snap-type on the root scrollport; a full-bleed plate
+     that fades and rises while the scrollport is snapping to it
+     fights itself.
+
+     Two hard guards before anything is hidden: prefers-reduced-motion,
+     and IntersectionObserver actually existing. Either one missing and
+     we return before adding the root class, so the page keeps content
+     that was never hidden in the first place. */
+  var REVEAL_GROUPS = [
+    '.lada__grid',        /* lada-collection : the product cards */
+    '.lada__stages',      /* lada-craft      : the three tables   */
+    '.lada__proof-list',  /* lada-proof      : the proof band     */
+    '.lada__routes',      /* lada-house      : the contact routes */
+    '.lada__house-grid'   /* lada-house      : copy beside media  */
+  ];
+  var REVEAL_SEL = '.lada-reveal, ' + REVEAL_GROUPS.join(' > *, ') + ' > *';
+
+  var io = null;
+
+  function observer() {
+    if (io) return io;
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-revealed');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    return io;
+  }
+
+  /* root is the whole document on first run, and one re-rendered
+     section when the theme editor hands us a shopify:section:load. */
+  function scanReveal(root) {
+    if (reduce || !('IntersectionObserver' in window)) return;
+
+    var scope = root && root.querySelectorAll ? root : document;
+    var found = slice(scope.querySelectorAll(REVEAL_SEL));
+    var items = [];
+    found.forEach(function (el) {
+      /* data-lada-reveal is the "already handled" mark. Without it a
+         rescan re-hides an element that has finished its reveal. */
+      if (!el.hasAttribute('data-lada-reveal')) items.push(el);
+    });
+    if (!items.length) return;
+
+    /* Read the whole layout FIRST, write after. Two passes rather than
+       one because interleaving getBoundingClientRect() with class and
+       style writes forces a synchronous layout per item, which on a
+       twenty-card grid is twenty layouts before first paint.
+
+       The read also has to happen before .lada-reveal goes on, or on a
+       rescan (when .js-lada-reveal is already on <html>) we would be
+       measuring elements we had just translated by 2rem. */
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var plan = [];
+    var lastParent = null;
+    var n = 0;
+
+    items.forEach(function (el) {
+      /* Index within the element's own parent, so each grid restarts
+         its stagger at 0 instead of inheriting the running total from
+         every section above it: on the eighth section a document-wide
+         counter would be asking for a two second delay. querySelectorAll
+         returns document order, so siblings arrive contiguously and a
+         running comparison is enough. */
+      if (el.parentNode !== lastParent) { lastParent = el.parentNode; n = 0; }
+
+      /* Cap at 7, which is 525ms of stagger. Past that the last card in
+         a long grid is still waiting to start well after the visitor has
+         scrolled it back off screen, which reads as a stuck page. */
+      var order = Math.min(n, 7);
+      n++;
+
+      var declared = el.style.getPropertyValue('--animation-order').trim();
+      plan.push({
+        el: el,
+        order: declared === '' ? order : null,
+        /* Anything already on screen when the script runs is never
+           hidden. Hiding it here and revealing it on the observer's
+           first callback is a visible flash of the fold on every load,
+           and it is worse on a slow connection, which is exactly when
+           it is least affordable. 0.9vh rather than vh so an element
+           straddling the fold counts as on screen. */
+        visible: el.getBoundingClientRect().top < vh * 0.9
+      });
+    });
+
+    /* One synchronous write pass: mark, order, and reveal whatever was
+       already on screen. Nothing paints between these and the root
+       class below, so there is no frame in which a visible element is
+       hidden. */
+    plan.forEach(function (p) {
+      p.el.setAttribute('data-lada-reveal', '');
+      p.el.classList.add('lada-reveal');
+      if (p.order !== null) p.el.style.setProperty('--animation-order', String(p.order));
+      if (p.visible) p.el.classList.add('is-revealed');
+    });
+
+    document.documentElement.classList.add('js-lada-reveal');
+
+    var ob = observer();
+    plan.forEach(function (p) { if (!p.visible) ob.observe(p.el); });
+
+    /* Safety net, and narrower than site.js's, which reveals EVERY
+       item after two seconds unconditionally and so quietly cancels
+       the effect for anything the visitor has not reached yet.
+
+       It is also narrower than this file's first version, which only
+       fired "if the observer has not called back even once", a
+       condition that can never be true, because IntersectionObserver
+       is specified to deliver an initial callback for every target the
+       moment it is observed. That net was dead code. This one asks the
+       question that actually matters: is anything sitting on screen,
+       still hidden, 2.5 seconds later. If so the observer missed it
+       and we reveal it. Anything still below the fold is left alone. */
+    window.setTimeout(function () {
+      var h = window.innerHeight || document.documentElement.clientHeight;
+      plan.forEach(function (p) {
+        if (p.el.classList.contains('is-revealed')) return;
+        var r = p.el.getBoundingClientRect();
+        if (r.top < h && r.bottom > 0) {
+          p.el.classList.add('is-revealed');
+          ob.unobserve(p.el);
+        }
+      });
+    }, 2500);
+  }
+
+  /* ---------------- 2. header: solid past the plate ----------------
+
+     Adds `scrolled-past-header` to <body>, and publishes the header's
+     measured height as --lada-hdr-h on <html> so the CSS can give the
+     page's anchor targets (#lada-collection and friends, which the
+     hero button links to) clearance under a now-fixed bar.
+
+     There was no such class anywhere in this theme already:
+     assets/header.js is Horizon's and theme.liquid never loads it, so
+     nothing else listens to scroll for the header and this is the only
+     listener of its kind.
+
+     Scoped three ways so it cannot run on any other page: the body
+     template class, the presence of .hdr, and the presence of the hero
+     plate. The CSS side is scoped identically with :has(.lada__hero),
+     so if the template is ever reordered and the hero is no longer
+     first, both halves stand down together and the shared sticky
+     header comes back.
+
+     State lives at module scope, not inside initHeader, because the
+     theme editor can call initHeader again after a section reload and
+     the listeners bound on the first call have to see the new
+     measurement rather than a stale closure. */
+  var hdrEl = null;
+  var hdrThreshold = 0;
+  var hdrPast = null;
+  var hdrTicking = false;
+  var hdrBound = false;
+
+  function hdrMeasure() {
+    if (!hdrEl) return;
+    /* The bar is min-height:60px but wraps on narrow viewports, so the
+       threshold is measured rather than hardcoded. Measured off the
+       header itself, so it stays correct if an announcement bar is
+       ever added above it. */
+    hdrThreshold = hdrEl.offsetHeight;
+    document.documentElement.style.setProperty('--lada-hdr-h', hdrThreshold + 'px');
+  }
+
+  function hdrApply() {
+    hdrTicking = false;
+    if (!hdrEl) return;
+    var now = (window.pageYOffset || document.documentElement.scrollTop) > hdrThreshold;
+    /* Compare before writing. Without this the class is set on every
+       frame of every scroll, and each write is a style invalidation
+       on <body>, which is the root of the whole page's cascade. */
+    if (now === hdrPast) return;
+    hdrPast = now;
+    document.body.classList.toggle('scrolled-past-header', now);
+  }
+
+  function hdrOnScroll() {
+    if (hdrTicking) return;
+    hdrTicking = true;
+    window.requestAnimationFrame(hdrApply);
+  }
+
+  function initHeader() {
+    var body = document.body;
+    if (!body || !body.classList.contains('template-page-lada')) return;
+
+    if (!document.querySelector('.lada__hero')) {
+      /* Hero removed in the theme editor. The CSS :has() has already
+         handed the header back to the shared sticky rule, so drop the
+         class with it rather than leaving a dead flag on <body>. */
+      hdrEl = null;
+      hdrPast = null;
+      body.classList.remove('scrolled-past-header');
+      return;
+    }
+
+    hdrEl = document.querySelector('.hdr');
+    if (!hdrEl) return;
+
+    hdrMeasure();
+    hdrPast = null;
+    /* Run once at start. A reload halfway down the page, or a landing
+       on #lada-collection from the hero button, both begin already
+       scrolled past the header, and without this the bar would be
+       transparent over the grid until the visitor happened to scroll. */
+    hdrApply();
+
+    if (hdrBound) return;
+    hdrBound = true;
+    window.addEventListener('scroll', hdrOnScroll, { passive: true });
+    window.addEventListener('resize', function () {
+      hdrMeasure();
+      hdrOnScroll();
+    }, { passive: true });
+  }
+
+  /* ---------------- 3. start, and stay correct in the theme editor --
+
+     THE CLIENT FILLS THIS PAGE HIMSELF, IN THE EDITOR, so a
+     first-run-only script is not enough. .js-lada-reveal lives on
+     <html> for the life of the page, which means any .lada-reveal
+     element that arrives later is hidden by CSS with nothing watching
+     it: add a lookbook frame or reorder a section and the new content
+     is invisible until reload. These four Shopify editor events are
+     the fix, and none of them ever fire on the live storefront, so
+     binding them costs a shopper nothing.
+
+     select events reveal outright rather than observing: the editor
+     has just scrolled to the thing the client clicked, and it needs to
+     be on screen now, not after an observer callback. */
+  scanReveal(document);
+  initHeader();
+
+  function revealWithin(node) {
+    if (!node || !node.querySelectorAll) return;
+    slice(node.querySelectorAll('.lada-reveal')).forEach(function (el) {
+      el.classList.add('is-revealed');
+    });
+    if (node.classList && node.classList.contains('lada-reveal')) node.classList.add('is-revealed');
+  }
+
+  document.addEventListener('shopify:section:load', function (e) {
+    scanReveal(e.target);
+    initHeader();
+  });
+  document.addEventListener('shopify:section:reorder', function () {
+    scanReveal(document);
+    initHeader();
+  });
+  document.addEventListener('shopify:section:select', function (e) { revealWithin(e.target); });
+  document.addEventListener('shopify:block:select', function (e) {
+    var t = e.target;
+    if (t && t.closest) {
+      var wrap = t.closest('.lada-reveal');
+      if (wrap) wrap.classList.add('is-revealed');
+    }
+    revealWithin(t);
+  });
+}());

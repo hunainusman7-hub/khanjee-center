@@ -1148,3 +1148,1319 @@
 .lada .pcard__err{color:#E88}
 .lada .pcard a:focus-visible,.lada .pcard__quick:focus-visible{
   outline-color:var(--lada-champagne)}
+
+
+/* ================================================================
+   LADA PAGE COMPLETION + STORE BAND  —  merged 14 Sep 2026
+   ================================================================
+   Seven blocks below were each authored against their own section
+   and merged here verbatim rather than being written straight into
+   this file, so that seven parallel builds could not overwrite one
+   another's work in a shared stylesheet.
+
+   ORDER IS LOAD-BEARING. `interactions` is last because its header
+   rules (the transparent-over-the-plate header on the Lada template)
+   have to beat site.css's `.hdr`, and kj-v2.css is the second
+   stylesheet in the document. Everything else is independent.
+   ================================================================ */
+
+
+/* ---------------- lookbook ---------------- */
+/* ============================================================
+   LADA LOOKBOOK: sections/lada-lookbook.liquid
+   A run of full-bleed frames with no commerce furniture on it at
+   all. Zero section padding, so it butts hard against the sections
+   above and below and the page reads as one photographic surface
+   rather than a stack of cards (sanasafinaz ships
+   --spacing-sections-desktop:0.0rem; sapphire measures 0px between
+   all six homepage sections with 2px image gutters).
+
+   Nothing here defines a colour, a size or a tracking value of its
+   own. The only type in the section is the narrative below the last
+   frame, and that is .lada__kicker / .lada__h2 / .lada__p / .lada__link
+   unchanged. The two editor-only rules at the bottom borrow the same
+   two tracking values the page already permits: .24em on 11px caps,
+   0 on the 13px sentence.
+   ============================================================ */
+
+/* .lada already zeroes padding-block; restated because this section is
+   the one place where any padding at all would be a visible seam. */
+.lada__lookbook{padding:0}
+
+/* 2px of ground between frames, sapphire's gutter. Wide enough to read
+   as a deliberate rule between two photographs, narrow enough that the
+   run still reads as continuous. */
+.lada__frames{display:grid;gap:2px}
+
+/* --lada-panel rather than --lada-ground behind the picture: while a
+   frame is still decoding it should read as a reserved plate, not as a
+   hole in the page. */
+.lada__frame{position:relative;margin:0;overflow:hidden;background:var(--lada-panel);
+  scroll-snap-align:start;scroll-margin-block-start:64px}
+.lada__frame--tall{aspect-ratio:2/3}
+.lada__frame--wide{aspect-ratio:3/2}
+
+/* The anchor and the picture are both absolutely positioned against the
+   frame rather than sized with height:100%. A percentage height has to
+   resolve against a definite containing-block height, and the frame's
+   height is not specified, it is derived from aspect-ratio and then
+   clamped again by max-block-size in the capped variant. Every current
+   engine does resolve that chain, but it is two percentage hops deep on
+   a linked frame (figure -> a -> img) and it collapses to a zero-height
+   photograph the moment one of them declines. inset:0 has no such
+   dependency and gives the identical box. */
+.lada__frame-a,
+.lada__frame img{position:absolute;inset:0;display:block;width:100%;height:100%}
+.lada__frame img{object-fit:cover}
+
+/* A 2:3 portrait at 100vw is close to three screens tall on a desktop.
+   That is the naushemian register and it is the default, but the client
+   gets one checkbox to stop every frame at a single screen instead. The
+   picture crops rather than squashes, because the img is object-fit:cover. */
+.lada__lookbook--capped .lada__frame{max-block-size:100svh}
+
+/* The whole affordance. No arrow, no overlay, no hover label, no
+   caption: the only tell that a frame is shoppable is the cursor, and
+   the only tell for a keyboard is the focus ring, which is inset so it
+   sits on the photograph instead of in the 2px gutter. */
+.lada__frame-a{cursor:pointer}
+.lada__frame-a:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:-6px}
+
+/* SNAP BELONGS TO THE SCROLLPORT. scroll-snap-type on .lada__frames
+   would be inert: the property only does anything on an element that
+   actually scrolls, and that div does not. Scoping it to the document
+   with :has() gets the spec's behaviour without opening a nested
+   scroller, which is the thing that breaks find-in-page, deep links and
+   trackpads. Proximity, not mandatory, so a reader can still stop
+   between two frames, and no wheel handler anywhere. Browsers without
+   :has() simply scroll normally, which is a complete page. */
+html:has(.lada__lookbook){scroll-snap-type:y proximity}
+
+/* Narrative sits below the last frame and owns its own rhythm through
+   .lada__sec; the section around it stays at zero. */
+.lada__lookbook-note .lada__link{margin-top:var(--s6)}
+
+@media (prefers-reduced-motion:reduce){
+  html:has(.lada__lookbook){scroll-snap-type:none}
+}
+
+/* ---------- editor only ----------
+   Both of these are emitted inside request.design_mode and can never
+   reach a customer. They exist because the live rule (no photograph,
+   no markup) also meant no editor: an invisible section cannot be
+   positioned and its empty blocks carry no shopify_attributes, so the
+   client could not click the frame he was trying to fill. The ghost
+   drops aspect-ratio deliberately, because eight 2:3 boxes at 100vw
+   would be twenty thousand pixels of empty editor. */
+.lada__lookbook-editor{margin:0;padding:var(--s4) var(--s5);
+  border-block-end:1px solid var(--lada-line);background:var(--lada-panel);
+  font-family:var(--font-ui);font-size:.8125rem;font-weight:300;line-height:1.7;
+  letter-spacing:0;color:var(--lada-muted)}
+
+.lada__frame--ghost{display:grid;place-items:center;padding:var(--s5);
+  aspect-ratio:auto;background:var(--lada-panel);
+  border:1px dashed var(--lada-line);text-align:center}
+.lada__frame--tall.lada__frame--ghost{block-size:220px}
+.lada__frame--wide.lada__frame--ghost{block-size:150px}
+.lada__ghost-l{font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-muted)}
+
+
+/* ---------------- collection ---------------- */
+/* ============================================================
+   LADA COLLECTION + LADA PRODUCT CARD
+   sections/lada-collection.liquid, snippets/lada-product-card.liquid
+
+   Uses only the Lada tokens already declared at the top of this
+   stylesheet. Defines nothing new and touches no .pcard rule: the
+   shared card keeps every one of its own.
+   ============================================================ */
+
+/* ---------- sub-category pills ----------
+   0 radius, hairline, filling to --lada-panel on hover. One scrollable
+   row and nothing else: no filter rail, no sort control, no result
+   count. At five to thirteen pieces those are furniture pretending to
+   be depth, and a count only advertises how short the range is.
+
+   The row bleeds to the screen edge below 760px so a cut-off pill is
+   visible at the margin and the row reads as scrollable. Above that
+   the four pills fit and the bleed would just push them out of the
+   1180px measure, so it is dropped.
+
+   Scrollbar hidden rather than styled: on the one breakpoint where
+   this scrolls the pills themselves are the affordance, and a dark
+   scrollbar track under a hairline row reads as a second, broken rule.
+
+   .24em of tracking leaves a trailing space after the last letter, so
+   centred label sits ~1.3px left of true. The extra .24em on the
+   leading padding cancels it. Same correction on the card button.
+
+   The 6px of padding on all four sides is not decoration, it is room
+   for the focus ring. overflow-x:auto makes overflow-y compute to auto
+   too, so this box clips its own children: without the padding the
+   2px champagne outline at 3px offset was sheared off the top and the
+   bottom of every pill and off the outer edge of the first and last,
+   which is the one state a keyboard user has to be able to see. The
+   negative margin puts the row's optical left edge back on the same
+   line as the kicker and the h2. Below 760px the wider bleed rule
+   below replaces the inline half and does the same job. */
+.lada__pills{display:flex;gap:var(--s2);margin-top:calc(var(--s6) - 6px);
+  padding:6px;margin-inline:-6px;
+  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;
+  scrollbar-width:none;-ms-overflow-style:none}
+.lada__pills::-webkit-scrollbar{display:none}
+@media (max-width:759px){
+  .lada__pills{margin-inline:-1.25rem;padding-inline:1.25rem}
+}
+.lada__pill{display:inline-flex;align-items:center;flex:0 0 auto;
+  min-height:44px;padding-inline:calc(var(--s4) + .24em) var(--s4);
+  border:1px solid var(--lada-line);border-radius:0;background:transparent;
+  color:var(--lada-bone);font-family:var(--font-ui);font-size:var(--fs-micro);
+  font-weight:600;letter-spacing:.24em;text-transform:uppercase;
+  text-decoration:none;white-space:nowrap;scroll-snap-align:start;
+  transition:background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
+.lada__pill:hover{background:var(--lada-panel);border-color:var(--lada-champagne)}
+.lada__pill:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:3px}
+/* The first pill with no destination is the view you are already
+   standing in, and so is any linked pill whose URL is this page. Exactly
+   one thing in this row is ever painted. */
+.lada__pill[aria-current]{background:var(--lada-panel);
+  border-color:var(--lada-champagne);color:var(--lada-champagne)}
+/* Every later unwired pill. The client's preset ships four pills with
+   no links on them; three of them are this. Muted rather than bone, and
+   the hover fill is taken back off, because a box that lights up under
+   the cursor and then does nothing is a promise the pill cannot keep.
+   #8B8579 on #0E0E0F is 5.26:1, so quiet is not the same as illegible. */
+.lada__pill--inert{color:var(--lada-muted);cursor:default}
+.lada__pill--inert:hover{background:transparent;border-color:var(--lada-line)}
+
+/* ---------- the grid ----------
+   Roughly 4:1 vertical to horizontal. .pgrid runs var(--s6)/var(--s4),
+   about 2:1, and at that ratio rows butt into each other and the eye
+   scans down columns: a stock table. At 4:1 each row reads as its own
+   spread. --s8 collapses from 4.5rem to 2.75rem under 640px, which is
+   the right call on a 2-up phone grid where 4.5rem would put barely
+   one row on screen at a time. */
+.lada__grid{display:grid;grid-template-columns:repeat(2,1fr);
+  column-gap:var(--s4);row-gap:var(--s8);margin-top:var(--s6)}
+@media (min-width:760px){.lada__grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:1100px){.lada__grid{grid-template-columns:repeat(4,1fr)}}
+.lada__grid-more{margin:var(--s7) 0 0;padding-bottom:8px}
+
+/* ---------- the card ----------
+   Four things: photograph, cloth-and-cut eyebrow, piece name, price.
+   Nothing is coloured except the champagne that a hover earns. */
+.lcard{position:relative;display:flex;flex-direction:column}
+
+.lcard__media{position:relative;display:block;aspect-ratio:4/5;overflow:hidden;
+  background:var(--lada-panel)}
+/* The plate is a target in its own right; the name below is the one
+   announced link. The overlay is confined to .lcard__media on purpose:
+   that element is the position:relative box, so inset:0 stops at the
+   photograph and leaves the made-to-measure link in the price slot
+   reachable. */
+.lcard__link::after{content:"";position:absolute;inset:0;z-index:1}
+/* button as well as a. kj-v2.css has no global :focus-visible rule, only
+   per-component ones, so an `a`-only selector left the quick-add button,
+   the one control on this card that is a real <button>, falling back to
+   whatever ring the browser draws. On pointer devices that button rests
+   at opacity:0 and is revealed by :focus-within, so its focus state is
+   the entire reason a keyboard user knows it exists. */
+.lcard a:focus-visible,
+.lcard button:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:3px}
+
+/* Ismail Farid's curve. The cross-fade finishes in .5s but the incoming
+   frame keeps travelling for a full 2s, and the 1.18 on the y2 carries
+   it past 1.05 before it settles, so the card is still breathing long
+   after the swap is done. The old .pcard ran 1.3s on a near-linear ease
+   at 1.045, which reads as a UI transition rather than a photograph
+   settling. Only the incoming frame moves; the outgoing one just goes. */
+.lcard__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:opacity .5s var(--ease),transform 2s cubic-bezier(0,0,.44,1.18)}
+.lcard__img--alt{opacity:0}
+
+/* Gated on BOTH hover support and .lcard--pair, which the snippet only
+   adds when a real second frame exists. A one-image piece therefore has
+   no hover rule at all, rather than a hover that fades the photograph
+   into itself. That phantom state is what the current grid does and it
+   is worse than no hover, because it promises a second view and then
+   shows the first one again. */
+@media (hover:hover) and (pointer:fine){
+  .lcard--pair:hover .lcard__img--main,
+  .lcard--pair:focus-within .lcard__img--main{opacity:0}
+  .lcard--pair:hover .lcard__img--alt,
+  .lcard--pair:focus-within .lcard__img--alt{opacity:1;transform:scale(1.05)}
+}
+
+.lcard__eyebrow{margin:var(--s3) 0 0;font-family:var(--font-ui);
+  font-size:var(--fs-micro);font-weight:400;letter-spacing:.24em;line-height:1.5;
+  text-transform:uppercase;color:var(--lada-muted)}
+
+/* 15px/500 sentence case. Uppercase is typed nowhere: it is the eyebrow's
+   text-transform and nothing else on this card. */
+.lcard__title{margin:var(--s2) 0 0;font-family:var(--font-ui);font-size:.9375rem;
+  font-weight:500;letter-spacing:0;line-height:1.4;color:var(--lada-bone)}
+.lcard__title a{color:inherit;text-decoration:none;position:relative;z-index:2}
+/* Amir Adnan's quiet variant: the rule appears, the colour does not move
+   and nothing shifts. Colour change on hover would put a second accent
+   on a card that already spends its only one on the button.
+
+   Drawn in --lada-muted, not --lada-line. --lada-line is
+   rgba(198,161,91,.22), which over --lada-ground composites to #362E20
+   and measures 1.44:1: an underline nobody can see is not a quiet
+   response, it is no response, and it wastes the one bit of feedback
+   this hover has to give. --lada-muted is 5.26:1 and still recessive
+   against a bone title. Same correction on the price link below, where
+   it matters more because there the rule is the only thing saying the
+   words are a link at all. */
+.lcard:hover .lcard__title a,.lcard__title a:hover{
+  text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:.3rem;text-decoration-color:var(--lada-muted)}
+/* No eyebrow on this piece, so the name is the first thing under the
+   plate and has to reserve the eyebrow's whole block, not just its own
+   margin. Each .lcard is its own grid, so nothing aligns rows across
+   the grid for us: a card with no cloth-and-cut set put its title 8px
+   under the photograph while the card beside it sat at 36.5px, and a
+   made-to-measure piece is exactly the piece most likely to have no
+   cloth set. The sum is the real one: --s3 above the eyebrow, one
+   11px line at 1.5, --s2 below it. */
+.lcard__media + .lcard__title{
+  margin-top:calc(var(--s3) + (var(--fs-micro) * 1.5) + var(--s2))}
+
+/* Same size as the name, never larger, never coloured, never a
+   compare-at. Sold out rides in this line as 11px caps rather than as a
+   chip over the photograph, because a chip is the first thing that
+   turns a wall of garments back into a stock list, and because on a
+   touch device a hover-revealed state would never be seen at all. */
+.lcard__price{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2);
+  margin:var(--s2) 0 0;font-family:var(--font-ui);font-size:.9375rem;
+  font-weight:500;letter-spacing:0;line-height:1.4;color:var(--lada-bone);
+  font-variant-numeric:tabular-nums}
+/* "Measured in the shop". The rule under it is the ONLY thing that says
+   this is a link: it is bone, 15px/500, in the price slot, identical to
+   a price in every other respect. At --lada-line it composited to
+   1.44:1 and the affordance was invisible, so a made-to-measure card
+   read as a card with a sentence where its price should be. --lada-muted
+   is 5.26:1 and clears the 3:1 floor for a non-text affordance with room
+   to spare. */
+.lcard__price a{position:relative;z-index:2;color:inherit;text-decoration:underline;
+  text-decoration-thickness:1px;text-underline-offset:.3rem;
+  text-decoration-color:var(--lada-muted);transition:text-decoration-color .25s var(--ease)}
+.lcard__price a:hover{text-decoration-color:var(--lada-champagne)}
+.lcard__state{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-muted)}
+
+/* ---------- the action row ----------
+   Default state is the touch state: a permanent 44px target, last in
+   the card's flex column, in the card's own flow. Sana Safinaz gates
+   its reveal at min-width:1025px and so parks a black bar across every
+   tablet photograph permanently; this inverts that, and the pointer
+   layout below is the special case. */
+.lcard__act{position:relative;z-index:3;margin-top:var(--s3)}
+.lcard__quick{display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;min-height:44px;padding-block:.72rem;
+  padding-inline:calc(var(--s4) + .24em) var(--s4);
+  border:1px solid var(--lada-line);border-radius:0;background:var(--lada-ground);
+  color:var(--lada-bone);font-family:var(--font-ui);font-size:var(--fs-micro);
+  font-weight:600;letter-spacing:.24em;text-transform:uppercase;text-align:center;
+  text-decoration:none;cursor:pointer;
+  transition:background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
+.lcard__quick:hover{background:var(--lada-panel);
+  border-color:var(--lada-champagne);color:var(--lada-champagne)}
+.lcard__quick:disabled{cursor:progress}
+.lcard__quick[data-loading] .lcard__quick-t{opacity:.45}
+.lcard__spin{display:none;width:13px;height:13px;border:2px solid currentColor;
+  border-top-color:transparent;border-radius:50%;animation:kjSpin .6s linear infinite}
+.lcard__quick[data-loading] .lcard__spin{display:block}
+/* --error #A32020 measures about 2.5:1 on --lada-ground and fails the
+   4.5:1 floor, so this ground gets a lighter red. 13px is the floor for
+   anything that is a full sentence, and Shopify's own reason string
+   ("Only 2 left in stock") is one. The opaque ground is because in the
+   pointer layout this paragraph sits over the photograph. */
+.lcard__err{margin:var(--s2) 0 0;padding:.4rem .55rem;background:var(--lada-ground);
+  font-family:var(--font-ui);font-size:.8125rem;font-weight:300;line-height:1.7;
+  color:#E2857A}
+
+@media (hover:hover) and (pointer:fine){
+  /* The button is moved into the photograph's grid cell rather than
+     absolutely positioned, which is what lets the price stay ABOVE it
+     in source order. The shared .pcard had to wrap its image in a
+     .pcard__top for `bottom` to resolve against, and that wrapper is
+     exactly what forces the button in front of the name and the price
+     in the DOM. Same overlay, honest reading order. Rows are named
+     explicitly so a card with no eyebrow leaves row 2 at zero height
+     instead of re-flowing everything up a row. */
+  .lcard{display:grid;grid-template-columns:1fr;grid-template-rows:auto auto auto auto}
+  .lcard__media{grid-area:1/1}
+  .lcard__eyebrow{grid-area:2/1}
+  .lcard__title{grid-area:3/1}
+  .lcard__price{grid-area:4/1}
+  .lcard__act{grid-area:1/1;align-self:end;margin:var(--s3)}
+  .lcard__quick{opacity:0;transform:translateY(8px);
+    transition:opacity .3s var(--ease),transform .3s var(--ease),
+               background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
+  .lcard:hover .lcard__quick,.lcard:focus-within .lcard__quick{opacity:1;transform:none}
+  /* An error has to stay put after the pointer leaves. */
+  .lcard__act:has(.lcard__err:not([hidden])) .lcard__quick{opacity:1;transform:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .lcard__img,.lcard__quick,.lada__pill{transition:none!important}
+  .lcard--pair:hover .lcard__img--alt,
+  .lcard--pair:focus-within .lcard__img--alt{transform:none}
+  .lcard__spin{animation:none}
+}
+
+/* ---------- empty state ----------
+   The Lada collection has zero products in it today, so this is the
+   state the section ships in and it has to look like an object rather
+   than a gap. Copy rewritten from cloth to garments; the WhatsApp
+   reserve route is kept because it is the only route this funnel has.
+
+   The plate is optional and there is exactly one Lada photograph in
+   existence, so with nothing picked the panel is copy inside a hairline
+   box and that is a finished thing. Specificity: the existing
+   `.lada__empty h3` and `.lada__empty p` are (0,1,1), so these have to
+   be scoped to beat them rather than left as bare classes. */
+.lada__empty-plate{margin:0 0 var(--s6);padding:0}
+.lada__empty-plate img{display:block;width:100%;height:auto;aspect-ratio:16/9;
+  object-fit:cover}
+.lada__empty .lada__empty-h{margin:0;font-family:var(--font-display);
+  font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:500;letter-spacing:0;
+  line-height:1.2;color:var(--lada-bone)}
+.lada__empty .lada__empty-p{margin:var(--s4) auto 0;max-width:48ch;
+  font-size:.9375rem;font-weight:300;line-height:1.75;letter-spacing:0;
+  color:var(--lada-muted)}
+.lada__empty-act{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:var(--s5);margin-top:var(--s6);padding-bottom:8px}
+
+
+/* ---------------- craft ---------------- */
+/* ============================================================
+   LADA CRAFT, construction, three stages
+   Merge AFTER the existing .lada__stages / .lada__stage rules in
+   kj-v2.css; several declarations here are corrections to them.
+   Tokens only: no new custom properties, no new colours.
+   ============================================================ */
+
+/* .lada__stages is used by lada-craft and by nothing else, so these
+   are safe to state on the bare class.
+
+   align-items:start is the load-bearing line. The three workshop
+   frames have not been shot yet, so any state between zero and three
+   images is reachable; stretching the columns to a shared height would
+   leave whichever stage has no photograph carrying a tall empty band
+   under its hairline, which reads as an image that failed rather than
+   as an image that was never claimed.
+
+   auto-fit rather than repeat(3,1fr): the schema caps this at three
+   blocks, but a client who deletes one should get two even columns,
+   not two columns and a hole. */
+.lada__stages{align-items:start}
+@media (min-width:820px){
+  .lada__stages{grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))}
+}
+
+/* Dark placeholder while a lazy frame is still in flight, so the 4:5
+   box never flashes the page ground at a different value than the
+   photograph that lands in it. */
+.lada__stage img{background:var(--lada-panel)}
+
+/* THE STATE THIS SHIPS IN: no image on any stage.
+
+   With the photographs gone the column is a hairline, a numeral, a
+   title and four lines of copy, and at the picture-grid spacing that
+   reads as a gallery with the pictures missing. More air above the
+   numeral and a wider column gutter turn the same three columns into
+   set type, which is a thing a page can legitimately be. Row gap goes
+   up too, because on a phone the three stages stack and the hairline
+   is the only thing separating them. */
+.lada__stages--nomedia{row-gap:var(--s7)}
+.lada__stages--nomedia .lada__stage{padding-top:var(--s5)}
+@media (min-width:820px){
+  .lada__stages--nomedia{column-gap:var(--s6)}
+}
+
+/* Stage copy at the page's stated body size. It was .9rem/400, which
+   is neither the 15px body nor the 13px secondary and so sat outside
+   the two-size system; 300 matches every other run of prose on the
+   page. Tracking stays at 0.
+
+   max-width is the cost of the auto-fit rule above. At three stages
+   the column is about 377px, roughly 42ch, and the cap never bites.
+   At two it is about 574px, roughly 64ch, and it still does not. But
+   a client who deletes down to one stage gets a single collapsed
+   track the full 1180px of the wrap, which is a 131-character line of
+   15px copy, and that is the one measure on this page nobody could
+   read. 66ch stops that case and leaves the other two untouched. */
+.lada__stage p{max-width:66ch;font-size:.9375rem;font-weight:var(--font-weight-lede);
+  line-height:1.75;letter-spacing:0}
+
+/* The numeral is a micro cap, so it takes the micro-cap weight. It is
+   also a <p> inside .lada__stage, so it would otherwise inherit the
+   300 set immediately above and render as a hairline at 11px. */
+.lada__stage .n{font-weight:600}
+
+/* Karigar credit.
+
+   13px is the floor for a full sentence on this page and this is a
+   full sentence, so it sits there and no lower. It gets a short
+   champagne-tinted rule instead of its own micro-cap label: a "Karigar"
+   eyebrow above each stage would add three more tracked lines to a
+   page that spends tracking on exactly two things. Sentence case,
+   tracking 0, muted on the ground at 5.26:1, over the 4.5 floor. */
+.lada__stage .lada__stage-credit{display:flex;gap:var(--s3);
+  margin:var(--s4) 0 0;max-width:34ch;
+  font-family:var(--font-ui);font-size:.8125rem;font-weight:var(--font-weight-lede);
+  line-height:1.7;letter-spacing:0;color:var(--lada-muted)}
+.lada__stage .lada__stage-credit::before{content:"";flex:0 0 1.25rem;height:1px;
+  margin-top:.72em;background:var(--lada-line)}
+
+/* The owner's line.
+
+   Montserrat is self-hosted in fonts.css as a variable face at 100-900
+   in italic as well as roman, so 300 italic is a face that exists and
+   not a browser slant. 14px is deliberate: one step under the 15px
+   body so a single human voice does not out-shout the three stages
+   above it, one step over the 13px secondary so it is not filed as
+   small print. Bone rather than muted, because this is the one
+   sentence on the section a customer is meant to read twice.
+
+   Drawn with an inline-start rule rather than a panel: the rest of
+   this page's information architecture is lines, and a filled box
+   here would be the only card in eight sections. */
+.lada__craft-note{margin:var(--s7) 0 0;max-width:56ch;
+  padding-inline-start:var(--s5);border-inline-start:1px solid var(--lada-line)}
+.lada__craft-say{margin:0;font-family:var(--font-ui);font-style:italic;
+  font-size:.875rem;font-weight:var(--font-weight-lede);line-height:1.75;
+  letter-spacing:0;color:var(--lada-bone)}
+.lada__craft-sig{margin:var(--s4) 0 0;font-family:var(--font-ui);
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+
+
+/* ---------------- sizing ---------------- */
+/* ============================================================
+   LADA SIZING: the widened chart, the unit toggle and the drawing
+
+   Three things share this block: the reusable size-table component
+   (snippets/lada-size-table, which also renders inside the PDP size
+   popover, so nothing here may depend on a .lada ancestor for its
+   layout), the section's two-column arrangement, and the measurement
+   drawing.
+
+   COLOUR. Everything is token. Cell values sit at --lada-muted on
+   --lada-ground, 5.26:1; the size column and the how-to lines are
+   --lada-bone because they are what the customer has to read to buy.
+   Nothing in this block invents a colour and nothing drops below 13px.
+
+   SPECIFICITY. .lada__sizes already exists in this file with .85rem
+   cells and a top margin, so the wide variant is written as
+   .lada__sizes.lada__sizes--wide to beat it outright rather than
+   relying on source order.
+   ============================================================ */
+
+/* ---------- the section's two columns ---------- */
+/* Table and how-to stack in the left column; the drawing holds the
+   right one and pins to the top rather than stretching to match, so a
+   long chart does not scale a line drawing into a poster. Source order
+   is table, drawing, how-to, which is also the right reading order on
+   a phone: the chart, then what the numbers mean, then how to take
+   them. */
+.lada__fit{display:grid;gap:var(--s6);margin-top:var(--s6)}
+/* A grid item's automatic minimum size is its content, and the chart
+   sets white-space:nowrap, so without this the single-column phone
+   layout inflates the whole grid to the widest the table wants to be
+   and the PAGE scrolls sideways instead of the table. The scroller is
+   a grandchild, not the grid item, so its own overflow:auto does not
+   release the track on its own. */
+.lada__fit > *{min-width:0}
+@media (min-width:980px){
+  .lada__fit{grid-template-columns:minmax(0,1fr) minmax(240px,320px);
+    column-gap:var(--s8);row-gap:var(--s7);align-items:start;
+    grid-template-areas:"table diagram" "help diagram"}
+  .lada__fit-table{grid-area:table}
+  .lada__diagram{grid-area:diagram}
+  .lada__fit-help{grid-area:help}
+  /* Drawing switched off: the figure is not in the DOM at all, so the
+     grid collapses to one column instead of leaving a 320px hole. An
+     empty block list no longer lands here, it draws the standard six;
+     see the note at the top of sections/lada-sizing. */
+  .lada__fit--nodiagram{grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"table" "help"}
+}
+
+/* ---------- unit toggle ---------- */
+/* Revealed by kj-v2.js. The [hidden] guard is explicit because a
+   fieldset carries UA display rules and this must not depend on one. */
+.lada__units[hidden]{display:none}
+.lada__units{margin:0 0 var(--s5);padding:0;border:0;min-inline-size:0}
+.lada__units-legend{padding:0;font-family:var(--font-ui);font-size:var(--fs-micro);
+  font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}
+.lada__units-set{display:inline-flex;margin-top:var(--s3);border:1px solid var(--lada-line)}
+/* The radios are .vh, not display:none, so they stay focusable and the
+   group keeps its arrow-key behaviour; the labels carry the look. */
+.lada__units-opt{display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding-inline:var(--s5);font-family:var(--font-ui);
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--lada-muted);cursor:pointer;
+  transition:color .25s var(--ease),background-color .25s var(--ease)}
+.lada__units-set .lada__units-opt:last-child{border-inline-start:1px solid var(--lada-line)}
+.lada__units-opt:hover{color:var(--lada-bone)}
+.lada__units input:checked + .lada__units-opt{background:var(--lada-champagne);
+  color:var(--lada-ground)}
+.lada__units input:focus-visible + .lada__units-opt{outline:2px solid var(--lada-champagne);
+  outline-offset:3px}
+
+/* ---------- the chart ---------- */
+/* Six columns will not fit a phone at 13px, and 13px is the floor, so
+   the container scrolls and the table keeps its size. tabindex on the
+   scroller is in the markup so the scroll is reachable by keyboard. */
+.lada__sizescroll{overflow-x:auto;overscroll-behavior-x:contain}
+.lada__sizescroll:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:4px}
+
+/* Automatic table layout, deliberately. table-layout:fixed divides the
+   width evenly and then the widest header, SHOULDER at 11px with .24em
+   on it, overflows its cell and collides with COLLAR the moment the
+   column is under about 100px. Automatic layout sizes each column to
+   its own content, which is what a chart of six unequal words needs,
+   and width:100% still spreads any slack. Nothing wraps, so the table
+   cannot shrink below its content: past that point the container
+   scrolls rather than the type getting smaller. */
+.lada__sizes.lada__sizes--wide{width:100%;margin-top:0;table-layout:auto}
+.lada__sizes.lada__sizes--wide th,
+.lada__sizes.lada__sizes--wide td{padding:.75rem .7rem;text-align:start;white-space:nowrap;
+  border-bottom:1px solid var(--lada-line)}
+.lada__sizes.lada__sizes--wide th:first-child,
+.lada__sizes.lada__sizes--wide td:first-child{padding-inline-start:0}
+.lada__sizes.lada__sizes--wide th:last-child,
+.lada__sizes.lada__sizes--wide td:last-child{padding-inline-end:0}
+.lada__sizes.lada__sizes--wide thead th{font-family:var(--font-ui);font-size:var(--fs-micro);
+  font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}
+/* text-transform is reset, not inherited by accident: .lada__sizes th in
+   kj-v2.css uppercases every th, which is right for the column heads at
+   11px and wrong for the size column at 13px, where the page allows no
+   capitals at all. "38R" hid it; a row the client names in words would
+   not have. */
+.lada__sizes.lada__sizes--wide tbody th{font-family:var(--font-ui);font-size:.8125rem;
+  font-weight:500;line-height:1.7;letter-spacing:0;text-transform:none;
+  color:var(--lada-bone);font-variant-numeric:tabular-nums}
+.lada__sizes.lada__sizes--wide tbody td{font-family:var(--font-ui);font-size:.8125rem;
+  font-weight:300;letter-spacing:0;line-height:1.7;color:var(--lada-muted);
+  font-variant-numeric:tabular-nums}
+/* A cell the client has not filled draws a short rule, not a character:
+   a dash typed into the cell is read aloud, a 12px hairline is not. */
+.lada__sizes.lada__sizes--wide td.is-empty::after{content:"";display:block;
+  width:.85rem;height:1px;background:var(--lada-line)}
+/* Reading across six columns is the whole difficulty of a wide chart.
+   Hover only, because on touch it would stick to the last row tapped. */
+@media (hover:hover){
+  .lada__sizes--wide tbody tr:hover th,
+  .lada__sizes--wide tbody tr:hover td{background:rgba(198,161,91,.05)}
+}
+.lada__sizes-cap{caption-side:top;text-align:start;padding:0 0 var(--s4);
+  font-family:var(--font-ui);font-size:.8125rem;font-weight:300;line-height:1.7;
+  letter-spacing:0;color:var(--lada-muted)}
+.lada__sizes-note{margin:var(--s4) 0 0;max-width:60ch;font-family:var(--font-ui);
+  font-size:.8125rem;font-weight:300;line-height:1.7;letter-spacing:0;color:var(--lada-muted)}
+
+/* ---------- the drawing ---------- */
+/* currentColor on the figure is the only place the line colour is set;
+   the SVG inherits it, so the same markup would come out correctly on
+   a light ground in the PDP popover by changing one declaration.
+   non-scaling-stroke is applied to every child because vector-effect
+   is not an inherited property and would otherwise have to be repeated
+   on eleven elements in the Liquid. */
+.lada__diagram{margin:0;color:var(--lada-champagne)}
+.lada__diagram-svg{display:block;width:100%;max-width:300px;height:auto}
+.lada__diagram-svg *{vector-effect:non-scaling-stroke}
+.lada__diagram-svg text{font-family:var(--font-ui);letter-spacing:0}
+.lada__diagram-call{opacity:.9}
+/* The caption is the first child of the figure, not the middle one, so
+   the margin runs downward. */
+.lada__diagram-cap{margin:0 0 var(--s4);font-family:var(--font-ui);font-size:var(--fs-micro);
+  font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}
+
+.lada__points{margin:var(--s5) 0 0;padding:0;list-style:none}
+.lada__points li{display:grid;grid-template-columns:1.5rem 1fr;gap:var(--s1) var(--s3);
+  padding-block:var(--s3);border-top:1px solid var(--lada-line)}
+.lada__points li:last-child{border-bottom:1px solid var(--lada-line)}
+/* A lone numeral takes no tracking: .24em on one character is a right
+   margin, not letter-spacing. */
+.lada__points .n{font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:0;line-height:1.6;color:var(--lada-champagne);font-variant-numeric:tabular-nums}
+.lada__point-t{font-family:var(--font-ui);font-size:.9375rem;font-weight:500;line-height:1.4;
+  letter-spacing:0;color:var(--lada-bone)}
+.lada__point-n{grid-column:2;font-family:var(--font-ui);font-size:.8125rem;font-weight:300;
+  line-height:1.7;letter-spacing:0;color:var(--lada-muted)}
+
+/* ---------- how to measure ---------- */
+/* Stretch, not flex-start: the how-to rules have to start and end on
+   the same lines as the chart's rules above them, and a shrink-to-fit
+   column would end each rule wherever that sentence happened to stop.
+   The width is held by max-width on the list itself instead. */
+.lada__fit-help{display:flex;flex-direction:column}
+.lada__howto-h{margin:0;font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}
+/* The measure sits on the span, not the li. With max-width on the list
+   every how-to rule stopped 190px short of the chart's rules directly
+   above it, in the same column, which in a section drawn entirely in
+   hairlines reads as a mistake rather than as a measure. The li holds
+   the rule and spans the column; the sentence inside it still stops at
+   a readable length. */
+.lada__howto{margin:var(--s4) 0 0;padding:0;list-style:none}
+.lada__howto li{padding-block:var(--s3);border-top:1px solid var(--lada-line)}
+.lada__howto li:last-child{border-bottom:1px solid var(--lada-line)}
+.lada__howto-t{display:block;max-width:60ch;font-family:var(--font-ui);font-size:.9375rem;
+  font-weight:300;line-height:1.75;letter-spacing:0;color:var(--lada-bone)}
+.lada__fit-act{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s5) var(--s6);
+  margin-top:var(--s6)}
+
+@media (prefers-reduced-motion:reduce){
+  .lada__units-opt{transition:none}
+}
+
+
+/* ---------------- promise ---------------- */
+/* ============================================================
+   LADA PROMISE : the guarantee, and the two no-JS accordions.
+   Merge target: kj-v2.css, after the .lada__house block.
+   Tokens only; nothing here redefines a variable.
+
+   Replaces nothing. The old comparison used .lada__split and
+   .lada__panel. An earlier draft of this header said both were still
+   in use by lada-sizing and must be kept: that was true when it was
+   written and is not true now. lada-sizing has since been rewritten
+   and `grep -rn "lada__split\|lada__panel" theme/` outside kj-v2.css
+   itself now returns nothing, so kj-v2.css lines 485-492 are dead.
+   Re-run that grep at merge time rather than trusting this line, then
+   delete them if it is still empty. Nothing here depends on them
+   either way.
+   ============================================================ */
+
+/* ---------- the centred block ----------
+   48ch, which is the lede measure from the type spec, and the same
+   measure the accordions below take so the whole section reads as one
+   narrow column with hairlines across it rather than two stacked
+   components. Centred here and nowhere else on the page: it is the one
+   section that is a statement rather than a display. */
+.lada__promise-block{max-width:48ch;margin-inline:auto;text-align:center}
+.lada__promise-lede{margin:var(--s5) 0 0;font-size:.9375rem;font-weight:300;line-height:1.75;
+  letter-spacing:0;color:var(--lada-bone)}
+
+/* ---------- the three lines ----------
+   Hairline-separated, label above value. The label is the only micro
+   cap in the block and carries the page's single tracked value; the
+   value sits at the 13px secondary size, at --lada-muted, which
+   measures 5.26:1 on --lada-ground against a 4.5:1 floor. (The type
+   spec rounds that to "about 5.6"; computed off the two hex values it
+   is 5.26. Still passing, and 13px is the floor for a full sentence,
+   so neither number may drift down.) --lada-champagne on the same
+   ground is 7.95:1 and --lada-bone is 15.8:1. */
+.lada__terms{margin:var(--s7) 0 0}
+.lada__terms>div{padding-block:var(--s5);border-top:1px solid var(--lada-line)}
+.lada__terms>div:last-child{border-bottom:1px solid var(--lada-line)}
+.lada__terms dt{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+.lada__terms dd{margin:var(--s3) 0 0;font-size:.8125rem;font-weight:300;line-height:1.7;
+  letter-spacing:0;color:var(--lada-muted)}
+/* The WhatsApp link, which is the only control in the guarantee block
+   and therefore the only thing here that has to survive a thumb.
+
+   It is wrapped in a block-level span rather than styled into place.
+   .lada__link is display:inline-block in kj-v2.css, so an earlier draft
+   that put margin-top straight on the anchor was margining an
+   inline-block that was still sitting on the last line of the sentence
+   beside it: the margin shifted it down within that line box and
+   staggered it against the text instead of moving it to a line of its
+   own. The span does the moving; the anchor keeps inline-block so its
+   completing underline measures the words and not the whole column.
+
+   The margins are not decoration either. .lada__link draws that
+   underline at bottom:-8px, OUTSIDE its own box, so without clearance
+   below it the rule lands on the row's closing hairline and reads as a
+   rendering fault the moment anyone hovers. */
+.lada__terms-cta{display:block;margin-block:var(--s5) var(--s3)}
+/* 11px of uppercase is a 15px-tall target. The pointer area is grown
+   with a transparent ::after rather than with padding, because padding
+   would move bottom:-8px away from the text and take the underline
+   with it. 15px of text plus 15px above and below clears 44px; the
+   ::before is untouched and the ::after paints nothing.
+   ::after is free here, kj-v2.css only uses ::before on this class.
+
+   It grows in the block direction ONLY. The label is already 215px
+   wide, so there is nothing to win horizontally, and an inline
+   overshoot would push ink past the 48ch column into the wrap's
+   gutter on a narrow handset for no gain. */
+.lada__terms .lada__link{line-height:1.4}
+.lada__terms .lada__link::after{content:"";position:absolute;inset-block:-15px;inset-inline:0}
+
+/* ---------- the two accordions ----------
+   Same 48ch measure as the block above, so the hairlines line up with
+   the ones in the guarantee and the section is one column top to
+   bottom. Drawn in lines only: no card, no shadow, no fill. */
+.lada__info{max-width:48ch;margin:clamp(2.5rem,6vh,4rem) auto 0}
+.lada__acc{border-top:1px solid var(--lada-line)}
+.lada__acc:last-of-type{border-bottom:1px solid var(--lada-line)}
+
+/* 12px/600, sentence case, tracking 0. Below the 13px floor on
+   purpose and permitted: the floor is for full sentences, and these
+   are two-word titles. */
+.lada__acc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
+  padding-block:var(--s4);cursor:pointer;list-style:none;
+  font-size:.75rem;font-weight:600;letter-spacing:0;line-height:1.4;
+  color:var(--lada-bone);transition:color .25s var(--ease)}
+/* Two resets, because the marker is hidden differently per engine:
+   list-style covers Firefox and Chrome, the pseudo-element covers
+   Safari and iOS. */
+.lada__acc-h::marker{content:""}
+.lada__acc-h::-webkit-details-marker{display:none}
+.lada__acc-h:hover{color:var(--lada-champagne)}
+.lada__acc-h:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:3px}
+/* The title inside the summary is a real h3, for screen-reader
+   navigation between the panels. It must take every scrap of its type
+   from the summary: a UA h3 would arrive at 1.17em bold with a block
+   margin and break both the 12px title size and the flex row. */
+.lada__acc-t{margin:0;font:inherit;letter-spacing:inherit;color:inherit}
+
+/* The indicator is two 1px rules rather than a + and a - glyph, so it
+   is the same hairline weight as every other line in the section and
+   does not change width when the character swaps. Open collapses the
+   upright stroke to nothing and leaves the bar. */
+.lada__acc-ind{position:relative;flex:0 0 auto;width:11px;height:11px}
+.lada__acc-ind::before,.lada__acc-ind::after{content:"";position:absolute;
+  background:var(--lada-champagne);transition:transform .25s var(--ease)}
+.lada__acc-ind::before{inset-inline:0;top:5px;height:1px}
+.lada__acc-ind::after{inset-block:0;inset-inline-start:5px;width:1px}
+.lada__acc[open] .lada__acc-ind::after{transform:scaleY(0)}
+
+.lada__acc-body{padding-block:0 var(--s5)}
+
+/* ---------- cloth panel ----------
+   Label left, fact right, one hairline between rows. The trade name
+   and the composition are two rows because they are two facts; the
+   value sits at --lada-bone, not --lada-muted, because the disclosure
+   is the thing the customer came into the panel to read. */
+.lada__spec{margin:0}
+.lada__spec>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2) var(--s4);
+  padding-block:var(--s3)}
+.lada__spec>div+div{border-top:1px solid var(--lada-line)}
+.lada__spec dt{min-width:11ch;font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+.lada__spec dd{margin:0;flex:1 1 16ch;font-size:.8125rem;font-weight:300;line-height:1.7;
+  letter-spacing:0;color:var(--lada-bone)}
+
+/* ---------- care panel ---------- */
+.lada__care-intro{margin:0;padding-block:0 var(--s3);font-size:.8125rem;font-weight:300;
+  line-height:1.7;letter-spacing:0;color:var(--lada-bone)}
+.lada__care{margin:0;padding:0;list-style:none}
+.lada__care li{padding-block:var(--s3);font-size:.8125rem;font-weight:300;line-height:1.7;
+  letter-spacing:0;color:var(--lada-muted)}
+.lada__care li+li{border-top:1px solid var(--lada-line)}
+
+/* The panels open instantly either way; the only motion in the section
+   is the 11px stroke collapsing, and reduced motion drops that too. */
+@media (prefers-reduced-motion:reduce){
+  .lada__acc-h,.lada__acc-ind::before,.lada__acc-ind::after{transition:none}
+}
+
+
+/* ---------------- store ---------------- */
+/* ============================================================
+   STORE LOCATION BAND          sections/store-location.liquid
+
+   The homepage's closing band, between the dark Lada band and the
+   footer. Site tokens only: --surface, --surface-alt, --border,
+   --text, --text-tertiary, --radius-media. Nothing from the --lada-*
+   palette, because a champagne rule directly above the footer would
+   read as the whole shop belonging to one label.
+
+   THE SHARED HEIGHT IS THE WHOLE POINT, so it is derived rather than
+   guessed. The shopfront photograph is a 740x1285 portrait of a
+   four-storey building: sign at the top, open shop at the bottom.
+   Cropped into a landscape half of a 50/50 grid it shows a band of
+   masonry and nothing else. So:
+
+     --store-h   the one height both boxes take
+     --store-pw  the photo column's width, = --store-h * .62
+                 above 900px, and a flat cap below it
+
+   which makes the photo track a portrait very close to the source's
+   own 0.576, and hands the rest of the row to the map as a wide
+   plate. Two shapes, one height, one baseline top and bottom. The
+   remaining 7% of overflow is taken off the bottom of the frame
+   (object-position 50% 32%), which is pavement, rather than off the
+   top, which is the KHAN JEE sign.
+
+   Every empty state is a real layout: no photograph and the map runs
+   the full width at the same height; no map and the photograph
+   centres at its own ratio instead of stretching.
+   ============================================================ */
+.store{background:var(--surface);border-top:1px solid var(--border);
+  padding-block:var(--s8) var(--s7);
+  /* the header is sticky, so an anchor jump to #store-location has to
+     clear it or it lands with the heading underneath the nav */
+  scroll-margin-top:80px}
+
+.store__head{max-width:56ch}
+.store__eyebrow{margin:0;font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--text-tertiary)}
+.store__h{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);
+  letter-spacing:-.015em;line-height:1.12;
+  /* deliberately under the category rail's ceiling: this is the last
+     thing before the footer and it should not out-shout the shelf */
+  font-size:clamp(1.5rem,3.2vw,2.2rem)}
+.store__sub{margin:var(--s4) 0 0;max-width:48ch;color:var(--text-tertiary);
+  font-family:var(--font-ui);font-size:.95rem;font-weight:var(--font-weight-lede);line-height:1.7}
+
+/* ---------- the pair ---------- */
+.store__pair{display:grid;gap:var(--s3);margin-top:var(--s6);
+  /* --store-pw is the photo track's width and it exists at EVERY width,
+     not only in the desktop grid. Without a value down here the portrait
+     ran the full column: measured 794x1281 at 834px and 859x1385 at
+     899px, a screen and a half of one building. 420px is the cap where
+     a 31/50 portrait is 677 tall, which still reads as a photograph of
+     a building rather than a tower. Phones are narrower than the cap so
+     they keep the full-bleed crop. */
+  --store-pw:min(100%,420px)}
+.store__map,.store__photo{position:relative;margin:0;overflow:hidden;
+  border-radius:var(--radius-media);background:var(--surface-alt)}
+
+/* One crop, every breakpoint: the phone gets the same portrait shape
+   as the desktop column so the framing never changes under the
+   client. 31/50 is 0.62, the same figure --store-pw is built from. */
+.store__photo{aspect-ratio:31/50;max-width:var(--store-pw);margin-inline:auto}
+.store__photo img{width:100%;height:100%;object-fit:cover;object-position:50% 32%}
+.store__map{aspect-ratio:4/3}
+/* The UA gives every iframe a 2px inset border. */
+.store__map iframe{position:absolute;inset:0;display:block;width:100%;height:100%;border:0}
+
+@media (min-width:900px){
+  .store__pair{--store-h:clamp(430px,50vw,700px);--store-pw:calc(var(--store-h) * .62);
+    gap:var(--s4);margin-top:var(--s7)}
+  .store__map{aspect-ratio:auto;height:var(--store-h);width:100%}
+  /* The solo photograph needs no rule of its own here: the base
+     .store__photo already takes its max-width from --store-pw, and
+     --store-pw is redefined on the line above, so it re-sizes with the
+     derived track and stays centred.
+
+     The pair does. The track order follows the DOM, which the section
+     swaps in Liquid, so the sizing has to know which side the
+     photograph ended up on. */
+  /* The map used to take 1fr and the photograph only --store-pw, which
+     at a 620px height meant 884px of map against a 384px photograph.
+     The brief was "maps at one side and this picture on the other
+     side", and 70/30 does not read as a pair, it reads as a map with a
+     thumbnail beside it. Both tracks are now the photograph's width,
+     which is the constrained one (the source is a 740x1285 portrait and
+     upscaling it would only soften it), and the pair centres inside the
+     wrap rather than stretching to fill it. Equal boxes, one height. */
+  .store__pair--duo{grid-template-columns:repeat(2,var(--store-pw));
+    justify-content:center}
+  .store__pair--duo.store__pair--photo-first{grid-template-columns:repeat(2,var(--store-pw))}
+  /* height stated outright as well as implied by the track width, so
+     a sub-pixel rounding in the grid cannot leave the two boxes a
+     hair apart at the bottom edge */
+  .store__pair--duo .store__photo{max-width:none;margin-inline:0;
+    aspect-ratio:auto;height:var(--store-h)}
+}
+
+/* ---------- address, hours, telephone, directions ---------- */
+.store__info{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:var(--s4) var(--s6);margin-top:var(--s6);padding-top:var(--s5);
+  border-top:1px solid var(--border)}
+.store__facts{margin:0;display:flex;flex-wrap:wrap;gap:var(--s4) var(--s7)}
+.store__fact{min-width:0;max-width:30ch}
+.store__fact dt{font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--text-tertiary)}
+.store__fact dd{margin:var(--s2) 0 0;font-family:var(--font-ui);font-size:.95rem;
+  line-height:1.6;color:var(--text)}
+/* the UA italicises <address>, which is not how the rest of the page
+   sets an address */
+.store__fact address{margin:0;font-style:normal}
+.store__fact a{text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--border-hover)}
+.store__fact a:hover{color:var(--accent);text-decoration-color:currentColor}
+/* every other link in the theme states its own ring rather than leaving
+   the UA default to vary between browsers */
+.store__fact a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+/* 9px here measured 42.3px, under the 44 floor: 15.2px of text at 1.6
+   is 24.32, which needs 10 a side before padding rounds up. 11 matches
+   .foot li a, the same job in the footer. Measures 46.3px. */
+@media (max-width:899px){.store__fact a{display:inline-block;padding-block:11px}}
+
+/* Micro caps with a rule under them, shaped like .sec__head--v2 .more
+   (which tracks .22em; everything here stays on the page's .24em).
+   The 44px target is on the anchor; the rule is on the inner span so
+   it stays against the text instead of floating below the tap area.
+   Arrow nudges, the link does not move. */
+.store__dir{display:inline-flex;align-items:center;gap:.6rem;min-height:44px;
+  font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--text);white-space:nowrap}
+.store__dir span{padding-bottom:4px;border-bottom:1px solid var(--border-hover)}
+.store__dir svg{flex:none;transition:transform .25s var(--ease)}
+.store__dir:hover{color:var(--accent)}
+.store__dir:hover span{border-color:var(--accent)}
+.store__dir:hover svg{transform:translateX(5px)}
+.store__dir:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+/* Forced colours drops both surfaces, so the two boxes lose the tint
+   that made them read as a pair. Give them an edge instead. */
+@media (forced-colors:active){
+  .store__map,.store__photo{border:1px solid CanvasText}
+}
+
+
+/* ---------------- interactions ---------------- */
+/* ============================================================
+   LADA INTERACTION LAYER : scroll reveal, CTA arrow, header.
+   Merge target: kj-v2.css, at the END of the Lada block (after
+   .lada__house and the promise accordions), because the header
+   rules here have to win against site.css's .hdr and kj-v2.css is
+   the later stylesheet in theme.liquid. Nothing here is scoped to
+   one section: this is the page-wide layer.
+
+   Tokens only; nothing here redefines a variable.
+
+   TRACKING. The binding rule is two values on the page: .24em on
+   11px micro caps, 0 on everything else. The header renders on this
+   page, and site.css ships it at five values (.02em on the brand
+   wordmark, .04em on .nav__link, .16em on .nav__link--lada, .12em on
+   .nav__viewall, .22em on the desktop group headings). An earlier
+   pass left all five alone on the grounds that the header is shared
+   chrome and should look the same everywhere. That reasoning does
+   not survive the rest of this file: the same block already
+   recolours every element in that header on this one template, so
+   "identical on every other page" stopped being true several rules
+   ago, and tracking was the only thing left un-normalised. It is
+   normalised below, template-scoped like everything else, so no
+   other page moves.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. STAGGERED SCROLL REVEAL, ONCE.
+
+   WHAT MARKS AN ELEMENT: interactions.js does. It honours a
+   class="lada-reveal" written by hand, but no Lada section emits
+   that class today and an opt-in nobody opted into is an
+   interaction layer that never fires, so the script also walks a
+   short, explicit list of grid containers (.lada__grid,
+   .lada__stages, .lada__proof-list, .lada__routes,
+   .lada__house-grid) and marks their element children. That list
+   lives in one array at the top of interactions.js: it is the one
+   place to edit when a section grows a new grid, and if a container
+   is ever renamed the effect quietly stops rather than breaking,
+   because unmarked content was never hidden.
+
+   The lookbook frames are deliberately NOT in that list. The
+   lookbook puts scroll-snap-type on the root scrollport, and a
+   full-bleed plate that fades and rises while the scrollport is
+   trying to snap to it fights itself.
+
+   An inline style="--animation-order:3" fixes the order by hand;
+   otherwise the script assigns the index, counting from 0 within
+   each parent.
+
+   THE HIDDEN STATE IS APPLIED BY THE SCRIPT, NOT BY THIS FILE.
+   .js-lada-reveal is put on <html> by interactions.js and nothing
+   below opacity-zeroes anything without it, so with JS blocked,
+   broken or still parsing, every element is simply visible. The
+   previous shape of this (hiding in the base rule and un-hiding on
+   an is-in class) is exactly how a page ships blank when one script
+   404s, and site.js already learned that lesson with .js-reveal;
+   this is the same contract under its own name so the two observers
+   cannot fight over the same elements.
+
+   .01 rather than 0 is deliberate: a fully transparent element is
+   skipped by some paint optimisations and by find-in-page
+   highlighting, and .01 is indistinguishable to the eye.
+
+   NO will-change. An earlier pass set will-change:opacity,transform
+   in the base rule and dropped it back to auto on .is-revealed,
+   with a comment about not keeping twenty layers alive for the life
+   of the page. It did the opposite of that: the base rule is the
+   HIDDEN state, so every below-fold item was promoted from load
+   until the moment it was revealed, which is most of the page's
+   life, and the hint was then withdrawn at the exact instant the
+   transition started and the compositor actually wanted it. Every
+   current engine promotes a running opacity/transform transition on
+   its own, so the honest fix is to ask for nothing.
+   ------------------------------------------------------------ */
+/* THE TRANSITION LIVES ON THE REVEALED STATE, NOT ON THE HIDDEN ONE,
+   and that is not a style preference. A transition fires when the
+   AFTER-change style declares one. With it declared on the hidden
+   rule, the instant the script adds .lada-reveal every below-fold
+   element transitions from its natural opacity 1 down to .01 over
+   .6s: twenty grid children each running a pointless opacity and
+   transform animation at load, in the frames that matter most, to
+   arrive at a state nobody can see because it is below the fold.
+   Verified in the browser, not reasoned about: getAnimations() on a
+   card reported two live CSSTransitions immediately after load.
+   Declared here instead, the hide is instant and only the reveal
+   animates. */
+.js-lada-reveal .lada-reveal{
+  opacity:.01;
+  transform:translateY(2rem)}
+.js-lada-reveal .lada-reveal.is-revealed{
+  opacity:1;
+  transform:none;
+  transition:opacity .6s cubic-bezier(0,0,.3,1),transform .6s cubic-bezier(0,0,.3,1);
+  transition-delay:calc(var(--animation-order,0) * 75ms)}
+
+/* Belt and braces. interactions.js already refuses to add
+   .js-lada-reveal when reduce is set, so this block should never be
+   the thing that saves us; it is here for the case where the class
+   is on the element because the user changed the setting after load. */
+@media (prefers-reduced-motion:reduce){
+  .js-lada-reveal .lada-reveal,
+  .js-lada-reveal .lada-reveal.is-revealed{
+    opacity:1;transform:none;transition:none}
+}
+
+/* ------------------------------------------------------------
+   2. THE ARROW NUDGE ON THE PRIMARY CTA.
+
+   THE ARROW IS DRAWN BY THIS FILE, not by markup. The primary CTA
+   in lada-hero.liquid is a bare <a class="btn-lada">label</a> with
+   no SVG in it, and an earlier pass shipped ~45 lines styling a
+   .btn-lada__arrow child that nothing on the site emits, so the
+   spec's one CTA gesture did not exist on the page at all. It is a
+   masked pseudo-element instead: no markup to add, no JS to run, no
+   extra node in the accessibility tree, and it inherits the hover
+   colour flip through background:currentColor exactly the way a
+   stroke="currentColor" SVG would.
+
+   Scoped to the hero button only. .btn-lada is also the WhatsApp
+   button in four other sections, and an arrow that means "keep
+   reading down the page" is wrong on a link that leaves for
+   WhatsApp.
+
+   The button itself does not move. .btn-lada is inline-flex with
+   2.3rem of inline padding, so a 10px translate spends padding the
+   arrow already had and changes no box: no layout shift, no width
+   change, nothing for a neighbouring button to react to. That is
+   the whole point of the Maria.B. version, as against the common
+   one where the button grows and the row reflows on hover.
+
+   The .btn-lada__arrow rules below stay as the contract for a real
+   inline SVG if a section ever ships one; the pseudo-element stands
+   down when it finds one, so the two can never both draw.
+   ------------------------------------------------------------ */
+.btn-lada{--lada-arrow-dir:1}
+/* RTL: the glyph is mirrored by scaleX(-1), and because the
+   translate is composed INSIDE that flipped frame the same
+   translateX(10px) below nudges it leftwards, which is forwards in
+   Urdu. One value, both directions, no second rule to keep in sync. */
+[dir="rtl"] .btn-lada{--lada-arrow-dir:-1}
+
+.btn-lada__arrow{
+  flex:none;
+  margin-inline-start:var(--s3);
+  transform:scaleX(var(--lada-arrow-dir));
+  transition:transform .3s var(--ease)}
+.btn-lada:hover .btn-lada__arrow,
+.btn-lada:focus-visible .btn-lada__arrow{
+  transform:scaleX(var(--lada-arrow-dir)) translateX(10px)}
+
+/* @supports so that an engine without mask draws nothing rather
+   than a 14px solid block. :not(:has()) so a hand-written SVG wins. */
+@supports ((-webkit-mask-image:linear-gradient(#000,#000)) or (mask-image:linear-gradient(#000,#000))){
+  .lada__hero .btn-lada:not(.btn-lada--ghost):not(:has(.btn-lada__arrow))::after{
+    content:"";
+    flex:none;
+    width:14px;height:14px;
+    margin-inline-start:var(--s3);
+    background:currentColor;
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15'/%3E%3Cpath d='m13 6 6 6-6 6'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15'/%3E%3Cpath d='m13 6 6 6-6 6'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+    transform:scaleX(var(--lada-arrow-dir));
+    transition:transform .3s var(--ease)}
+  .lada__hero .btn-lada:not(.btn-lada--ghost):not(:has(.btn-lada__arrow)):hover::after,
+  .lada__hero .btn-lada:not(.btn-lada--ghost):not(:has(.btn-lada__arrow)):focus-visible::after{
+    transform:scaleX(var(--lada-arrow-dir)) translateX(10px)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .btn-lada__arrow{transition:none}
+  .btn-lada:hover .btn-lada__arrow,
+  .btn-lada:focus-visible .btn-lada__arrow{transform:scaleX(var(--lada-arrow-dir))}
+  .lada__hero .btn-lada::after{transition:none}
+  .lada__hero .btn-lada:not(.btn-lada--ghost):not(:has(.btn-lada__arrow)):hover::after,
+  .lada__hero .btn-lada:not(.btn-lada--ghost):not(:has(.btn-lada__arrow)):focus-visible::after{
+    transform:scaleX(var(--lada-arrow-dir))}
+}
+
+/* ------------------------------------------------------------
+   3. HEADER: TRANSPARENT OVER THE PLATE, SOLID ON SCROLL.
+
+   MARKUP THIS EXPECTS: `template-page template-page-lada` on <body>
+   for page.lada.json, and header.liquid's .hdr / .hdr__brand /
+   .iconbtn / .nav. interactions.js adds `scrolled-past-header` to
+   <body>. There was no existing scrolled class anywhere in this
+   theme (assets/header.js is Horizon's and is never loaded by
+   theme.liquid), so this is the first one and the script owns it.
+
+   :has(.lada__hero) is the safety catch. site.css has .hdr sticky
+   and IN FLOW, so every page reserves 61px for it. Going fixed here
+   is what lets the plate start at y=0 and run behind the mark, but
+   it is only right while the first thing in <main> IS the full
+   bleed hero. If someone reorders the template and the collection
+   grid ends up first, the selector stops matching, the header falls
+   back to the shared sticky-in-flow rule and the page is merely
+   ordinary rather than broken. Same outcome on an engine without
+   :has(): the whole rule is dropped and the Lada page gets the
+   normal white header.
+
+   NO-JS BEHAVIOUR IS FINE AND IS WHY THIS IS SAFE TO SHIP: without
+   the script the header simply stays transparent all the way down,
+   and every section on this page is --lada-ground or --lada-panel,
+   so bone-on-dark holds the contrast floor the whole way. The
+   scroll flip is polish, not a legibility dependency. */
+.template-page-lada:has(.lada__hero) .hdr{
+  position:fixed;inset-inline:0;top:0;
+  /* Named for the spec's variable so the intent is greppable. It is
+     declared on .hdr, not on :root, so it inherits down to the nav
+     and the tools and nothing outside the header can pick it up. */
+  --header-content-color:var(--lada-bone);
+  background:transparent;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  border-bottom-color:transparent;
+  transition:background .3s var(--ease),border-color .3s var(--ease)}
+
+/* Past the header's own height. Solid --lada-ground, not a tint:
+   the sections underneath are already this exact colour, so the bar
+   reads as the page rather than as a pane floating over it.
+   No backdrop-filter here. An earlier pass kept site.css's
+   saturate/blur on this state as well, behind a fully opaque
+   background, which is a full-viewport-width GPU pass every frame
+   of every scroll for an effect nothing can see. */
+.template-page-lada.scrolled-past-header:has(.lada__hero) .hdr{
+  background:var(--lada-ground);
+  border-bottom-color:var(--lada-line)}
+
+/* THE HEADER IS OUT OF FLOW NOW, SO ANCHOR TARGETS NEED CLEARANCE.
+   The hero's only CTA defaults to href="#lada-collection" and every
+   Lada section carries an id, so this is the page's main gesture,
+   not an edge case: without it the jump lands the section heading
+   under a 61px opaque bar. scroll-margin on the targets rather than
+   scroll-padding on the scrollport, because lada-lookbook.liquid
+   already owns the scrollport (scroll-snap-type on <html>) and gives
+   its frames their own scroll-margin-block-start; padding the
+   scrollport would add to that and push every snapped plate down
+   twice. --lada-hdr-h is measured and published by interactions.js;
+   the 61px fallback is the 60px bar plus its hairline, which is what
+   it measures at every width where the bar does not wrap. */
+.template-page-lada:has(.lada__hero) .lada[id]{
+  scroll-margin-top:calc(var(--lada-hdr-h,61px) + var(--s2))}
+
+/* The mobile drawer is white with dark links (site.css .nav) and it
+   opens INSIDE .hdr, so a transparent bar over an open drawer puts
+   bone text on white. Two fixes and both are needed: the bar goes
+   solid while the drawer is open, and the drawer takes the page's
+   own ground. */
+.template-page-lada:has(.nav[data-open="true"]) .hdr{
+  background:var(--lada-ground);border-bottom-color:var(--lada-line)}
+
+/* Specificity, not intent, was the bug here. This was written as
+   `.template-page-lada .hdr` (0,2,0) against a transition declared
+   at `.template-page-lada:has(.lada__hero) .hdr` (0,3,0), because
+   :has() takes the specificity of its most specific argument. It
+   lost, and reduced-motion users kept the transition. Matched. */
+@media (prefers-reduced-motion:reduce){
+  .template-page-lada:has(.lada__hero) .hdr{transition:none}
+}
+
+/* ---- header contents ----
+   site.css paints these from --text and --accent, both tuned for
+   the white shop. Repointed at the header's own colour variable so
+   one declaration above moves all of them.
+
+   Measured on --lada-ground #0E0E0F: bone 15.8:1, champagne 7.95:1,
+   muted 5.26:1. On --lada-panel #17171A: bone 14.65:1, champagne
+   7.37:1, muted 4.88:1. All clear 4.5:1. (An earlier comment put
+   muted on ground at 5.6:1; the measured figure is 5.26:1. Still a
+   pass, but the number is now the one a re-check will produce.) */
+.template-page-lada:has(.lada__hero) .hdr__brand{color:var(--lada-champagne)}
+.template-page-lada:has(.lada__hero) .hdr__brand b{color:var(--header-content-color)}
+.template-page-lada:has(.lada__hero) .iconbtn{color:var(--header-content-color)}
+.template-page-lada:has(.lada__hero) .iconbtn:hover{color:var(--lada-champagne)}
+.template-page-lada:has(.lada__hero) .iconbtn:focus-visible{outline-color:var(--lada-champagne)}
+.template-page-lada:has(.lada__hero) .nav__link{color:var(--header-content-color)}
+.template-page-lada:has(.lada__hero) .nav__link:hover,
+.template-page-lada:has(.lada__hero) .nav__link[aria-current="page"]{color:var(--lada-champagne)}
+/* An earlier comment claimed the Lada nav item was "already
+   champagne site-wide" as the current page and left it alone. Two
+   things were wrong with that: kj-nav.liquid sets aria-current on
+   nothing, so no link is ever the current one, and the rule above is
+   (0,3,0) against kj-v2.css's .nav__link--lada (0,1,0), so the Lada
+   item was being repainted bone by this very file and losing the one
+   thing that marks it as the flagship. Given back explicitly. */
+.template-page-lada:has(.lada__hero) .nav__link--lada{color:var(--lada-champagne)}
+
+/* ---- header tracking, normalised to the page's two values ----
+   0 on everything that is not 11px caps, .24em on what is. .nav__link
+   sheds .04em, .nav__link--lada sheds .16em, the brand wordmark sheds
+   .02em (0.32px at 16px, which is why this is free), and the desktop
+   group heading moves .22em to .24em to match the mobile one, which
+   was already right. */
+.template-page-lada:has(.lada__hero) .hdr__brand b,
+.template-page-lada:has(.lada__hero) .nav__link,
+.template-page-lada:has(.lada__hero) .nav__link--lada{letter-spacing:0}
+.template-page-lada:has(.lada__hero) .nav__grp h4{letter-spacing:.24em}
+/* The group heading is <h4><a>…</a></h4>, and site.css's `.nav__grp a`
+   font-size hits that inner link too, so the heading was rendering at
+   14.08px (14.4px on mobile) while inheriting the h4's .24em: measured
+   0.1875em, uppercase, above the 11px micro line, which is both a third
+   tracking value and uppercase where the page does not allow it. The
+   link takes the heading's size back. On mobile it also gets an
+   explicit 44px floor, because at 11px the 14px block padding alone
+   leaves it at 43. */
+.template-page-lada:has(.lada__hero) .nav__grp h4 a{font-size:inherit}
+@media (max-width:1023px){
+  .template-page-lada:has(.lada__hero) .nav__grp h4 a{
+    display:flex;align-items:center;min-height:44px}
+}
+
+/* The bag count badge and the burger inherit currentColor, so they
+   need nothing. The KJ mark is an inline SVG filled with
+   currentColor, which is why recolouring .hdr__brand is enough; the
+   Lada mark is a fixed-gradient PNG and is never placed in the
+   header, so there is nothing here that cannot be recoloured. */
+
+/* ---- the drawer and the mega panel ----
+   Both are white surfaces hanging off a now-dark bar. Left alone
+   they are not broken, but they are the only white on the page and
+   the accent hover (#9A1B2F) measures 2.36:1 on --lada-ground and
+   2.19:1 on --lada-panel, so the panels come onto the Lada palette.
+
+   The link colour is scoped to `.nav__grp ul a`, not `.nav__grp a`.
+   The group heading is <h4><a>…</a></h4>, so the looser selector hit
+   the heading's own link and repainted it muted, collapsing the
+   heading into the list under it: the hierarchy the h4 colour was
+   setting up was being undone one rule later. */
+@media (max-width:1023px){
+  .template-page-lada:has(.lada__hero) .nav{
+    background:var(--lada-ground);border-bottom-color:var(--lada-line)}
+  .template-page-lada:has(.lada__hero) .nav__sec{border-top-color:var(--lada-line)}
+  .template-page-lada:has(.lada__hero) .nav__grp h4,
+  .template-page-lada:has(.lada__hero) .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-page-lada:has(.lada__hero) .nav__grp ul a{color:var(--lada-muted)}
+  .template-page-lada:has(.lada__hero) .nav__grp ul a:hover{color:var(--lada-bone)}
+  /* 11px caps at .24em, which is the page's micro rule; site.css had
+     this at 12.8px caps and .12em, a size that is not micro and a
+     third tracking value. Dropping to 11px would have taken the tap
+     target under 44px, so it is given an explicit floor. */
+  .template-page-lada:has(.lada__hero) .nav__viewall{
+    display:flex;align-items:center;min-height:44px;
+    font-size:var(--fs-micro);letter-spacing:.24em;
+    color:var(--lada-champagne)}
+}
+@media (min-width:1024px){
+  .template-page-lada:has(.lada__hero) .mega{
+    background:var(--lada-panel);border-color:var(--lada-line);box-shadow:none}
+  .template-page-lada:has(.lada__hero) .nav__grp h4,
+  .template-page-lada:has(.lada__hero) .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-page-lada:has(.lada__hero) .nav__grp h4 a:hover{color:var(--lada-bone)}
+  .template-page-lada:has(.lada__hero) .nav__grp ul a{color:var(--lada-muted)}
+  .template-page-lada:has(.lada__hero) .nav__grp ul a:hover{color:var(--lada-champagne)}
+}

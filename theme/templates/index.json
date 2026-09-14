@@ -276,6 +276,26 @@
     "lada-band": {
       "type": "lada-band",
       "settings": {}
+    },
+    "store-location": {
+      "type": "store-location",
+      "settings": {
+        "eyebrow": "Sheikhupura",
+        "heading": "Come and see the cloth",
+        "text": "Every brand on this site is on the shelf in one building on Civil Quarters Road. Bring the shalwar kameez you like the fit of and we will cut to it.",
+        "map_side": "left",
+        "map_src": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s17149789868114528921",
+        "map_title": "Map showing Khan Jee Center, Civil Quarters Road, Sheikhupura",
+        "directions_label": "Get directions",
+        "photo_asset": "khanjee-storefront.jpg",
+        "image_alt": "The Khan Jee Center on Civil Quarters Road, Sheikhupura, lit at dusk",
+        "address_label": "Address",
+        "address": "Khan Jee Center, Civil Quarters Road, Sheikhupura",
+        "hours_label": "Open",
+        "hours": "",
+        "phone_label": "Telephone",
+        "phone": ""
+      }
     }
   },
   "order": [
@@ -285,6 +305,7 @@
     "split",
     "pair",
     "brand-marquee",
-    "lada-band"
+    "lada-band",
+    "store-location"
   ]
 }

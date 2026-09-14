@@ -1,0 +1,370 @@
+{%- comment -%}
+  sections/store-location.liquid
+
+  The last band on the homepage: after lada-band, before the footer.
+  Where the shop physically is, as a map and as the building itself.
+
+  This is the LIGHT homepage, not /pages/lada, so every value here
+  resolves against the site tokens (--surface, --surface-alt, --text,
+  --border, --radius-media). None of the --lada-* palette appears. A
+  champagne hairline sitting directly above the footer would hand the
+  whole shop to one label; Lada gets its one dark beat above and then
+  the page comes back to the house of brands to close.
+
+  THE PAIR SHARES A HEIGHT BY GEOMETRY, NOT BY LUCK. The shopfront
+  photograph is a 740x1285 portrait of a four-storey building, sign at
+  the top and the open shop at the bottom, so a landscape crop of it
+  destroys the only thing it shows. So the photo column is a narrow
+  portrait track whose width is derived from the shared height
+  (see --store-pw in store.css) and the map takes whatever is left as
+  a wide plate. Both are exactly the same height, neither is squeezed
+  into the other's shape.
+
+  Hours and the telephone have NO defaults, the same call as
+  lada-house: inventing opening hours for a real shop on Civil
+  Quarters Road sends somebody to a closed door. Each line appears the
+  moment it is filled in and not before.
+
+  Every part is optional and every empty state is a real layout. Clear
+  the photograph and the map runs the full width; clear the map and
+  the photograph centres at its own ratio instead of stretching into a
+  letterbox; clear both and the section is still a correct, readable
+  address block. There is no state that renders a grey box.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading = section.settings.heading | default: 'Come and see the cloth'
+
+  comment
+    Only a URL Google will actually serve inside a frame is allowed
+    through. Everything else resolves to '' and the map column is not
+    printed at all, because a blocked iframe is worse than no iframe:
+    it is a box the right size and shape that never fills in.
+
+    Three things had to be measured against the live service rather
+    than assumed, and two of them contradicted the obvious guess.
+
+    1. The Share panel hands over a whole <iframe> tag, not a URL.
+       Pasted into a text field that becomes src="<iframe src=..."
+       and nothing loads, so pull the real src back out.
+
+    2. output=embed is what turns a maps URL into a frameable page,
+       but ONLY on the query forms. www.google.com/maps?cid=... and
+       ?q=... both 301 to /maps/embed?pb=... and render. The path
+       form does not: /maps/place/Name/@lat,lng/... with
+       ?output=embed glued on the end answers 200 with the whole
+       Maps application and x-frame-options: SAMEORIGIN, so the
+       browser refuses it. That path URL is the one in the address
+       bar, which makes it the likeliest thing to be pasted, so it
+       is rebuilt from its own @lat,lng into the q= form rather
+       than decorated and hoped for.
+
+    3. ftid= does not survive the embed redirect. The listing URL
+       ...?ftid=0x3918c3c1715e6971:0xee004b05858f4a99&output=embed
+       redirects to /maps/embed?pb=!1m0, an empty parameter block,
+       and draws a blank world map with no marker on it. cid= is the
+       same identifier in decimal (0xee004b05858f4a99 is
+       17149789868114528921) and it does survive, so the default
+       below is the cid form. ftid is still right for the directions
+       link, which opens Maps proper rather than an embed.
+
+    The https:// test guards all of it: the value ends up in a src
+    attribute, so anything that is not a plain secure URL is dropped.
+  endcomment
+  assign map_raw = section.settings.map_src | strip_newlines | strip
+  if map_raw contains '<iframe'
+    assign map_raw = map_raw | split: 'src="' | last | split: '"' | first
+  endif
+  assign map_scheme = map_raw | slice: 0, 8
+  assign map_src = ''
+  if map_scheme == 'https://'
+    comment
+      Order matters. /maps/embed is Google's own embed output and is
+      always frameable, so it wins outright. The /@lat,lng path form is
+      tested BEFORE output=embed, because a path URL that already
+      carries the parameter is still refused: the parameter is not what
+      makes a page frameable, the /maps/embed redirect is, and the path
+      form never redirects. Trusting output=embed there is what put a
+      blank box on the page.
+    endcomment
+    if map_raw contains '/maps/embed'
+      assign map_src = map_raw
+    elsif map_raw contains '/@'
+      assign map_pt = map_raw | split: '/@' | last | split: ','
+      assign map_lat = map_pt[0] | strip
+      assign map_lng = map_pt[1] | strip
+      if map_lat != blank and map_lng != blank
+        assign map_src = 'https://www.google.com/maps?q=' | append: map_lat | append: ',' | append: map_lng | append: '&output=embed'
+      endif
+    elsif map_raw contains 'ftid='
+      comment
+        Deliberately nothing. ftid is dropped by the embed redirect
+        (see 3 above) and there is no way to turn it into cid in
+        Liquid, so this renders no map rather than an empty one.
+      endcomment
+    elsif map_raw contains 'output=embed'
+      assign map_src = map_raw
+    elsif map_raw contains 'google.com/maps?' or map_raw contains 'google.com/maps/?'
+      assign map_src = map_raw | append: '&output=embed'
+    endif
+  endif
+
+  assign has_map = false
+  if map_src != blank
+    assign has_map = true
+  endif
+
+  assign has_photo = false
+  if section.settings.image or section.settings.photo_asset != blank
+    assign has_photo = true
+  endif
+
+  assign photo_alt = section.settings.image_alt | default: 'The Khan Jee Center on Civil Quarters Road, Sheikhupura, lit at dusk'
+
+  assign has_facts = false
+  if section.settings.address != blank or section.settings.hours != blank or section.settings.phone != blank or section.blocks.size > 0
+    assign has_facts = true
+  endif
+
+  comment
+    A url setting cannot carry a default in the editor, so the fallback
+    lives here. Same listing as the embed above, written as ftid rather
+    than cid: this one opens Google Maps proper instead of a frame, and
+    the ftid form is what the listing's own share link uses.
+  endcomment
+  assign dir_url = section.settings.directions_url | default: 'https://www.google.com/maps?ftid=0x3918c3c1715e6971:0xee004b05858f4a99'
+  assign dir_label = section.settings.directions_label | default: 'Get directions'
+-%}
+
+{%- comment -%}
+  Both columns are captured and then printed in the chosen order, so
+  the swap is a change of DOM order rather than a CSS `order` on a
+  flex child. The map is a focusable iframe: reordering it visually
+  while leaving it first in the source would put a keyboard user's tab
+  stop on the opposite side of the screen from the box that lights up.
+{%- endcomment -%}
+{%- capture col_map -%}
+  {%- if has_map -%}
+    <div class="store__map">
+      {%- comment -%}
+        No frameborder attribute: it is obsolete and the border is off
+        in CSS. width/height are the sizes Google's own embed ships
+        with, kept so the box is roughly right in the instant before
+        the stylesheet applies.
+      {%- endcomment -%}
+      <iframe
+        src="{{ map_src | escape }}"
+        title="{{ section.settings.map_title | default: 'Map showing Khan Jee Center, Civil Quarters Road, Sheikhupura' | escape }}"
+        width="600" height="450"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture col_photo -%}
+  {%- if has_photo -%}
+    <figure class="store__photo">
+      {%- if section.settings.image -%}
+        {%- comment -%}
+          Never ask Shopify for more pixels than the source has: the
+          cap is the picked image's own width, and the 700w candidate
+          is only offered when the source can actually fill it.
+
+          sizes is measured off the built page, not guessed. Above 900
+          the photo track runs 266px at a 900 viewport up to 384px at
+          1440, so 30vw is a tight ceiling. Below 900 --store-pw caps
+          the photo at 420px, so a plain 100vw would over-fetch by
+          nearly double on a tablet; 100vw is only honest under 500.
+
+          Keep every attribute on its own line with no Liquid tag
+          between them. A whitespace-stripping comment tag placed in
+          the middle of the tag welds the previous attribute's closing
+          quote onto the next attribute name, and Liquid also reads a
+          comment tag written out inside a comment as a nested block
+          and then eats the rest of the file looking for its end.
+        {%- endcomment -%}
+        {%- assign pw = section.settings.image.width -%}
+        {%- if pw > 1200 %}{% assign pw = 1200 %}{% endif -%}
+        <img src="{{ section.settings.image | image_url: width: pw }}"
+             srcset="{% if pw > 700 %}{{ section.settings.image | image_url: width: 700 }} 700w,
+                     {% endif %}{{ section.settings.image | image_url: width: pw }} {{ pw }}w"
+             sizes="(min-width:900px) 30vw, (min-width:500px) 420px, 100vw"
+             width="{{ section.settings.image.width }}" height="{{ section.settings.image.height }}"
+             loading="lazy" decoding="async"
+             alt="{{ section.settings.image.alt | default: photo_alt | escape }}">
+      {%- else -%}
+        {%- comment -%}
+          The shipped asset is khanjee-storefront.jpg at 740x1285. The
+          box is sized by the stylesheet and the image is object-fit
+          cover inside it, so if the client swaps in a file of another
+          shape these two numbers only affect the reserved box before
+          CSS lands, never the final crop.
+        {%- endcomment -%}
+        <img src="{{ section.settings.photo_asset | asset_url }}"
+             width="740" height="1285" loading="lazy" decoding="async"
+             alt="{{ photo_alt | escape }}">
+      {%- endif -%}
+    </figure>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- comment -%}
+  The id is fixed rather than a setting so that anything linking to
+  #store-location keeps working after the client renames the heading.
+  One band per page; it is not a preset anyone should add twice.
+{%- endcomment -%}
+<section class="store" id="store-location" aria-labelledby="store-h-{{ section.id }}">
+  <div class="wrap">
+    <div class="store__head" data-reveal>
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="store__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 class="store__h" id="store-h-{{ section.id }}">{{ heading }}</h2>
+      {%- if section.settings.text != blank -%}
+        <p class="store__sub">{{ section.settings.text }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- if has_map or has_photo -%}
+      {%- liquid
+        assign pair_class = 'store__pair'
+        if has_map and has_photo
+          assign pair_class = pair_class | append: ' store__pair--duo'
+          if section.settings.map_side == 'right'
+            assign pair_class = pair_class | append: ' store__pair--photo-first'
+          endif
+        endif
+      -%}
+      <div class="{{ pair_class }}" data-reveal style="--d:80ms">
+        {%- if section.settings.map_side == 'right' -%}
+          {{ col_photo }}{{ col_map }}
+        {%- else -%}
+          {{ col_map }}{{ col_photo }}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if has_facts or dir_label != blank -%}
+      <div class="store__info" data-reveal style="--d:160ms">
+        {%- if has_facts -%}
+          <dl class="store__facts">
+            {%- if section.settings.address != blank -%}
+              <div class="store__fact">
+                <dt>{{ section.settings.address_label | default: 'Address' }}</dt>
+                <dd><address>{{ section.settings.address }}</address></dd>
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.hours != blank -%}
+              <div class="store__fact">
+                <dt>{{ section.settings.hours_label | default: 'Open' }}</dt>
+                <dd>{{ section.settings.hours }}</dd>
+              </div>
+            {%- endif -%}
+
+            {%- if section.settings.phone != blank -%}
+              <div class="store__fact">
+                <dt>{{ section.settings.phone_label | default: 'Telephone' }}</dt>
+                <dd><a href="tel:{{ section.settings.phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' }}">{{ section.settings.phone }}</a></dd>
+              </div>
+            {%- endif -%}
+
+            {%- comment -%}
+              Blocks, so the client can add a line the build never
+              anticipated (parking, a Friday closure, a Ramadan
+              timing) and put it where he wants it, without a
+              developer and without a new setting.
+            {%- endcomment -%}
+            {%- for block in section.blocks -%}
+              {%- if block.settings.value != blank -%}
+                <div class="store__fact" {{ block.shopify_attributes }}>
+                  <dt>{{ block.settings.label }}</dt>
+                  <dd>{{ block.settings.value }}</dd>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
+          </dl>
+        {%- endif -%}
+
+        {%- comment -%}
+          The text link is not a nicety. An iframe is a poor keyboard
+          target, it is the first thing a privacy extension or a
+          corporate proxy blocks, and it is dead weight on a slow
+          connection. This link is the route out to the real thing and
+          it renders whether or not the embed does.
+        {%- endcomment -%}
+        {%- if dir_label != blank and dir_url != blank -%}
+          <a class="store__dir" href="{{ dir_url }}" target="_blank" rel="noopener">
+            <span>{{ dir_label }}</span>
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+                 stroke-width="1.5" aria-hidden="true" focusable="false"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Store location",
+  "tag": "section",
+  "settings": [
+    { "type": "paragraph", "content": "Sits at the end of the homepage. Link to it from anywhere with #store-location" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Sheikhupura" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Come and see the cloth" },
+    { "type": "textarea", "id": "text", "label": "Text",
+      "default": "Every brand on this site is on the shelf in one building on Civil Quarters Road. Bring the shalwar kameez you like the fit of and we will cut to it." },
+
+    { "type": "header", "content": "Layout" },
+    { "type": "select", "id": "map_side", "label": "Map goes on the",
+      "options": [
+        { "value": "left", "label": "Left, photograph right" },
+        { "value": "right", "label": "Right, photograph left" }
+      ],
+      "default": "left",
+      "info": "They stack on a phone, in this same order." },
+
+    { "type": "header", "content": "Map" },
+    { "type": "textarea", "id": "map_src", "label": "Google Maps embed URL",
+      "default": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s17149789868114528921",
+      "info": "From Google Maps: Share, then Embed a map, then Copy HTML. Pasting the whole <iframe> tag works, we take the URL out of it, and so does the long /maps/place/ address from the browser bar. A maps.app.goo.gl short link does not, Google will not show those in a frame. Clear this field to hide the map." },
+    { "type": "text", "id": "map_title", "label": "Map title",
+      "default": "Map showing Khan Jee Center, Civil Quarters Road, Sheikhupura",
+      "info": "Read out by screen readers in place of the map." },
+    { "type": "url", "id": "directions_url", "label": "Directions link",
+      "info": "Leave blank to use the Khan Jee Center listing on Google Maps." },
+    { "type": "text", "id": "directions_label", "label": "Directions link label", "default": "Get directions" },
+
+    { "type": "header", "content": "Shopfront photograph" },
+    { "type": "paragraph", "content": "Portrait, the building from the street. Hidden if both fields are empty." },
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "text", "id": "photo_asset", "label": "…or theme asset filename",
+      "default": "khanjee-storefront.jpg",
+      "info": "Used only when no image is picked" },
+    { "type": "text", "id": "image_alt", "label": "Alt text",
+      "default": "The Khan Jee Center on Civil Quarters Road, Sheikhupura, lit at dusk",
+      "info": "A picked image uses its own alt text if it has one." },
+
+    { "type": "header", "content": "Details" },
+    { "type": "text", "id": "address_label", "label": "Address label", "default": "Address" },
+    { "type": "textarea", "id": "address", "label": "Address",
+      "default": "Khan Jee Center, Civil Quarters Road, Sheikhupura" },
+    { "type": "text", "id": "hours_label", "label": "Opening hours label", "default": "Open" },
+    { "type": "text", "id": "hours", "label": "Opening hours",
+      "info": "NOT SET. Left blank deliberately, the line is hidden until real hours are supplied. Do not guess." },
+    { "type": "text", "id": "phone_label", "label": "Telephone label", "default": "Telephone" },
+    { "type": "text", "id": "phone", "label": "Telephone",
+      "info": "NOT SET. Hidden until supplied. Include the area code." }
+  ],
+  "blocks": [
+    { "type": "detail", "name": "Extra detail", "settings": [
+      { "type": "text", "id": "label", "label": "Label", "default": "Parking" },
+      { "type": "text", "id": "value", "label": "Text", "info": "The row is hidden while this is empty." }
+    ]}
+  ],
+  "max_blocks": 4,
+  "presets": [{ "name": "Store location" }]
+}
+{% endschema %}

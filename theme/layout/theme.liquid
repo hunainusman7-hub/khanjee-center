@@ -39,7 +39,18 @@
 <link rel="stylesheet" href="{{ 'kj-v2.css' | asset_url }}">
 {{ content_for_header }}
 </head>
-<body>
+{%- comment -%}
+  The body carried no class at all, so nothing on the page could ask
+  "which template am I on". That is fine until a template needs its own
+  register: the Lada page wants the header transparent over its hero
+  plate and solid once scrolled, and there was no hook to scope that to
+  Lada without leaking it onto every other page.
+
+  Standard Shopify shape: `template-page` plus `template-page-lada` for
+  a page.lada.json template. Additive only, so nothing that already
+  matched on a bare <body> changes.
+{%- endcomment -%}
+<body class="template-{{ template.name }}{% if template.suffix %} template-{{ template.name }}-{{ template.suffix }}{% endif %}">
 <a class="skip" href="#main">Skip to content</a>
 {% render 'kj-svg-defs' %}
 

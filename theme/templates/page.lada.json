@@ -26,12 +26,63 @@
     },
     "collection": {
       "type": "lada-collection",
+      "blocks": {
+        "pill-all": {
+          "type": "pill",
+          "settings": {
+            "label": "All"
+          }
+        },
+        "pill-waistcoats": {
+          "type": "pill",
+          "settings": {
+            "label": "Waistcoats",
+            "tag": "waistcoat"
+          }
+        },
+        "pill-coats": {
+          "type": "pill",
+          "settings": {
+            "label": "Prince coats",
+            "tag": "prince-coat"
+          }
+        },
+        "pill-mtm": {
+          "type": "pill",
+          "settings": {
+            "label": "Made to measure",
+            "tag": "made-to-measure"
+          }
+        }
+      },
+      "block_order": [
+        "pill-all",
+        "pill-waistcoats",
+        "pill-coats",
+        "pill-mtm"
+      ],
       "settings": {
         "kicker": "The range",
-        "heading": "Lada, unstitched",
+        "heading": "Waistcoats and coats",
         "collection": "lada",
-        "count": 6,
-        "whatsapp": "923019090590"
+        "count": 8,
+        "pills_label": "Sub categories",
+        "divider": "|",
+        "add_label": "Add to bag",
+        "options_label": "Choose options",
+        "sold_label": "Sold out",
+        "mtm_tag": "made-to-measure",
+        "mtm_label": "Measured in the shop",
+        "mtm_url": "#lada-measure",
+        "more_label": "The full range",
+        "more_url": "",
+        "empty_title": "Being cut now",
+        "empty_text": "The first Lada waistcoats and prince coats are on the table in our own workshop. Tell us the size and the cloth you want, and we will hold the first piece that comes off it for you.",
+        "empty_cta": "Reserve on WhatsApp",
+        "whatsapp": "923019090590",
+        "whatsapp_text": "I would like to reserve a Lada waistcoat.",
+        "empty_link_label": "Or be measured in the shop",
+        "empty_link_url": "#lada-measure"
       }
     },
     "craft": {
@@ -40,28 +91,28 @@
         "s1": {
           "type": "stage",
           "settings": {
-            "asset_file": "men-unstitched.jpg",
-            "kicker": "Spin",
-            "title": "The yarn",
-            "text": "We buy staple long enough to hold a twist, and spin to a count we set ourselves. It is the one decision that fixes everything downstream."
+            "asset_file": "",
+            "kicker": "Cut",
+            "title": "The pattern and the chalk",
+            "text": "Your measurements become a paper pattern, and that pattern is chalked onto the cloth by hand. Stripe and check are matched across the two fronts before the blade moves, because a join that misses by a hair is visible for the life of the coat."
           }
         },
         "s2": {
           "type": "stage",
           "settings": {
-            "asset_file": "men-shawls.jpg",
-            "kicker": "Weave",
-            "title": "The loom",
-            "text": "Woven slowly, at a tension that leaves the cloth room to move. A fast bolt looks the same on the shelf and fails in the third season."
+            "asset_file": "",
+            "kicker": "Sew",
+            "title": "The machinist and the seam",
+            "text": "One machinist takes a coat from the first seam to the last, so the tension never changes hands. The armholes and the collar stand are set by hand, and the shoulder goes on the stand to be looked at before the lining comes near it."
           }
         },
         "s3": {
           "type": "stage",
           "settings": {
-            "asset_file": "lada-waistcoats.jpg",
+            "asset_file": "",
             "kicker": "Finish",
-            "title": "The hand",
-            "text": "Washed, pressed and shrunk before it is ever cut, so what you measure in the shop is what you keep after the first wash."
+            "title": "The press and the lining",
+            "text": "The lining is set in by hand, the pocket mouths are bar tacked, and the coat is pressed in stages over a ham rather than flattened in one pass. Buttons go on last, sewn with a shank so they sit proud of the cloth and stay where they are put."
           }
         }
       },
@@ -72,8 +123,90 @@
       ],
       "settings": {
         "kicker": "The making",
-        "heading": "Three hands, one bolt",
-        "intro": "Most of the shelf is chosen. This is the part we make. Every stage happens at our own unit in Sheikhupura, which is why the guarantee on it is unconditional."
+        "heading": "Three tables, one coat",
+        "intro": "A coat is made three times before anyone wears it: once in chalk, once under the needle, once under the iron. All three happen at our own unit in Sheikhupura, on tables we can walk to.",
+        "owner_note": "I mark the first pattern for every new block myself, and no coat leaves this floor before I have put the shoulder on the stand. If it sits wrong when it reaches you, it comes back to my table, not to a form.",
+        "owner_name": "Abdul Hayee Khan"
+      }
+    },
+    "lookbook": {
+      "type": "lada-lookbook",
+      "blocks": {
+        "f1": {
+          "type": "frame",
+          "settings": {
+            "ratio": "portrait",
+            "link_label": "See this piece"
+          }
+        },
+        "f2": {
+          "type": "frame",
+          "settings": {
+            "ratio": "portrait",
+            "link_label": "See this piece"
+          }
+        },
+        "f3": {
+          "type": "frame",
+          "settings": {
+            "ratio": "landscape",
+            "link_label": "See this piece"
+          }
+        },
+        "f4": {
+          "type": "frame",
+          "settings": {
+            "ratio": "portrait",
+            "link_label": "See this piece"
+          }
+        },
+        "f5": {
+          "type": "frame",
+          "settings": {
+            "ratio": "portrait",
+            "link_label": "See this piece"
+          }
+        },
+        "f6": {
+          "type": "frame",
+          "settings": {
+            "ratio": "portrait",
+            "link_label": "See this piece"
+          }
+        },
+        "f7": {
+          "type": "frame",
+          "settings": {
+            "ratio": "landscape",
+            "link_label": "See this piece"
+          }
+        },
+        "f8": {
+          "type": "frame",
+          "settings": {
+            "ratio": "portrait",
+            "link_label": "See this piece"
+          }
+        }
+      },
+      "block_order": [
+        "f1",
+        "f2",
+        "f3",
+        "f4",
+        "f5",
+        "f6",
+        "f7",
+        "f8"
+      ],
+      "settings": {
+        "cap_height": false,
+        "region_label": "Lada lookbook",
+        "kicker": "The lookbook",
+        "heading": "Cut, and then worn",
+        "text": "Photographed as the pieces leave the workshop, on the men they were measured for. Nothing here is styled with anything we do not sell.",
+        "link_label": "The full range",
+        "link_url": "/collections/lada"
       }
     },
     "measure": {
@@ -90,14 +223,83 @@
       "settings": {
         "kicker": "Fit",
         "heading": "Bespoke sizing",
-        "whatsapp": "923019090590"
-      }
+        "intro": "Waistcoats and prince coats are cut 38R through 46R as standard. Anything outside that is measured in the shop at no extra cost.",
+        "columns": "Size,Chest,Waist,Length,Shoulder,Collar",
+        "rows": "38R,38,32,29,16.5,15|40R,40,34,29.5,17,15.5|42R,42,36,30,17.5,16|44R,44,38,30.5,18,16.5|46R,46,40,31,18.5,17",
+        "caption_in": "All measurements in inches, taken on the body.",
+        "caption_cm": "All measurements in centimetres, taken on the body.",
+        "table_note": "These are body measurements, not the finished garment. The ease a waistcoat needs is added on the cutting table.",
+        "units_legend": "Units",
+        "unit_in_label": "Inches",
+        "unit_cm_label": "Centimetres",
+        "help_title": "How to measure",
+        "diagram_title": "Where we measure",
+        "cta_label": "Send measurements on WhatsApp",
+        "whatsapp": "923019090590",
+        "secondary_label": "Or be measured in the shop",
+        "secondary_url": "#lada-measure"
+      },
+      "blocks": {
+        "pt_collar": {
+          "type": "point",
+          "settings": {
+            "anchor": "collar",
+            "label": "Collar",
+            "note": "Around the neck, tape not tight."
+          }
+        },
+        "pt_shoulder": {
+          "type": "point",
+          "settings": {
+            "anchor": "shoulder",
+            "label": "Shoulder",
+            "note": "Seam to seam, across the back."
+          }
+        },
+        "pt_chest": {
+          "type": "point",
+          "settings": {
+            "anchor": "chest",
+            "label": "Chest"
+          }
+        },
+        "pt_armhole": {
+          "type": "point",
+          "settings": {
+            "anchor": "armhole",
+            "label": "Armhole",
+            "note": "Around the arm at the shoulder."
+          }
+        },
+        "pt_waist": {
+          "type": "point",
+          "settings": {
+            "anchor": "waist",
+            "label": "Waist"
+          }
+        },
+        "pt_length": {
+          "type": "point",
+          "settings": {
+            "anchor": "length",
+            "label": "Length"
+          }
+        }
+      },
+      "block_order": [
+        "pt_collar",
+        "pt_shoulder",
+        "pt_chest",
+        "pt_armhole",
+        "pt_waist",
+        "pt_length"
+      ]
     },
     "promise": {
       "type": "lada-promise",
       "settings": {
-        "kicker": "Plainly put",
-        "heading": "What in-house actually buys you"
+        "heading": "The guarantee, in plain words",
+        "kicker": "Plainly put"
       }
     },
     "house": {
@@ -119,6 +321,7 @@
     "proof",
     "collection",
     "craft",
+    "lookbook",
     "measure",
     "sizing",
     "promise",

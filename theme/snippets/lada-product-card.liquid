@@ -1,0 +1,249 @@
+{%- comment -%}
+  snippets/lada-product-card.liquid
+
+  A FORK of snippets/product-card.liquid, not a restyle of it.
+
+  Why fork. The shared .pcard exists to sell other people's cloth under
+  Khan Jee's name: it carries the white-label vendor rule (only Dynasty
+  and Pasha are allowed to show a supplier name, everything else falls
+  back to a KJC SKU), a compare-at strikethrough, a percent-off chip, a
+  Khan Jee Seal badge and a pre-order chip. Lada is the house's own
+  label. There is no supplier to hide, nothing is ever discounted, and
+  a seal badge on a Lada card would be the house stamping its own name
+  on its own garment. Overriding six rules off a shared snippet with
+  `.lada .pcard__*` selectors is how that snippet ends up owned by two
+  pages and safe to edit for neither, so this is a separate file.
+
+  What the card carries, and it is deliberately only this:
+    1. the primary photograph at 4:5
+    2. a cloth-and-cut eyebrow, 11px caps
+    3. the piece name, 15px/500, sentence case
+    4. the price, 15px/500, the same size as the name
+
+  No SKU, no badge, no swatch, no rating, no compare-at price. The
+  title is the real title: the shared card splits on " (em dash) " to
+  strip the white-label suffix off imported titles, which is exactly
+  the behaviour Lada must not inherit, because a Lada piece has a
+  proper name (Zafraan, not SEQUINS EMBELLISHED WAISTCOAT NA-WC130)
+  and any punctuation in it is part of that name.
+
+  Usage:
+    {% render 'lada-product-card', product: product, index: forloop.index0,
+       mtm_tag: mtm_tag, mtm_label: mtm_label, mtm_url: mtm_url,
+       add_label: add_label, options_label: options_label,
+       sold_label: sold_label, divider: divider %}
+
+  Every label above is a string the client owns in the section schema,
+  so nothing customer-visible is hard-coded in here. The defaults below
+  are only the fallback for a caller that forgets to pass one.
+{%- endcomment -%}
+
+{%- liquid
+  assign mtm_label     = mtm_label     | default: 'Measured in the shop'
+  assign mtm_url       = mtm_url       | default: '#lada-measure'
+  assign add_label     = add_label     | default: 'Add to bag'
+  assign options_label = options_label | default: 'Choose options'
+  assign sold_label    = sold_label    | default: 'Sold out'
+  assign divider       = divider       | default: '|'
+
+  # The hover pair. Frame 2 is a second model frame from the same set,
+  # never a detail shot. If a product has only one image there is no
+  # pair, and .lcard--pair is simply never added, so the hover rules do
+  # not exist for that card at all. That is the whole no-phantom-state
+  # fix: not a hover that fades to the same picture, no hover.
+  assign alt_media = null
+  if product.media.size > 1
+    assign alt_media = product.media[1]
+  endif
+
+  # The eyebrow teaches the filter vocabulary while you browse, so it
+  # wants cloth and cut, not a product type. lada.cloth / lada.cut are
+  # the intended source; custom.by_fabric is what the existing import
+  # already populates, and product.type is the last resort. Nothing is
+  # invented: if none of them are set the eyebrow is skipped and the
+  # name moves up.
+  assign cloth = product.metafields.lada.cloth.value | default: product.metafields.custom.by_fabric.value
+  assign cut   = product.metafields.lada.cut.value
+  assign eyebrow = ''
+  if cloth != blank and cut != blank
+    assign eyebrow = cloth | append: ' ' | append: divider | append: ' ' | append: cut
+  elsif cloth != blank
+    assign eyebrow = cloth
+  elsif cut != blank
+    assign eyebrow = cut
+  elsif product.type != blank
+    assign eyebrow = product.type
+  endif
+
+  # Two-tier pricing. Standard 38R to 46R pieces are priced openly;
+  # made to measure genuinely has no list price, so the price slot
+  # becomes a route to the measuring service instead. Read from a
+  # metafield if one exists, otherwise from a tag, because a tag is
+  # something the client can set himself without a metafield
+  # definition. Handleized on both sides so "Made to Measure" and
+  # "made-to-measure" are the same tag.
+  #
+  # A zero price counts as made to measure too. Nine of the study
+  # set's worst product cards are the ones printing a real currency
+  # symbol against 0.00 because a variant was never priced.
+  assign is_mtm = false
+  if product.metafields.lada.made_to_measure.value
+    assign is_mtm = true
+  endif
+  assign mtm_key = mtm_tag | default: 'made-to-measure' | handleize
+  for t in product.tags
+    assign t_key = t | handleize
+    if t_key == mtm_key
+      assign is_mtm = true
+    endif
+  endfor
+  if product.price == 0
+    assign is_mtm = true
+  endif
+
+  # Every frame in this grid is lazy, including the first row.
+  #
+  # The shared .pcard eager-loads its first four because it is used on
+  # collection templates where the grid IS the first thing on the page.
+  # This grid is not: page.lada.json puts lada-collection third, behind
+  # a full-plate lada-hero and the lada-proof band, so on no viewport is
+  # row one in the first screen. Eager-loading four 4:5 garment frames
+  # there does not make them arrive sooner, it makes them compete with
+  # the hero plate, which is the actual LCP element. `index` is still
+  # taken so a caller that does promote this grid above the fold has
+  # something to branch on.
+  assign loading = 'lazy'
+
+  # Never ask Shopify for a width the source file does not have: an
+  # upscale request returns the native file anyway but writes a
+  # candidate the browser may pick on a 3x screen and then render soft.
+  # The native width is always the last candidate, and the smaller
+  # steps are only added when the source actually clears them.
+  assign main_w = product.featured_media.width | default: 900
+  assign main_src_w = 600
+  if main_w < main_src_w
+    assign main_src_w = main_w
+  endif
+  assign alt_w = alt_media.width | default: 900
+  assign alt_src_w = 600
+  if alt_w < alt_src_w
+    assign alt_src_w = alt_w
+  endif
+-%}
+
+{%- capture card_sizes -%}(min-width:1240px) 283px, (min-width:1100px) 23vw, (min-width:760px) 31vw, 46vw{%- endcapture -%}
+
+<article class="lcard{% if alt_media %} lcard--pair{% endif %}">
+
+  {%- comment -%}
+    The image link is marked decorative so the name below stays the one
+    announced link. Adding a second real link to the same product would
+    make every card announce itself twice and double the tab stops
+    across a twelve-card grid.
+
+    Its ::after covers the PHOTOGRAPH, not the whole card: this element
+    is both .lcard__media and .lcard__link, and .lcard__media is the
+    position:relative box, so inset:0 resolves to the plate. That is
+    deliberate. Stretching the overlay across the text would swallow the
+    made-to-measure link sitting in the price slot, which is the one
+    place on this card where a second destination is the whole point.
+
+    With no picked image at all the box is simply left empty: .lcard__media
+    holds the 4:5 ratio and paints --lada-panel, so an unshot piece reads
+    as a reserved plate rather than a broken img or a collapsed row. The
+    Lada shoot is still one photograph long, so this is the state a lot
+    of these cards ship in and it has to look intentional.
+  {%- endcomment -%}
+  <a class="lcard__media lcard__link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+    {%- if product.featured_media -%}
+      <img class="lcard__img lcard__img--main"
+           src="{{ product.featured_media | image_url: width: main_src_w }}"
+           srcset="{%- if main_w > 400 %}{{ product.featured_media | image_url: width: 400 }} 400w, {% endif -%}
+                   {%- if main_w > 600 %}{{ product.featured_media | image_url: width: 600 }} 600w, {% endif -%}
+                   {%- if main_w > 900 %}{{ product.featured_media | image_url: width: 900 }} 900w, {% endif -%}
+                   {{ product.featured_media | image_url: width: main_w }} {{ main_w }}w"
+           sizes="{{ card_sizes }}"
+           width="{{ product.featured_media.width }}" height="{{ product.featured_media.height }}"
+           loading="{{ loading }}" decoding="async"
+           alt="{{ product.featured_media.alt | default: product.title | escape }}">
+    {%- endif -%}
+
+    {%- if alt_media -%}
+      <img class="lcard__img lcard__img--alt"
+           src="{{ alt_media | image_url: width: alt_src_w }}"
+           srcset="{%- if alt_w > 400 %}{{ alt_media | image_url: width: 400 }} 400w, {% endif -%}
+                   {%- if alt_w > 600 %}{{ alt_media | image_url: width: 600 }} 600w, {% endif -%}
+                   {%- if alt_w > 900 %}{{ alt_media | image_url: width: 900 }} 900w, {% endif -%}
+                   {{ alt_media | image_url: width: alt_w }} {{ alt_w }}w"
+           sizes="{{ card_sizes }}"
+           width="{{ alt_media.width }}" height="{{ alt_media.height }}"
+           loading="lazy" decoding="async" aria-hidden="true" alt="">
+    {%- endif -%}
+  </a>
+
+  {%- if eyebrow != blank -%}
+    <p class="lcard__eyebrow">{{ eyebrow }}</p>
+  {%- endif -%}
+
+  <h3 class="lcard__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+
+  {%- comment -%}
+    Price slot. Never a compare-at, never a percentage, never coloured,
+    never larger than the name. Sold out rides in this line as 11px caps
+    rather than as a chip over the photograph, because the photograph is
+    the product and a chip is the first thing that turns a wall of
+    garments back into a stock table. It also has to stay legible on a
+    touch device, where the action row below only exists to be tapped.
+  {%- endcomment -%}
+  <p class="lcard__price">
+    {%- if is_mtm -%}
+      <a href="{{ mtm_url }}">{{ mtm_label }}</a>
+    {%- else -%}
+      <span>{{ product.price | money }}</span>
+      {%- unless product.available -%}
+        <span class="lcard__state">{{ sold_label }}</span>
+      {%- endunless -%}
+    {%- endif -%}
+  </p>
+
+  {%- comment -%}
+    The action row.
+
+    On a pointer device it is placed into the photograph's own grid cell
+    and bottom-aligned, so the resting grid stays pure photography and
+    the button rises over the bottom of the plate on hover. On anything
+    without hover the same markup is just the last item in the card's
+    flex column: a permanent 44px target, in flow, never a floating bar
+    and never a black strip parked across every tablet photograph.
+
+    Placing it by grid area rather than by position:absolute is what
+    lets the price sit ABOVE it in the DOM. The shared .pcard had to
+    wrap the image in a .pcard__top so `bottom` had something to
+    resolve against, which forced the button in front of the name and
+    price in source order. Same overlay, honest reading order.
+
+    Made to measure gets no action row at all. Its price slot is
+    already the route to the measuring service, and a second button
+    saying the same thing is the fifth element this card refuses to
+    carry.
+  {%- endcomment -%}
+  {%- unless is_mtm -%}
+    {%- if product.available and product.variants.size == 1 -%}
+      <form class="lcard__act" action="{{ routes.cart_add_url }}" method="post"
+            enctype="multipart/form-data" data-kj-atc>
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="lcard__quick">
+          <span class="lcard__quick-t">{{ add_label }}</span>
+          <span class="lcard__spin" aria-hidden="true"></span>
+        </button>
+        <p class="lcard__err" data-kj-atc-error role="alert" hidden></p>
+      </form>
+    {%- elsif product.available -%}
+      <div class="lcard__act">
+        <a class="lcard__quick" href="{{ product.url }}">{{ options_label }}</a>
+      </div>
+    {%- endif -%}
+  {%- endunless -%}
+
+</article>

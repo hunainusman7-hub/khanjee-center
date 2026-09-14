@@ -1,0 +1,138 @@
+{%- comment -%}
+  snippets/lada-size-table.liquid, the Lada measurement table and its
+  inches/centimetres toggle, as one reusable component.
+
+  WHY IT IS A SNIPPET AND NOT SECTION MARKUP. The table has to appear
+  twice: once as the lada-sizing section, and once inside a size-guide
+  popover sitting immediately beside the size selector on the PDP, which
+  is where the doubt actually happens. Two copies of the same <table>
+  drift apart the first time someone edits one of them, and the second
+  copy is the one nobody remembers to update. So the markup lives here
+  and both entry points render it. The section owns the heading, the
+  drawing and the WhatsApp route; this file owns nothing but the table.
+
+  EVERY STRING IS A PARAMETER WITH A DEFAULT, so the PDP call site can
+  be one line and still ship correct English, while the section passes
+  the client's edited settings straight through.
+
+    {% render 'lada-size-table', uid: 'pdp-size' %}
+
+  PARAMETERS
+    uid            unique id stem. REQUIRED in spirit: two instances on
+                   one page share a radio `name` if they share a uid,
+                   and then the popover's toggle drives the section's
+                   table. Defaults to 'lada-size' for single use.
+    rows           '38R,38,32,29,16.5,15|40R,...' one row per pipe,
+                   cells comma separated, INCHES AS BARE NUMBERS.
+    columns        header labels, comma separated. The first is the size
+                   column; the rest are measurements.
+    caption_in     caption shown while the table is in inches.
+    caption_cm     caption swapped in by the toggle.
+    note           optional line under the table.
+    units_legend / unit_in_label / unit_cm_label   the toggle's strings.
+    units          pass false to render the table with no toggle.
+
+  INCHES ARE IN THE MARKUP, CENTIMETRES ARE COMPUTED. The page has to be
+  usable with JavaScript off, and a shopper in Sheikhupura reading a
+  chart of empty cells is worse served than one reading inches he has to
+  convert himself. So every cell ships its inch value as text AND as
+  data-lada-in, the conversion is arithmetic the client never maintains
+  by hand, and a second column of hand-typed centimetres cannot fall out
+  of step with the first. The toggle itself carries `hidden` and is
+  revealed by the script, because a control that does nothing is worse
+  than no control.
+
+  data-lada-in holds the value verbatim, including any stray unit the
+  client types ("38 in"), so switching back to inches restores exactly
+  what was entered rather than a re-rounded number.
+{%- endcomment -%}
+{%- liquid
+  assign uid = uid | default: 'lada-size'
+  assign col_src = columns | default: 'Size,Chest,Waist,Length,Shoulder,Collar'
+  assign cols = col_src | split: ','
+  assign last_col = cols.size | minus: 1
+  assign row_src = rows | default: '38R,38,32,29,16.5,15|40R,40,34,29.5,17,15.5|42R,42,36,30,17.5,16|44R,44,38,30.5,18,16.5|46R,46,40,31,18.5,17'
+  assign row_list = row_src | split: '|'
+  assign cap_in = caption_in | default: 'All measurements in inches, taken on the body.'
+  assign cap_cm = caption_cm | default: 'All measurements in centimetres, taken on the body.'
+  assign legend = units_legend | default: 'Units'
+  assign in_label = unit_in_label | default: 'Inches'
+  assign cm_label = unit_cm_label | default: 'Centimetres'
+
+  assign show_units = true
+  if units == false
+    assign show_units = false
+  endif
+-%}
+<div class="lada__sizetable" data-lada-sizetable
+     data-cap-in="{{ cap_in | escape }}" data-cap-cm="{{ cap_cm | escape }}">
+
+  {%- if show_units -%}
+    {%- comment -%}
+      A real radio group in a real fieldset. Two states that are mutually
+      exclusive and that both stay visible is what a radio group is for;
+      it arrives keyboard-operable, arrow-key navigable and correctly
+      announced without a line of ARIA. The inputs are .vh rather than
+      display:none so they keep focus, and the labels carry the styling.
+    {%- endcomment -%}
+    <fieldset class="lada__units" data-lada-units hidden>
+      <legend class="lada__units-legend">{{ legend }}</legend>
+      <div class="lada__units-set">
+        <input class="vh" type="radio" name="{{ uid }}-unit" id="{{ uid }}-unit-in"
+               value="in" checked data-lada-unit>
+        <label class="lada__units-opt" for="{{ uid }}-unit-in">{{ in_label }}</label>
+        <input class="vh" type="radio" name="{{ uid }}-unit" id="{{ uid }}-unit-cm"
+               value="cm" data-lada-unit>
+        <label class="lada__units-opt" for="{{ uid }}-unit-cm">{{ cm_label }}</label>
+      </div>
+    </fieldset>
+  {%- endif -%}
+
+  {%- comment -%}
+    Six columns will not fit a 360px phone at a legible size, and shrinking
+    the type below 13px to make them fit is the one thing the type scale
+    forbids. So the table keeps its size and the container scrolls, with
+    role="region" and tabindex="0" so the scroll is reachable from the
+    keyboard, named by the caption it already has rather than by a second
+    string nobody would remember to translate.
+  {%- endcomment -%}
+  <div class="lada__sizescroll" role="region" tabindex="0" aria-labelledby="{{ uid }}-cap">
+    <table class="lada__sizes lada__sizes--wide">
+      <caption class="lada__sizes-cap" id="{{ uid }}-cap" data-lada-caption>{{ cap_in }}</caption>
+      <thead>
+        <tr>
+          {%- for head in cols -%}
+            <th scope="col">{{ head | strip }}</th>
+          {%- endfor -%}
+        </tr>
+      </thead>
+      <tbody>
+        {%- for row in row_list -%}
+          {%- assign cells = row | split: ',' -%}
+          <tr>
+            <th scope="row">{{ cells[0] | strip }}</th>
+            {%- comment -%}
+              The loop runs to the number of HEADERS, not the number of
+              cells in the row, so a row the client has half filled still
+              produces a full-width, correctly aligned row. A missing cell
+              draws a short hairline through CSS rather than a character,
+              so a screen reader hears an empty cell instead of "dash".
+            {%- endcomment -%}
+            {%- for i in (1..last_col) -%}
+              {%- assign v = cells[i] | strip -%}
+              {%- if v == blank -%}
+                <td class="is-empty"></td>
+              {%- else -%}
+                <td data-lada-in="{{ v | escape }}">{{ v }}</td>
+              {%- endif -%}
+            {%- endfor -%}
+          </tr>
+        {%- endfor -%}
+      </tbody>
+    </table>
+  </div>
+
+  {%- if note != blank -%}
+    <p class="lada__sizes-note">{{ note }}</p>
+  {%- endif -%}
+</div>

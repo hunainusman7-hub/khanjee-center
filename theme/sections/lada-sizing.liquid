@@ -1,35 +1,307 @@
-<section class="lada" id="lada-sizing">
+{%- comment -%}
+  Fit, widened into a real garment chart.
+
+  WHAT CHANGED AND WHY. The old table ran four columns, Size / Chest /
+  Waist / Length, with the unit typed into every cell ("38 in"). Four
+  columns is not enough to buy a waistcoat: a coat that fits the chest
+  and misses the shoulder is a coat that goes back, and shoulder is the
+  one measurement a tailor cannot let out afterwards. So the set is now
+  the six the shop actually cuts to, Size / Chest / Waist / Length /
+  Shoulder / Collar, and the unit has moved out of the cells and into a
+  toggle, which is both less to type and the only way centimetres can be
+  offered without the client maintaining a second chart by hand.
+
+  THE TABLE ITSELF IS NOT IN THIS FILE. It is snippets/lada-size-table,
+  because the same markup has to render a second time as a popover
+  beside the PDP size selector, which is the moment the question is
+  actually asked. Rendering it from two places is the whole point of the
+  snippet: edit the chart once, both entry points move.
+
+  THE DRAWING IS DRAWN, NOT SHOT. Every other picture on this page is
+  waiting on a photoshoot that has produced exactly one Lada frame so
+  far. A measurement diagram has no business waiting for a camera, so it
+  is inline SVG at 1px, champagne through currentColor, no fill, no
+  file, no request, and it renders correctly the day this ships.
+
+  WHY THE DRAWING CARRIES NUMBERS AND THE NAMES SIT BESIDE IT. Setting
+  the words inside the SVG would put six client-editable strings at
+  fixed coordinates with no way to reflow: one long label and the
+  drawing has type hanging off its edge, which is exactly the kind of
+  break a client filling the page himself would never see coming. So the
+  garment carries numerals, which cannot overflow, and the numerals are
+  keyed to a text list that wraps like text. The SVG is aria-hidden
+  because the list already says everything it says.
+
+  THE POINTS ARE BLOCKS, THE ROWS ARE A SETTING. A block per measurement
+  point lets the client drop one he does not measure and reorder the
+  rest, and the numbering follows the block order in both the drawing
+  and the list because both read it from the same loop. Each block picks
+  its anchor from a fixed set of six, so the geometry stays correct no
+  matter how they are ordered; a free text position would let the label
+  and the callout drift apart. Table rows stay a single textarea because
+  a row is not a design decision, it is data, and forty cells across six
+  blocks would be a worse thing to edit, not a better one.
+
+  BUT AN EMPTY BLOCK LIST IS NOT A CHOICE, IT IS THE DEFAULT, AND THE
+  FIRST VERSION OF THIS SECTION READ IT AS A CHOICE. templates/page.lada
+  .json already carries this section with three settings and no blocks,
+  and Shopify applies a preset only when a section is inserted fresh in
+  the editor, never to one already placed in a template. So keying the
+  drawing to blocks alone deleted it from the live page: the shop got a
+  chart and no diagram, silently, and nothing in the editor said why.
+  The anchors are a closed set of six, so no blocks now means the whole
+  six, drawn in the order the tape goes round the body. The first point
+  block added takes the drawing over completely. Removing the drawing on
+  purpose is the checkbox, which is a decision the client can see.
+
+  DEGRADES BOTH WAYS. No JavaScript and the chart is in inches, correct
+  and readable, with the dead toggle never revealed. Drawing switched
+  off and the figure leaves the DOM and the chart runs full width.
+{%- endcomment -%}
+{%- liquid
+  assign wa = section.settings.whatsapp | default: '923019090590'
+  assign wa_text = section.settings.whatsapp_text | default: 'I need help with Lada sizing. My measurements are:'
+
+  # Only 'point' blocks drive the drawing, so a future block type cannot
+  # silently add a numeral to the garment.
+  assign points = section.blocks | where: 'type', 'point'
+
+  # See the note above: no blocks is the shipped state, not an
+  # instruction, so it falls back to the full six rather than to
+  # nothing. use_defaults is what the two loops branch on, because the
+  # fallback list is plain strings and a block is an object.
+  assign use_defaults = false
+  if points.size == 0
+    assign use_defaults = true
+    assign points = 'collar,shoulder,chest,armhole,waist,length' | split: ','
+    assign default_labels = section.settings.default_labels | default: 'Collar,Shoulder,Chest,Armhole,Waist,Length' | split: ','
+  endif
+
+  # A checkbox absent from a JSON template still resolves to its schema
+  # default, unlike blocks, so this is true on the live page today.
+  assign draw = section.settings.show_diagram
+
+  assign fit_class = 'lada__fit'
+  unless draw
+    assign fit_class = 'lada__fit lada__fit--nodiagram'
+  endunless
+
+  assign howto = section.settings.howto | default: 'Measure over a shirt, not over bare skin and not over a coat.|Chest: around the fullest point, tape level under the arms.|Waist: at the navel, with one finger under the tape.|Length: from the base of the collar to where you want the coat to end.' | split: '|'
+-%}
+<section class="lada" id="lada-sizing" aria-labelledby="lada-sizing-h">
   <div class="lada__wrap lada__sec">
     <p class="lada__kicker">{{ section.settings.kicker | default: 'Fit' }}</p>
-    <h2 class="lada__h2">{{ section.settings.heading | default: 'Bespoke sizing' }}</h2>
+    <h2 class="lada__h2" id="lada-sizing-h">{{ section.settings.heading | default: 'Bespoke sizing' }}</h2>
     <p class="lada__p">{{ section.settings.intro | default: 'Waistcoats and prince coats are cut 38R through 46R as standard. Anything outside that is measured in the shop at no extra cost.' }}</p>
 
-    <div class="lada__split">
-      <div>
-        <table class="lada__sizes">
-          <thead><tr><th>Size</th><th>Chest</th><th>Waist</th><th>Length</th></tr></thead>
-          <tbody>
-            {%- assign rows = section.settings.rows | default: '38R,38 in,32 in,29 in|40R,40 in,34 in,29.5 in|42R,42 in,36 in,30 in|44R,44 in,38 in,30.5 in|46R,46 in,40 in,31 in' | split: '|' -%}
-            {%- for row in rows -%}
-              {%- assign c = row | split: ',' -%}
-              <tr><td>{{ c[0] }}</td><td>{{ c[1] }}</td><td>{{ c[2] }}</td><td>{{ c[3] }}</td></tr>
-            {%- endfor -%}
-          </tbody>
-        </table>
+    <div class="{{ fit_class }}">
+
+      <div class="lada__fit-table">
+        {%- comment -%}
+          uid is the section id, so the popover instance on a product
+          page can never collide with this one over a radio name.
+        {%- endcomment -%}
+        {%- render 'lada-size-table',
+              uid: section.id,
+              rows: section.settings.rows,
+              columns: section.settings.columns,
+              caption_in: section.settings.caption_in,
+              caption_cm: section.settings.caption_cm,
+              note: section.settings.table_note,
+              units_legend: section.settings.units_legend,
+              unit_in_label: section.settings.unit_in_label,
+              unit_cm_label: section.settings.unit_cm_label -%}
       </div>
 
-      <div class="lada__panel">
-        <h3>{{ section.settings.help_title | default: 'Not sure of your size?' }}</h3>
-        <ul>
-          <li>Measure over a shirt, not bare skin.</li>
-          <li>Chest: the fullest point, tape level under the arms.</li>
-          <li>Waist: at the navel, one finger under the tape.</li>
-          <li>Length: from the base of the collar to where you want it to end.</li>
+      {%- if draw -%}
+        <figure class="lada__diagram">
+          {%- comment -%}
+            The caption leads the figure. HTML allows figcaption only as
+            the first or last child, and it was sitting between the svg
+            and the list, which is neither; reading order is better this
+            way round too, because the label arrives before the drawing
+            it names rather than after it.
+          {%- endcomment -%}
+          <figcaption class="lada__diagram-cap">
+            {{ section.settings.diagram_title | default: 'Where we measure' }}
+          </figcaption>
+
+          {%- comment -%}
+            viewBox 300x320, garment centred on x=150, the two outer
+            strips kept clear for callouts. stroke-width is 1 and
+            vector-effect:non-scaling-stroke is applied in CSS, so the
+            line stays a true hairline at every rendered size instead of
+            fattening as the drawing grows.
+          {%- endcomment -%}
+          <svg class="lada__diagram-svg" viewBox="0 0 300 320" width="300" height="320"
+               fill="none" stroke="currentColor" stroke-width="1"
+               stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true" focusable="false">
+
+            {%- comment -%}
+              The garment. One closed outline, then the front opening,
+              the button run, and two welt pockets. The armholes are
+              scooped inward rather than bowed out, which is the single
+              line that stops a sleeveless flat reading as an arch.
+            {%- endcomment -%}
+            <path d="M128 32 L92 46 C94 74 80 96 66 120 C72 150 74 172 70 196 L78 244
+                     L144 284 L150 274 L156 284 L222 244 L230 196 C226 172 228 150 234 120
+                     C220 96 206 74 208 46 L172 32 C164 25 136 25 128 32 Z"/>
+            <path d="M128 32 L150 148 L172 32"/>
+            <path d="M150 148 L150 274"/>
+            <circle cx="150" cy="168" r="3"/>
+            <circle cx="150" cy="198" r="3"/>
+            <circle cx="150" cy="228" r="3"/>
+            <circle cx="150" cy="258" r="3"/>
+            <path d="M88 216 L118 210"/>
+            <path d="M182 210 L212 216"/>
+
+            {%- comment -%}
+              One group per point, in block order, so the numeral on the
+              garment and the numeral in the list are the same loop
+              index. Each anchor owns its dashed measurement line, its
+              leader and its slot, and the slots are placed so that no
+              leader crosses another line: three down the left, three
+              down the right, with the length dimension outside them all
+              at x=278 where nothing has to reach across it.
+            {%- endcomment -%}
+            {%- for p in points -%}
+              {%- liquid
+                assign n = forloop.index
+                if use_defaults
+                  assign anchor = p
+                else
+                  assign anchor = p.settings.anchor
+                endif
+              -%}
+              {%- case anchor -%}
+
+                {%- when 'collar' -%}
+                  <g class="lada__diagram-call">
+                    <path d="M132 22 L168 22" stroke-dasharray="3 3"/>
+                    <path d="M132 17 L132 27 M168 17 L168 27"/>
+                    <path d="M33 20 L129 22"/>
+                    <circle cx="24" cy="20" r="9"/>
+                    <text x="24" y="20" dy=".36em" text-anchor="middle" font-size="11"
+                          font-weight="600" fill="currentColor" stroke="none">{{ n }}</text>
+                  </g>
+
+                {%- when 'shoulder' -%}
+                  <g class="lada__diagram-call">
+                    <path d="M92 42 L208 42" stroke-dasharray="3 3"/>
+                    <path d="M92 37 L92 47 M208 37 L208 47"/>
+                    <path d="M243 22 L211 40"/>
+                    <circle cx="250" cy="16" r="9"/>
+                    <text x="250" y="16" dy=".36em" text-anchor="middle" font-size="11"
+                          font-weight="600" fill="currentColor" stroke="none">{{ n }}</text>
+                  </g>
+
+                {%- when 'chest' -%}
+                  <g class="lada__diagram-call">
+                    <path d="M62 124 L238 124" stroke-dasharray="3 3"/>
+                    <path d="M62 119 L62 129 M238 119 L238 129"/>
+                    <path d="M33 124 L58 124"/>
+                    <circle cx="24" cy="124" r="9"/>
+                    <text x="24" y="124" dy=".36em" text-anchor="middle" font-size="11"
+                          font-weight="600" fill="currentColor" stroke="none">{{ n }}</text>
+                  </g>
+
+                {%- when 'armhole' -%}
+                  <g class="lada__diagram-call">
+                    <path d="M202 56 C198 80 210 98 222 118" stroke-dasharray="3 3"/>
+                    <path d="M254 70 L213 53"/>
+                    <circle cx="262" cy="64" r="9"/>
+                    <text x="262" y="64" dy=".36em" text-anchor="middle" font-size="11"
+                          font-weight="600" fill="currentColor" stroke="none">{{ n }}</text>
+                  </g>
+
+                {%- when 'waist' -%}
+                  <g class="lada__diagram-call">
+                    <path d="M62 186 L238 186" stroke-dasharray="3 3"/>
+                    <path d="M62 181 L62 191 M238 181 L238 191"/>
+                    <path d="M33 186 L58 186"/>
+                    <circle cx="24" cy="186" r="9"/>
+                    <text x="24" y="186" dy=".36em" text-anchor="middle" font-size="11"
+                          font-weight="600" fill="currentColor" stroke="none">{{ n }}</text>
+                  </g>
+
+                {%- when 'length' -%}
+                  <g class="lada__diagram-call">
+                    <path d="M278 32 L278 280" stroke-dasharray="3 3"/>
+                    <path d="M272 32 L284 32 M272 280 L284 280"/>
+                    <path d="M278 293 L278 286"/>
+                    <circle cx="278" cy="302" r="9"/>
+                    <text x="278" y="302" dy=".36em" text-anchor="middle" font-size="11"
+                          font-weight="600" fill="currentColor" stroke="none">{{ n }}</text>
+                  </g>
+
+              {%- endcase -%}
+            {%- endfor -%}
+          </svg>
+
+          <ol class="lada__points">
+            {%- for p in points -%}
+              {%- liquid
+                if use_defaults
+                  assign anchor = p
+                  assign plabel = default_labels[forloop.index0]
+                  assign pnote = ''
+                else
+                  assign anchor = p.settings.anchor
+                  assign plabel = p.settings.label
+                  assign pnote = p.settings.note
+                endif
+                # A numeral on the garment with nothing beside it is a
+                # riddle, so a cleared name falls back to the anchor.
+                if plabel == blank
+                  assign plabel = anchor | capitalize
+                endif
+              -%}
+              <li{% unless use_defaults %} {{ p.shopify_attributes }}{% endunless %}>
+                <span class="n" aria-hidden="true">{{ forloop.index }}</span>
+                <span class="lada__point-t">{{ plabel }}</span>
+                {%- if pnote != blank -%}
+                  <span class="lada__point-n">{{ pnote }}</span>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ol>
+        </figure>
+      {%- endif -%}
+
+      <div class="lada__fit-help">
+        {%- comment -%}
+          Hairlines, not a filled panel. The table above it and the
+          drawing beside it are both drawn in 1px rules on the ground,
+          and a bordered tinted box in the middle of them would be the
+          only closed shape in the section.
+        {%- endcomment -%}
+        <h3 class="lada__howto-h">{{ section.settings.help_title | default: 'How to measure' }}</h3>
+        <ul class="lada__howto">
+          {%- comment -%}
+            The text is wrapped rather than measured on the li itself:
+            the li carries the hairline, and a max-width on it stopped
+            every rule 190px short of the chart's rules directly above,
+            which is the one thing a section built out of hairlines
+            cannot afford.
+          {%- endcomment -%}
+          {%- for line in howto -%}
+            <li><span class="lada__howto-t">{{ line | strip }}</span></li>
+          {%- endfor -%}
         </ul>
-        <a class="btn-lada" style="margin-top:var(--s5)"
-           href="https://wa.me/{{ section.settings.whatsapp | default: '923019090590' }}?text={{ 'I need help with Lada sizing.' | url_encode }}"
-           target="_blank" rel="noopener">Send measurements on WhatsApp</a>
+
+        <div class="lada__fit-act">
+          <a class="btn-lada"
+             href="https://wa.me/{{ wa }}?text={{ wa_text | url_encode }}"
+             target="_blank" rel="noopener">
+            {{- section.settings.cta_label | default: 'Send measurements on WhatsApp' -}}</a>
+          {%- if section.settings.secondary_label != blank -%}
+            <a class="lada__link" href="{{ section.settings.secondary_url | default: '#lada-measure' }}">
+              {{- section.settings.secondary_label -}}</a>
+          {%- endif -%}
+        </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -38,13 +310,78 @@
 {
   "name": "Lada sizing",
   "settings": [
-    { "type": "text", "id": "kicker", "label": "Kicker" },
-    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "Fit" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Bespoke sizing" },
     { "type": "textarea", "id": "intro", "label": "Intro" },
-    { "type": "textarea", "id": "rows", "label": "Size rows", "info": "size,chest,waist,length — separate rows with |" },
-    { "type": "text", "id": "help_title", "label": "Help panel title" },
-    { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590" }
+
+    { "type": "header", "content": "The chart" },
+    { "type": "text", "id": "columns", "label": "Column headings",
+      "info": "Comma separated. The first column is the size; every other column is a measurement. Type them in sentence case, the capitals are added by the theme.",
+      "default": "Size,Chest,Waist,Length,Shoulder,Collar" },
+    { "type": "textarea", "id": "rows", "label": "Rows",
+      "info": "One row per line break is not used here: separate rows with a pipe, cells with a comma. Enter inches as plain numbers, no unit, no quotes. Centimetres are worked out by the toggle.",
+      "default": "38R,38,32,29,16.5,15|40R,40,34,29.5,17,15.5|42R,42,36,30,17.5,16|44R,44,38,30.5,18,16.5|46R,46,40,31,18.5,17" },
+    { "type": "text", "id": "caption_in", "label": "Caption, inches",
+      "default": "All measurements in inches, taken on the body." },
+    { "type": "text", "id": "caption_cm", "label": "Caption, centimetres",
+      "default": "All measurements in centimetres, taken on the body." },
+    { "type": "textarea", "id": "table_note", "label": "Note under the chart",
+      "default": "These are body measurements, not the finished garment. The ease a waistcoat needs is added on the cutting table." },
+
+    { "type": "header", "content": "Unit toggle" },
+    { "type": "paragraph", "content": "The chart is written in inches and the toggle converts. It only appears once the theme's script has loaded, so nobody is offered a control that cannot work." },
+    { "type": "text", "id": "units_legend", "label": "Group label", "default": "Units" },
+    { "type": "text", "id": "unit_in_label", "label": "Inches button", "default": "Inches" },
+    { "type": "text", "id": "unit_cm_label", "label": "Centimetres button", "default": "Centimetres" },
+
+    { "type": "header", "content": "How to measure" },
+    { "type": "text", "id": "help_title", "label": "Title", "default": "How to measure" },
+    { "type": "textarea", "id": "howto", "label": "Lines", "info": "Separate with a pipe." },
+
+    { "type": "header", "content": "The drawing" },
+    { "type": "paragraph", "content": "The waistcoat is drawn by the theme, so it needs no photograph. With no point blocks it shows all six standard points; add one block and your blocks take over entirely. Untick the box to drop the drawing and run the chart full width." },
+    { "type": "checkbox", "id": "show_diagram", "label": "Show the drawing", "default": true },
+    { "type": "text", "id": "diagram_title", "label": "Caption", "default": "Where we measure" },
+    { "type": "text", "id": "default_labels", "label": "Standard point names",
+      "info": "Used only until you add point blocks. Comma separated, in this order: collar, shoulder, chest, armhole, waist, length.",
+      "default": "Collar,Shoulder,Chest,Armhole,Waist,Length" },
+
+    { "type": "header", "content": "Routes" },
+    { "type": "text", "id": "cta_label", "label": "Button", "default": "Send measurements on WhatsApp" },
+    { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590" },
+    { "type": "textarea", "id": "whatsapp_text", "label": "Pre-filled message" },
+    { "type": "text", "id": "secondary_label", "label": "Secondary link", "default": "Or be measured in the shop" },
+    { "type": "url", "id": "secondary_url", "label": "Secondary link URL" }
   ],
-  "presets": [{ "name": "Lada sizing" }]
+  "blocks": [
+    { "type": "point", "name": "Measurement point", "settings": [
+      { "type": "select", "id": "anchor", "label": "Where it sits on the drawing",
+        "info": "Two blocks on the same anchor will print two numerals on top of each other.",
+        "options": [
+          { "value": "collar",   "label": "Collar" },
+          { "value": "shoulder", "label": "Shoulder" },
+          { "value": "chest",    "label": "Chest" },
+          { "value": "armhole",  "label": "Armhole" },
+          { "value": "waist",    "label": "Waist" },
+          { "value": "length",   "label": "Length" }
+        ],
+        "default": "chest" },
+      { "type": "text", "id": "label", "label": "Name", "default": "Chest" },
+      { "type": "text", "id": "note", "label": "Note", "info": "Optional. Keep it to a few words." }
+    ]}
+  ],
+  "max_blocks": 6,
+  "presets": [
+    { "name": "Lada sizing",
+      "blocks": [
+        { "type": "point", "settings": { "anchor": "collar",   "label": "Collar" } },
+        { "type": "point", "settings": { "anchor": "shoulder", "label": "Shoulder" } },
+        { "type": "point", "settings": { "anchor": "chest",    "label": "Chest" } },
+        { "type": "point", "settings": { "anchor": "armhole",  "label": "Armhole" } },
+        { "type": "point", "settings": { "anchor": "waist",    "label": "Waist" } },
+        { "type": "point", "settings": { "anchor": "length",   "label": "Length" } }
+      ]
+    }
+  ]
 }
 {% endschema %}
