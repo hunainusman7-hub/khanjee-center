@@ -18,8 +18,8 @@ Several of these were wrong in the previous handoff and cost hours.
 | public | `www.khanjeecenter.com` (password-protected, **`skublu`**) |
 | **NOT** | `khanjeecenter.myshopify.com` — that handle 404s. It is in the old handoff and it misled a research agent once. |
 | base theme | **Horizon**, not Dawn (`theme_store_id 2481`) |
-| live theme | **`158384455853`** "Khan Jee — v2.7 Lada complete + store band" |
-| rollback | `158241357997` (v2.6), then `158240669869` (v2.5) |
+| live theme | **`158461001901`** "Khan Jee — v2.8 Lada gateway" |
+| rollback | `158384455853` (v2.7), then `158241357997` (v2.6) |
 | CDN slot | changes on every publish. **Probing 6-20 no longer works**: old slots are not purged, so several return 200 at once. Identify it by content you can date, not by status code. |
 | location | `gid://shopify/Location/88274272429` |
 | repo | `hunainusman7-hub/khanjee-center`, branch `claude/marquee-fonts-logos`, remote `fork` |
