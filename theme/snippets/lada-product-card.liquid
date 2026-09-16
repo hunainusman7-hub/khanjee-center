@@ -1,124 +1,101 @@
 {%- comment -%}
   snippets/lada-product-card.liquid
 
-  A FORK of snippets/product-card.liquid, not a restyle of it.
+  A FORK of snippets/product-card.liquid, not a restyle of it. The shared
+  .pcard sells other people's cloth under Khan Jee's name, so it carries
+  a white-label vendor rule, a KJC SKU fallback, a compare-at
+  strikethrough, a percent-off chip, a Khan Jee Seal badge and a
+  pre-order chip. Lada is the house's own label: no supplier to hide,
+  nothing discounted, and a seal badge on a Lada card would be the house
+  stamping its own name on its own garment. Overriding six rules off a
+  shared snippet is how that snippet ends up owned by two pages and safe
+  to edit for neither, so this stays a separate file.
 
-  Why fork. The shared .pcard exists to sell other people's cloth under
-  Khan Jee's name: it carries the white-label vendor rule (only Dynasty
-  and Pasha are allowed to show a supplier name, everything else falls
-  back to a KJC SKU), a compare-at strikethrough, a percent-off chip, a
-  Khan Jee Seal badge and a pre-order chip. Lada is the house's own
-  label. There is no supplier to hide, nothing is ever discounted, and
-  a seal badge on a Lada card would be the house stamping its own name
-  on its own garment. Overriding six rules off a shared snippet with
-  `.lada .pcard__*` selectors is how that snippet ends up owned by two
-  pages and safe to edit for neither, so this is a separate file.
+  WHY THIS FILE WAS CUT DOWN, AND WHAT CAME OFF.
+  The previous version of this card carried six things. The client
+  rejected the whole Lada build for the same reason each time: too much
+  writing, too many options, and words no customer would use. The
+  reference he gave is faizasaqlain.pk, where a card is a photograph and
+  a name and nothing else. So the following were deleted outright and
+  must not come back:
 
-  What the card carries, and it is deliberately only this:
-    1. the primary photograph at 4:5
-    2. a cloth-and-cut eyebrow, 11px caps
-    3. the piece name, 15px/500, sentence case
-    4. the price, 15px/500, the same size as the name
+    - the cloth-and-cut eyebrow (lada.cloth / lada.cut / custom.by_fabric).
+      It was there to teach the filter vocabulary while you browsed.
+      Everything in Lada is cotton, so it taught one word, and that word
+      was on every card.
+    - the made-to-measure price substitution and its "Measured in the
+      shop" link. Alamghir is cut to measurement as a matter of course,
+      so the exception was the rule, and the price slot is for a price.
+      The client has confirmed prices are shown and products add to the bag.
+    - every badge, chip and seal
+    - the SKU
+    - the compare-at price and the percent-off figure
+    - any swatch. Colour is chosen in the quick view panel or on the
+      product page, not on a card in a grid.
 
-  No SKU, no badge, no swatch, no rating, no compare-at price. The
-  title is the real title: the shared card splits on " (em dash) " to
-  strip the white-label suffix off imported titles, which is exactly
-  the behaviour Lada must not inherit, because a Lada piece has a
-  proper name (Zafraan, not SEQUINS EMBELLISHED WAISTCOAT NA-WC130)
-  and any punctuation in it is part of that name.
+  WHAT IS LEFT, AND IT IS DELIBERATELY ONLY THIS:
+    1. the primary photograph at 4:5, same ratio as .pcard__media site-wide
+    2. the piece name, 15px/500, sentence case
+    3. the price, 15px/500, tabular, same size as the name and never
+       larger, never coloured
+
+  Plus two controls, both of which live over the bottom of the plate on
+  a pointer device and in the card's own flow on touch. They are not a
+  fourth and fifth thing on the card: at rest on a desktop the card is
+  the photograph, the name and the price, and nothing else is painted.
+
+  The title is the real title. The shared card splits on " (em dash) " to
+  strip a white-label suffix off imported titles, which is exactly the
+  behaviour Lada must not inherit: a Lada piece has a proper name and any
+  punctuation in it is part of that name.
 
   Usage:
     {% render 'lada-product-card', product: product, index: forloop.index0,
-       mtm_tag: mtm_tag, mtm_label: mtm_label, mtm_url: mtm_url,
-       add_label: add_label, options_label: options_label,
-       sold_label: sold_label, divider: divider %}
+       quickview_label: quickview_label, add_label: add_label,
+       sold_label: sold_label %}
 
-  Every label above is a string the client owns in the section schema,
-  so nothing customer-visible is hard-coded in here. The defaults below
-  are only the fallback for a caller that forgets to pass one.
+  Every label is a string the client owns in the calling section's
+  schema, so nothing customer-visible is hard-coded here. The defaults
+  below are only the fallback for a caller that forgets to pass one, and
+  they are sentence case on purpose: uppercase on this card comes from
+  text-transform in CSS and is never typed into a setting value.
+
+  Callers may still pass mtm_tag, mtm_label, mtm_url, options_label and
+  divider. They are ignored rather than rejected, so sections/lada-collection
+  .liquid keeps rendering while it is being cut down in its own pass.
 {%- endcomment -%}
 
 {%- liquid
-  assign mtm_label     = mtm_label     | default: 'Measured in the shop'
-  assign mtm_url       = mtm_url       | default: '#lada-measure'
-  assign add_label     = add_label     | default: 'Add to bag'
-  assign options_label = options_label | default: 'Choose options'
-  assign sold_label    = sold_label    | default: 'Sold out'
-  assign divider       = divider       | default: '|'
+  assign quickview_label = quickview_label | default: 'Quick view'
+  assign add_label       = add_label       | default: 'Add to bag'
+  assign sold_label      = sold_label      | default: 'Sold out'
 
   # The hover pair. Frame 2 is a second model frame from the same set,
   # never a detail shot. If a product has only one image there is no
-  # pair, and .lcard--pair is simply never added, so the hover rules do
-  # not exist for that card at all. That is the whole no-phantom-state
-  # fix: not a hover that fades to the same picture, no hover.
+  # pair and .lcard--pair is never added, so the hover rules do not
+  # exist for that card at all. That is the whole no-phantom-state fix:
+  # not a hover that cross-fades a photograph into itself, no hover.
   assign alt_media = null
   if product.media.size > 1
     assign alt_media = product.media[1]
   endif
 
-  # The eyebrow teaches the filter vocabulary while you browse, so it
-  # wants cloth and cut, not a product type. lada.cloth / lada.cut are
-  # the intended source; custom.by_fabric is what the existing import
-  # already populates, and product.type is the last resort. Nothing is
-  # invented: if none of them are set the eyebrow is skipped and the
-  # name moves up.
-  assign cloth = product.metafields.lada.cloth.value | default: product.metafields.custom.by_fabric.value
-  assign cut   = product.metafields.lada.cut.value
-  assign eyebrow = ''
-  if cloth != blank and cut != blank
-    assign eyebrow = cloth | append: ' ' | append: divider | append: ' ' | append: cut
-  elsif cloth != blank
-    assign eyebrow = cloth
-  elsif cut != blank
-    assign eyebrow = cut
-  elsif product.type != blank
-    assign eyebrow = product.type
-  endif
-
-  # Two-tier pricing. Standard 38R to 46R pieces are priced openly;
-  # made to measure genuinely has no list price, so the price slot
-  # becomes a route to the measuring service instead. Read from a
-  # metafield if one exists, otherwise from a tag, because a tag is
-  # something the client can set himself without a metafield
-  # definition. Handleized on both sides so "Made to Measure" and
-  # "made-to-measure" are the same tag.
-  #
-  # A zero price counts as made to measure too. Nine of the study
-  # set's worst product cards are the ones printing a real currency
-  # symbol against 0.00 because a variant was never priced.
-  assign is_mtm = false
-  if product.metafields.lada.made_to_measure.value
-    assign is_mtm = true
-  endif
-  assign mtm_key = mtm_tag | default: 'made-to-measure' | handleize
-  for t in product.tags
-    assign t_key = t | handleize
-    if t_key == mtm_key
-      assign is_mtm = true
-    endif
-  endfor
-  if product.price == 0
-    assign is_mtm = true
-  endif
-
-  # Every frame in this grid is lazy, including the first row.
-  #
-  # The shared .pcard eager-loads its first four because it is used on
-  # collection templates where the grid IS the first thing on the page.
-  # This grid is not: page.lada.json puts lada-collection third, behind
-  # a full-plate lada-hero and the lada-proof band, so on no viewport is
-  # row one in the first screen. Eager-loading four 4:5 garment frames
-  # there does not make them arrive sooner, it makes them compete with
-  # the hero plate, which is the actual LCP element. `index` is still
-  # taken so a caller that does promote this grid above the fold has
-  # something to branch on.
+  # Every frame in this grid is lazy, including the first row, and
+  # `index` is accepted only so a caller has something to pass. The
+  # shared .pcard eager-loads its first four because it sits on a
+  # template where the grid IS the top of the page. This grid never is:
+  # on the gateway it sits behind a full-plate hero, and on the two
+  # listings it sits behind the page heading and the filter rail. Eager
+  # loading four 4:5 garment frames there does not make them arrive
+  # sooner, it makes them compete with the element that is actually the
+  # LCP.
   assign loading = 'lazy'
 
-  # Never ask Shopify for a width the source file does not have: an
+  # Never ask Shopify for a width the source file does not have. An
   # upscale request returns the native file anyway but writes a
   # candidate the browser may pick on a 3x screen and then render soft.
-  # The native width is always the last candidate, and the smaller
-  # steps are only added when the source actually clears them.
+  # The native width is always the last candidate and the smaller steps
+  # are only added when the source actually clears them.
   assign main_w = product.featured_media.width | default: 900
   assign main_src_w = 600
   if main_w < main_src_w
@@ -129,6 +106,15 @@
   if alt_w < alt_src_w
     assign alt_src_w = alt_w
   endif
+
+  # A price slot is only rendered when it has something true to say. A
+  # product sitting at 0.00 because a variant was never priced must not
+  # print a currency symbol against nothing, and inventing a phrase to
+  # fill the gap is the writing this card was cut down to remove.
+  assign has_price = false
+  if product.price > 0
+    assign has_price = true
+  endif
 -%}
 
 {%- capture card_sizes -%}(min-width:1240px) 283px, (min-width:1100px) 23vw, (min-width:760px) 31vw, 46vw{%- endcapture -%}
@@ -137,22 +123,21 @@
 
   {%- comment -%}
     The image link is marked decorative so the name below stays the one
-    announced link. Adding a second real link to the same product would
-    make every card announce itself twice and double the tab stops
-    across a twelve-card grid.
+    announced link. A second real link to the same product would make
+    every card announce itself twice and double the tab stops across a
+    twelve-card grid.
 
     Its ::after covers the PHOTOGRAPH, not the whole card: this element
     is both .lcard__media and .lcard__link, and .lcard__media is the
-    position:relative box, so inset:0 resolves to the plate. That is
-    deliberate. Stretching the overlay across the text would swallow the
-    made-to-measure link sitting in the price slot, which is the one
-    place on this card where a second destination is the whole point.
+    position:relative box, so inset:0 resolves to the plate. The two
+    controls sit above it on z-index and stay clickable.
 
-    With no picked image at all the box is simply left empty: .lcard__media
-    holds the 4:5 ratio and paints --lada-panel, so an unshot piece reads
-    as a reserved plate rather than a broken img or a collapsed row. The
-    Lada shoot is still one photograph long, so this is the state a lot
-    of these cards ship in and it has to look intentional.
+    With no picked image the box is simply left empty. .lcard__media
+    holds the 4:5 ratio and paints --lada-panel, so an unshot piece
+    reads as a reserved plate rather than a broken img or a collapsed
+    row. The client loads every photograph himself after handover, so
+    this is the state the whole grid ships in and it has to look
+    intentional rather than broken.
   {%- endcomment -%}
   <a class="lcard__media lcard__link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
     {%- if product.featured_media -%}
@@ -181,69 +166,102 @@
     {%- endif -%}
   </a>
 
-  {%- if eyebrow != blank -%}
-    <p class="lcard__eyebrow">{{ eyebrow }}</p>
-  {%- endif -%}
-
   <h3 class="lcard__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
 
   {%- comment -%}
     Price slot. Never a compare-at, never a percentage, never coloured,
-    never larger than the name. Sold out rides in this line as 11px caps
-    rather than as a chip over the photograph, because the photograph is
-    the product and a chip is the first thing that turns a wall of
-    garments back into a stock table. It also has to stay legible on a
-    touch device, where the action row below only exists to be tapped.
+    never larger than the name.
+
+    product.price is the lowest variant price. Alamghir is priced by the
+    piece and Ready to Wear by the garment, not by the size, so in
+    practice every variant of a Lada product carries the same figure and
+    a "from" prefix would be a word added to every card to describe a
+    case that does not occur. If the client ever prices S below L, the
+    prefix is a one-line change here and a new setting, not a redesign.
+
+    Sold out rides in this line as 11px caps rather than as a chip over
+    the photograph, because a chip is the first thing that turns a wall
+    of garments back into a stock table. It stays because the add to bag
+    control disappears when a piece is unavailable, and a card that
+    silently loses its only button reads as a bug.
   {%- endcomment -%}
-  <p class="lcard__price">
-    {%- if is_mtm -%}
-      <a href="{{ mtm_url }}">{{ mtm_label }}</a>
-    {%- else -%}
-      <span>{{ product.price | money }}</span>
-      {%- unless product.available -%}
-        <span class="lcard__state">{{ sold_label }}</span>
-      {%- endunless -%}
-    {%- endif -%}
-  </p>
+  {%- if has_price or product.available == false -%}
+    <p class="lcard__price">
+      {%- if has_price -%}<span>{{ product.price | money }}</span>{%- endif -%}
+      {%- unless product.available -%}<span class="lcard__state">{{ sold_label }}</span>{%- endunless -%}
+    </p>
+  {%- endif -%}
 
   {%- comment -%}
-    The action row.
+    The controls.
 
-    On a pointer device it is placed into the photograph's own grid cell
-    and bottom-aligned, so the resting grid stays pure photography and
-    the button rises over the bottom of the plate on hover. On anything
-    without hover the same markup is just the last item in the card's
-    flex column: a permanent 44px target, in flow, never a floating bar
-    and never a black strip parked across every tablet photograph.
+    LAST IN THE DOM ON PURPOSE. On a pointer device CSS moves this block
+    into the photograph's own grid cell and bottom-aligns it, so the
+    resting grid stays pure photography and the controls rise over the
+    bottom of the plate on hover. Placing it by grid area rather than by
+    position:absolute is what lets the name and the price stay ABOVE it
+    in source order. The shared .pcard had to wrap its image in a
+    .pcard__top so `bottom` had something to resolve against, and that
+    wrapper is exactly what forces its button in front of the name and
+    the price for a screen reader. Same overlay, honest reading order.
 
-    Placing it by grid area rather than by position:absolute is what
-    lets the price sit ABOVE it in the DOM. The shared .pcard had to
-    wrap the image in a .pcard__top so `bottom` had something to
-    resolve against, which forced the button in front of the name and
-    price in source order. Same overlay, honest reading order.
+    On anything without hover the same markup is just the last item in
+    the card's flex column: permanent 44px targets, in flow, never a
+    floating bar and never a black strip parked across every tablet
+    photograph.
 
-    Made to measure gets no action row at all. Its price slot is
-    already the route to the measuring service, and a second button
-    saying the same thing is the fifth element this card refuses to
-    carry.
+    QUICK VIEW. A real <button>, not a link, because it opens a panel on
+    this page rather than going anywhere. Another agent owns that panel
+    and its JS; this file only emits the trigger and the two attributes
+    the panel reads, data-lada-quickview and data-product-url.
+
+    Its accessible name is built from visible text plus a visually
+    hidden piece title, not from an aria-label. Two reasons. A grid of
+    twelve buttons all named "Quick view" is unusable with a screen
+    reader's element list, and an aria-label would replace the visible
+    words, which breaks voice control for anyone who says "click quick
+    view". Concatenating gives "Quick view, Zafraan" while the button
+    still matches on the words a person can see.
+
+    With JavaScript off the trigger does nothing, which is the same
+    bargain Shopify's own quick add makes in the base theme. It costs
+    nothing here because the photograph and the name are both real links
+    to the product page, so the card is never a dead end.
+
+    ADD TO BAG. Unchanged contract: assets/kj-cart.js listens for submit
+    on form[data-kj-atc], posts to /cart/add.js, and writes any failure
+    into [data-kj-atc-error] inside that form. Do not invent a new hook
+    here. Without JS it is still a plain form post to /cart/add and still
+    buys the piece.
+
+    The form only renders for a genuinely single-variant piece, which on
+    Lada is the exception: Alamghir carries colour options and Ready to
+    Wear carries S, M and L. Everything else gets the quick view trigger
+    alone. The old "Choose options" link is gone because that is now the
+    quick view's entire job, and two controls a centimetre apart sending
+    a customer to the same place is the overwhelm the client rejected.
   {%- endcomment -%}
-  {%- unless is_mtm -%}
+  <div class="lcard__act">
+    <button class="lcard__quick lcard__quick--view" type="button"
+            data-lada-quickview
+            data-product-url="{{ product.url }}">
+      <span class="lcard__quick-t">{{ quickview_label }}</span>
+      <span class="vh">, {{ product.title }}</span>
+    </button>
+
     {%- if product.available and product.variants.size == 1 -%}
-      <form class="lcard__act" action="{{ routes.cart_add_url }}" method="post"
+      <form class="lcard__add" action="{{ routes.cart_add_url }}" method="post"
             enctype="multipart/form-data" data-kj-atc>
         <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
         <input type="hidden" name="quantity" value="1">
-        <button type="submit" class="lcard__quick">
+        <button type="submit" class="lcard__quick lcard__quick--add">
           <span class="lcard__quick-t">{{ add_label }}</span>
+          <span class="vh">, {{ product.title }}</span>
           <span class="lcard__spin" aria-hidden="true"></span>
         </button>
         <p class="lcard__err" data-kj-atc-error role="alert" hidden></p>
       </form>
-    {%- elsif product.available -%}
-      <div class="lcard__act">
-        <a class="lcard__quick" href="{{ product.url }}">{{ options_label }}</a>
-      </div>
     {%- endif -%}
-  {%- endunless -%}
+  </div>
 
 </article>

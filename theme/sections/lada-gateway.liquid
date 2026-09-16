@@ -1,0 +1,233 @@
+{%- comment -%}
+  sections/lada-gateway.liquid — the whole of /pages/lada.
+
+  WHAT THIS REPLACES. The Lada page was nine sections: hero, proof
+  seals, a filtered grid, a three-stage craft story, a snapping
+  lookbook, a measuring service, a sizing table, a guarantee and a
+  house card. The client read it and said the same thing three times:
+  too much writing, too many choices, words a customer would not use.
+  He is right. A man who has never heard of Lada cannot be asked to
+  read eight hundred words before he is allowed to see a waistcoat.
+
+  So the page is now one screen with two doors on it, and nothing else.
+  The reference the client gave is faizasaqlain.pk, where the entire
+  copy above the grid is the single word "Bridals" and the photographs
+  do all the remaining work. Everything under Lada is cotton and there
+  are exactly two ways in:
+
+    Alamghir       unstitched cotton, cut to the customer's measurement
+    Ready to wear  stitched waistcoats in S, M, L
+
+  DO NOT ADD A KICKER, A LEDE, AN INTRO, A SCROLL CUE OR A SEAL ROW
+  BACK TO THIS FILE. Every one of those was here before and every one
+  of them is why the page was rejected. If a thing needs a paragraph to
+  justify itself on this screen, it belongs on the collection page
+  behind the door, not in front of it.
+
+  THE DOORS MUST NEVER DISAPPEAR. /collections/alamghir and
+  /collections/lada-ready-to-wear do not exist yet — the client creates
+  them himself. An earlier pattern in this theme hides a link when the
+  collection is missing, which here would leave a visitor staring at
+  half a screen. Instead the handle is a setting, the URL is built by
+  hand when the collection is not there yet, and the door renders and
+  404s until the day it does not. Wrong-but-present beats absent.
+
+  NO PHOTOGRAPHS IS THE SHIPPING STATE, not an error state. The client
+  shoots these later. With nothing picked a door is a --lada-panel
+  plate with a champagne hairline and its name on it, which is a
+  dignified thing to look at, not a grey box with a torn-image glyph.
+  That is also why the asset-filename fallbacks default to empty rather
+  than to some other product's picture: a borrowed photograph of a
+  waistcoat on the unstitched door would be a lie, and lies are worse
+  than blanks. men-unstitched.jpg and lada-waistcoats.jpg are already
+  in assets/ if he wants a stand-in before the shoot.
+{%- endcomment -%}
+
+{%- liquid
+  assign crest_label = section.settings.mark_label | default: 'Lada'
+-%}
+
+<section class="lada lada-gate" aria-labelledby="lada-gate-h">
+
+  {%- comment -%}
+    ONE h1 ON THE PAGE, ALWAYS, AND IT IS THE LABEL'S NAME.
+
+    The mark is optional because the header already says Lada, so on a
+    phone the client may want the doors to take the whole screen. But
+    the heading cannot be optional with it: a page whose only headings
+    are two door names has no top-level heading at all, and a screen
+    reader user landing here gets two h2s and no idea where he is. So
+    the checkbox switches the mark between drawn and .vh, never between
+    present and absent. .vh is site.css's clip utility.
+
+    The section is named by this heading with aria-labelledby rather
+    than by a repeated aria-label, which is how lada-band already does
+    it: one string, edited in one place, and no chance of the landmark
+    and the heading drifting apart.
+
+    The mark is the client's own artwork on a transparent ground, which
+    is why it is an <img> and not type — see snippets/kj-mark.liquid.
+    It is the first paint on its own page, so it loads eagerly.
+  {%- endcomment -%}
+  {%- if section.settings.show_mark -%}
+    <h1 class="lada-gate__crest" id="lada-gate-h">
+      {%- render 'kj-mark', mark: 'lada', label: crest_label, loading: 'eager' -%}
+    </h1>
+  {%- else -%}
+    <h1 class="lada-gate__crest vh" id="lada-gate-h">{{ crest_label }}</h1>
+  {%- endif -%}
+
+  {%- comment -%}
+    A list of two, so the doors are announced as "list, 2 items" and a
+    visitor knows the choice is finished before he starts reading it.
+    role="list" because list-style:none drops list semantics in Safari.
+  {%- endcomment -%}
+  <ul class="lada-gate__doors" role="list">
+    {%- for i in (1..2) -%}
+      {%- comment -%}
+        ONLY THE NAME IS DEFAULTED HERE, AND THAT IS ON PURPOSE.
+
+        `| default:` fires on an empty string as well as on nil, so a
+        setting that carries one can never be emptied: the client
+        deletes the line in the editor, saves, and the old words come
+        straight back. On the note that is the wrong behaviour twice
+        over. The complaint that produced this page was too much
+        writing, so deleting a line has to be a thing he can do; and
+        the `{% if note != blank %}` below could never be false, which
+        is dead code pretending to be a guard. The schema default still
+        writes both lines when the section is first added, so nothing
+        changes out of the box — only the delete key starts working.
+        Same for the handle: with a default here the blank-handle
+        branch under this comment was unreachable.
+
+        The name keeps its default, because a door with no name and an
+        empty alt on its photograph is a link with no accessible name
+        at all. That one is worth forcing.
+      {%- endcomment -%}
+      {%- liquid
+        case i
+          when 1
+            assign pic    = section.settings.door1_image
+            assign file   = section.settings.door1_asset
+            assign name   = section.settings.door1_name | default: 'Alamghir'
+            assign note   = section.settings.door1_note
+            assign handle = section.settings.door1_handle
+          when 2
+            assign pic    = section.settings.door2_image
+            assign file   = section.settings.door2_asset
+            assign name   = section.settings.door2_name | default: 'Ready to wear'
+            assign note   = section.settings.door2_note
+            assign handle = section.settings.door2_handle
+        endcase
+
+        # collections[handle] on a handle that does not exist yet returns an
+        # empty drop whose .url is blank, and href="" reloads the current
+        # page — which is the one failure mode a gateway cannot have. So the
+        # path is composed from routes.collections_url when the collection is
+        # missing. The instant the client creates it, the first branch takes
+        # over and the link starts resolving with no edit here.
+        assign target = collections[handle]
+        if target.id
+          assign href = target.url
+        elsif handle != blank
+          assign href = routes.collections_url | append: '/' | append: handle
+        else
+          assign href = routes.all_products_collection_url
+        endif
+
+        # Never ask Shopify for a width the file does not have: asking 1600
+        # of a 900px upload returns a 1.8x upscale that can only look soft.
+        # Candidates are emitted only up to the file's own width, capped at
+        # 2000 so a 6000px camera original does not get served to a laptop.
+        assign cap = 0
+        if pic != blank
+          assign cap = pic.width
+          if cap > 2000
+            assign cap = 2000
+          endif
+        endif
+      -%}
+      <li class="lada-gate__cell">
+        <a class="lada-gate__door{% if pic == blank and file == blank %} lada-gate__door--bare{% endif %}"
+           href="{{ href }}">
+
+          {%- comment -%}
+            alt is empty on purpose. The door's accessible name is the two
+            lines of text inside the same anchor, and a described
+            photograph would be read out on top of them, so the same link
+            would announce twice. Decorative is the correct call whenever
+            readable text sits in the link with the image.
+
+            Both doors load eagerly: side by side on desktop they are both
+            in the first screen, and lazy-loading the right-hand one would
+            leave half the page blank on arrival.
+          {%- endcomment -%}
+          {%- if pic != blank -%}
+            <span class="lada-gate__media">
+              <img src="{{ pic | image_url: width: cap }}"
+                   srcset="{%- if cap > 700 %}{{ pic | image_url: width: 700 }} 700w,{% endif -%}
+                           {%- if cap > 1100 %}{{ pic | image_url: width: 1100 }} 1100w,{% endif -%}
+                           {%- if cap > 1500 %}{{ pic | image_url: width: 1500 }} 1500w,{% endif -%}
+                           {{ pic | image_url: width: cap }} {{ cap }}w"
+                   sizes="(min-width:600px) 50vw, 100vw"
+                   width="{{ pic.width }}" height="{{ pic.height }}"
+                   loading="eager"{% if i == 1 %} fetchpriority="high"{% endif %} decoding="async" alt="">
+            </span>
+          {%- elsif file != blank -%}
+            {%- comment -%}
+              A typed filename has no dimensions Liquid can read, so no
+              width/height here. It costs nothing: the box is sized by the
+              door, not by the image, so there is no shift either way.
+            {%- endcomment -%}
+            <span class="lada-gate__media">
+              <img src="{{ file | asset_url }}"
+                   loading="eager"{% if i == 1 %} fetchpriority="high"{% endif %} decoding="async" alt="">
+            </span>
+          {%- endif -%}
+
+          <span class="lada-gate__plate">
+            <span class="lada-gate__name">{{ name }}</span>
+            {%- if note != blank -%}
+              <span class="lada-gate__note">{{ note }}</span>
+            {%- endif -%}
+          </span>
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+</section>
+
+{% schema %}
+{
+  "name": "Lada gateway",
+  "settings": [
+    { "type": "paragraph",
+      "content": "The whole Lada page. Two doors, nothing else. Please do not add a heading, an intro or a strapline above them. The photographs and the two names are the design." },
+
+    { "type": "checkbox", "id": "show_mark", "label": "Show the Lada mark above the doors", "default": true },
+    { "type": "text", "id": "mark_label", "label": "Page name", "default": "Lada",
+      "info": "Read out by screen readers, and used as the page heading when the mark is hidden. Type it in normal case; the uppercase on the doors is added by the design." },
+
+    { "type": "header", "content": "Left door" },
+    { "type": "image_picker", "id": "door1_image", "label": "Photograph" },
+    { "type": "text", "id": "door1_asset", "label": "…or theme asset filename",
+      "info": "Used only when no photograph is picked. men-unstitched.jpg is already in the theme if you want a stand-in. Leave empty and the door is a plain panel, which is fine." },
+    { "type": "text", "id": "door1_name", "label": "Name", "default": "Alamghir" },
+    { "type": "text", "id": "door1_note", "label": "What it is", "default": "Unstitched cotton, cut to your size",
+      "info": "A few plain words. Keep it short, or clear the box and the door shows the name on its own." },
+    { "type": "text", "id": "door1_handle", "label": "Collection handle", "default": "alamghir",
+      "info": "The end of the web address, for example alamghir for /collections/alamghir. The door works the moment you create that collection. Clear the box and it opens all products instead." },
+
+    { "type": "header", "content": "Right door" },
+    { "type": "image_picker", "id": "door2_image", "label": "Photograph" },
+    { "type": "text", "id": "door2_asset", "label": "…or theme asset filename",
+      "info": "Used only when no photograph is picked. lada-waistcoats.jpg is already in the theme if you want a stand-in." },
+    { "type": "text", "id": "door2_name", "label": "Name", "default": "Ready to wear" },
+    { "type": "text", "id": "door2_note", "label": "What it is", "default": "Stitched waistcoats, S to L",
+      "info": "Clear the box and the door shows the name on its own." },
+    { "type": "text", "id": "door2_handle", "label": "Collection handle", "default": "lada-ready-to-wear",
+      "info": "Clear the box and it opens all products instead." }
+  ],
+  "presets": [{ "name": "Lada gateway" }]
+}
+{% endschema %}

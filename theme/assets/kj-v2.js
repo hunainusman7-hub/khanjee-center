@@ -839,3 +839,918 @@
     revealWithin(t);
   });
 }());
+
+/* ---------------- lada quick view (16 Sep 2026) ---------------- */
+/* ============================================================
+   LADA QUICK VIEW — behaviour for snippets/lada-quick-view.liquid
+   Merge target: assets/kj-v2.js, appended as its own IIFE at the end
+   of the file, alongside the two Lada IIFEs already there. It shares
+   no state with anything and exports nothing, so it can be dropped in
+   without touching a line of what is above it.
+
+   Nothing here is required to buy. The panel is an enhancement on top
+   of two real links: the card's photograph and its name both go to the
+   product page, and that page is the whole truth. If this file is
+   blocked, 404s or is still parsing, the quick view button does
+   nothing and every card is still a working route to a product.
+
+   THE ONE THING TO KNOW BEFORE EDITING. Everything below is delegated
+   from `document` and every element is looked up at the moment it is
+   used, never cached in a closure. The panel and the grid live inside
+   sections/lada-collection.liquid, and a filter change re-renders that
+   section through the Section Rendering API — which replaces both the
+   cards AND the dialog node. assets/kj-cart.js learned this the same
+   way with the bag drawer and looks up [data-kj-drawer] on every call;
+   this file follows it.
+   ============================================================ */
+(function () {
+  'use strict';
+
+  /* Where the panel looks for its content inside the fetched section,
+     in order.
+
+     data-lada-qv-content / data-lada-qv-media first, so any section can
+     nominate its own buying column and lead frame and be picked up with
+     no change here. Then sections/main-product-lada.liquid's .lpdp__
+     names, which is what product.lada.json renders. Then the shared
+     product page's .pdp__ names, so the panel still answers for a Lada
+     product that has not been given the Lada template yet.
+
+     Three names rather than one because the Lada product section
+     deliberately does NOT reuse .pdp__form and .pdp__buy: kj-v2.js
+     binds those at parse time for <select> options and that page needs
+     radios. Its reasons are good and this file follows the markup
+     rather than asking it to change. */
+  var CONTENT_SEL = ['[data-lada-qv-content]', '.lpdp__info', '.pdp__info'];
+
+  /* Every entry names the product's OWN media region. There is no bare
+     `img` at the end of this list and there must never be one again.
+     The second request in load() asks for the plain product URL, so the
+     document being searched is then the WHOLE page: header, footer and
+     sections/main-product.liquid's .pdp__rel-grid of other products. A
+     piece with no photograph yet — which is how every Lada product
+     ships until the client loads his shoot — matched none of the real
+     selectors, fell through to `img`, and the panel showed A DIFFERENT
+     PRODUCT'S photograph as this one's lead frame. An empty plate is
+     the honest answer and buildMedia now always draws one. */
+  var MEDIA_SEL = ['[data-lada-qv-media]', '.lpdp__frame img', '.lpdp__img',
+                   '.pdp__stage img', '.pdp__gal img'];
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) {
+    return Array.prototype.slice.call((root || document).querySelectorAll(sel));
+  }
+  function dialog() { return $('[data-lada-qv]'); }
+  function isOpen() { var d = dialog(); return !!(d && d.hasAttribute('open')); }
+
+  /* Raw section HTML, keyed by product url, for this page view only.
+     Re-opening the same card is then instant and silent. Nothing is
+     stored across navigations: a price or a stock state going stale in
+     a tab left open all afternoon is exactly what the Section
+     Rendering API is here to prevent. */
+  var cache = {};
+  var token = 0;            /* the open this response belongs to */
+  var lastTrigger = null;   /* the card button that opened the panel */
+  var pendingReturn = null; /* a trigger owed focus once the bag closes */
+  var bagWatch = null;
+
+  /* ---------------------------------------------------------------
+     1. OPEN
+     --------------------------------------------------------------- */
+
+  function open(trigger) {
+    var dlg = dialog();
+    if (!dlg || dlg.hasAttribute('open')) return;
+
+    var url = trigger.getAttribute('data-product-url') ||
+              trigger.getAttribute('href');
+    if (!url || url.charAt(0) === '#') return;
+
+    /* showModal is what makes this a modal dialog: top layer, the rest
+       of the document inert, Escape, and a focus trap, all from the
+       browser. Without it there is no honest way to be modal that does
+       not start writing `inert` on the same elements kj-cart.js writes
+       it on — so instead of half a dialog, the customer gets the real
+       product page, which is where the button was pointing anyway. */
+    if (typeof dlg.showModal !== 'function') { window.location.href = url; return; }
+
+    lastTrigger = trigger;
+    pendingReturn = null;
+
+    /* The name is set BEFORE the dialog opens so it has its real
+       accessible name from the first frame. It comes from the card,
+       because the card already has it and the fetch has not happened
+       yet. Once the section lands, its own heading wins. */
+    setTitle(titleFor(trigger));
+    setFullHref(url);
+
+    reset();
+    try { dlg.showModal(); } catch (e) { window.location.href = url; return; }
+
+    document.documentElement.classList.add('lada-qv-lock');
+
+    /* Focus the close button, the same place the bag drawer starts.
+       showModal already moves focus into the dialog, but which element
+       it picks differs between browsers and the close button is the
+       one control that is always there, whatever the fetch returns. */
+    var x = $('[data-lada-qv-close]:not([aria-hidden="true"])', dlg);
+    var p = $('[data-lada-qv-panel]', dlg);
+    (x || p || dlg).focus({ preventScroll: true });
+
+    watchBag();
+    load(url, ++token);
+  }
+
+  function titleFor(trigger) {
+    var explicit = trigger.getAttribute('data-product-title');
+    if (explicit) return explicit;
+    /* The card's own heading. Falls back to the panel's default, which
+       is a setting, so no customer-facing string is written in here. */
+    var card = trigger.closest('.lcard') || trigger.closest('article');
+    var h = card && $('.lcard__title, h2, h3', card);
+    return (h && h.textContent.trim()) || '';
+  }
+
+  function setTitle(text) {
+    var dlg = dialog();
+    var el = dlg && $('[data-lada-qv-title]', dlg);
+    if (!el) return;
+    el.textContent = text || dlg.getAttribute('data-lada-qv-fallback-title') || '';
+  }
+
+  function setFullHref(url) {
+    var dlg = dialog();
+    if (!dlg) return;
+    $$('[data-lada-qv-full]', dlg).forEach(function (a) { a.setAttribute('href', url); });
+  }
+
+  /* Back to the loading state. Done on open rather than on close so the
+     panel does not visibly empty itself while it is sliding away. */
+  function reset() {
+    var dlg = dialog();
+    if (!dlg) return;
+    var body = $('[data-lada-qv-body]', dlg);
+    var slot = $('[data-lada-qv-slot]', dlg);
+    if (slot) slot.innerHTML = '';
+    show('[data-lada-qv-load]', true);
+    show('[data-lada-qv-fail]', false);
+    show('[data-lada-qv-foot]', false);
+    if (body) { body.setAttribute('aria-busy', 'true'); body.scrollTop = 0; }
+  }
+
+  function show(sel, on) {
+    var dlg = dialog();
+    var el = dlg && $(sel, dlg);
+    if (el) el.hidden = !on;
+  }
+
+  /* ---------------------------------------------------------------
+     2. CLOSE
+     --------------------------------------------------------------- */
+
+  /* EVERY way out goes through here, and the cleanup happens BEFORE
+     the dialog is told to close.
+
+     The obvious shape for this was a listener on the dialog's own
+     `close` event, with every path just calling dlg.close(). It was
+     written that way first and the scroll lock stayed on the page:
+     the browser this was built against fires no close event at all,
+     not for dlg.close() and not for Escape, on a plain <dialog> with
+     nothing else on the page. Whether that is a bug in one build or
+     not, hanging the release of a scroll lock on a single event is
+     one failure away from a site the customer cannot scroll, so the
+     cleanup does not depend on an event any more. The listener below
+     is kept as a second chance for a close this file did not start,
+     and it is written to be safe to run twice. */
+  function close() {
+    var dlg = dialog();
+    if (!dlg) return;
+
+    token++; /* orphan any response still in flight */
+    document.documentElement.classList.remove('lada-qv-lock');
+    if (dlg.hasAttribute('open')) dlg.close();
+
+    /* The browser returns focus to whatever was focused when showModal
+       ran, which is the card's own button — but only if anything was
+       focused at all. Safari does not focus a <button> when it is
+       clicked and a touch does not focus anything anywhere, so for most
+       of the people who will use this panel there is nothing for the
+       browser to return to, and the close button of a dialog that is
+       now display:none KEEPS the focus. Verified in a browser: after
+       Escape, document.activeElement was still .lada-qv__x inside the
+       closed dialog, so the next Tab restarted from the top of the
+       document and the grid was gone.
+
+       Three ways it can be stranded, then: nothing focused, <body>, or
+       still inside the dialog that just closed. Any of them and it goes
+       back to the card. If the browser DID return it to the card, the
+       card is not inside the dialog and none of this runs. */
+    var lost = !document.activeElement ||
+               document.activeElement === document.body ||
+               dlg.contains(document.activeElement);
+    if (lost && lastTrigger && document.contains(lastTrigger)) {
+      lastTrigger.focus({ preventScroll: true });
+    }
+    lastTrigger = null;
+  }
+
+  document.addEventListener('close', function (e) {
+    if (!e.target || !e.target.hasAttribute || !e.target.hasAttribute('data-lada-qv')) return;
+    document.documentElement.classList.remove('lada-qv-lock');
+  }, true);
+
+  /* Escape. The browser closes a modal dialog on Escape by itself, and
+     that path would skip everything above it, so it is taken over
+     here instead. preventDefault stops the UA close request; close()
+     on the next line does the same job with the cleanup attached. */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    var dlg = dialog();
+    if (!dlg || !dlg.hasAttribute('open')) return;
+
+    /* The size guide comes in with the buying column as a <details>,
+       and on the product page Escape closes THAT, not the page. Taking
+       Escape over for the dialog without this made the one key a
+       customer uses to dismiss the chart close the whole panel and
+       lose his place in the grid. Innermost thing first, which is what
+       Escape means everywhere else. */
+    var slot = $('[data-lada-qv-slot]', dlg);
+    var openDetails = slot && $('details[open]', slot);
+    if (openDetails) {
+      e.preventDefault();
+      openDetails.open = false;
+      var sum = $('summary', openDetails);
+      if (sum) sum.focus({ preventScroll: true });
+      return;
+    }
+
+    e.preventDefault();
+    close();
+  }, true);
+
+  /* ---------------------------------------------------------------
+     3. FETCH
+     --------------------------------------------------------------- */
+
+  function sectionUrl(url, id) {
+    var u = new URL(url, window.location.origin);
+    u.searchParams.set('section_id', id);
+    return u.pathname + u.search;
+  }
+
+  function get(url) {
+    return fetch(url, {
+      headers: { Accept: 'text/html', 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin'
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.text();
+    });
+  }
+
+  function load(url, mine) {
+    if (cache[url]) { paint(cache[url], url, mine); return; }
+
+    var dlg = dialog();
+    var id = (dlg && dlg.getAttribute('data-lada-qv-section')) || 'main';
+
+    /* Two steps, and the second one is the point. A section id is the
+       key in a JSON template, not a filename, and templates/product
+       .lada.json does not exist yet — so the id in the setting is a
+       reasonable guess until it does. If the guess is wrong the
+       section response comes back empty or without anything usable in
+       it, and rather than showing a failure for a configuration
+       mistake the panel asks for the plain product page and takes the
+       same fragment out of that. One request when the id is right,
+       two when it is not, a failure only when the product itself
+       cannot be reached. */
+    get(sectionUrl(url, id))
+      .then(function (html) {
+        if (usable(html)) return html;
+        return get(url);
+      })
+      .catch(function () { return get(url); })
+      .then(function (html) {
+        if (!usable(html)) throw new Error('empty');
+        cache[url] = html;
+        paint(html, url, mine);
+      })
+      .catch(function () { fail(mine); });
+  }
+
+  function usable(html) {
+    if (!html || !html.trim()) return false;
+    return !!pick(parse(html), CONTENT_SEL);
+  }
+
+  /* Memoised on the last string parsed. A single open asks "is this
+     usable" and then builds from the same markup, and parsing a whole
+     product page three times to answer one question is work nobody
+     asked for. Only the panel reads this document and it clones every
+     node it takes, so handing the same one back twice is safe. */
+  var lastHtml = null, lastDoc = null;
+  function parse(html) {
+    if (html === lastHtml && lastDoc) return lastDoc;
+    lastHtml = html;
+    lastDoc = new DOMParser().parseFromString(html, 'text/html');
+    return lastDoc;
+  }
+
+  function pick(doc, list) {
+    for (var i = 0; i < list.length; i++) {
+      var el = doc.querySelector(list[i]);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  function fail(mine) {
+    if (mine !== token || !isOpen()) return;
+    var body = $('[data-lada-qv-body]', dialog());
+    show('[data-lada-qv-load]', false);
+    show('[data-lada-qv-fail]', true);
+    show('[data-lada-qv-foot]', false); /* the failure block carries the link */
+    if (body) body.removeAttribute('aria-busy');
+  }
+
+  /* ---------------------------------------------------------------
+     4. BUILD WHAT GOES IN THE PANEL
+     --------------------------------------------------------------- */
+
+  function paint(html, url, mine) {
+    if (mine !== token || !isOpen()) return; /* a later card won the race */
+
+    var dlg = dialog();
+    var slot = $('[data-lada-qv-slot]', dlg);
+    var body = $('[data-lada-qv-body]', dlg);
+    if (!slot) return;
+
+    var doc = parse(html);
+    var src = pick(doc, CONTENT_SEL) || doc.body;
+    var info = src.cloneNode(true);
+
+    /* A <script> parsed by DOMParser has not "already started", so
+       appending it to the live document RUNS it — unlike the same
+       markup set through innerHTML. A product section may legitimately
+       carry one, and running a second copy of a section's boot script
+       inside a panel is how two variant pickers end up fighting over
+       one form. JSON payloads stay: they never execute, and the
+       variant table below is read out of one. */
+    $$('script', info).forEach(function (s) {
+      var t = (s.getAttribute('type') || '').toLowerCase();
+      if (t.indexOf('json') === -1) s.remove();
+    });
+
+    /* The product page's h1 becomes the dialog's own heading rather
+       than a second copy of the name inside it. One h1 per page is the
+       binding rule and the listing already spent it. */
+    var h1 = $('h1', info);
+    if (h1) { setTitle(h1.textContent.trim()); h1.remove(); }
+
+    dedupeIds(info);
+    /* Added, not assigned. Wiping the element's own classes would take
+       the product section's internal layout with it. */
+    info.classList.add('lada-qv__info');
+    info.removeAttribute('id');
+
+    /* The Lada product page's stylesheet is written as
+       `.template-product-lada .lpdp__x`, scoped that way so the dark
+       register ends the moment a customer opens an Alkaram lawn suit.
+       That scope is a body class, and the panel opens on the LISTING,
+       whose body class is .template-collection-lada — so every one of
+       those rules would miss and the fetched column would arrive with
+       no styling at all.
+
+       Putting the template's own class on this wrapper switches its
+       stylesheet back on for the fetched markup and for nothing else:
+       the class is on an element inside the dialog, so it cannot reach
+       a single other element on the listing. The alternative was to
+       restate that stylesheet here under .lada-qv__info, which is one
+       product page owned by two files and safe to edit in neither.
+
+       Only when the fragment actually is that markup. A fragment taken
+       off the shared .pdp__info has nothing those rules can match, and
+       a class that describes it wrongly is a lie left for the next
+       person to read. */
+    if (info.querySelector('[class*="lpdp__"]') || /(^|\s)lpdp__/.test(info.className || '')) {
+      info.classList.add('template-product-lada');
+    }
+
+    slot.innerHTML = '';
+    slot.appendChild(buildMedia(doc));
+    slot.appendChild(info);
+
+    syncVariants(slot);
+    syncLada(slot);
+    syncQty(slot);
+    setFullHref(url);
+
+    show('[data-lada-qv-load]', false);
+    show('[data-lada-qv-fail]', false);
+    show('[data-lada-qv-foot]', true);
+    if (body) body.removeAttribute('aria-busy');
+  }
+
+  /* ALWAYS returns a plate, never null.
+
+     It used to return null when it found no photograph, and paint()
+     then appended one child to a slot that is
+     `grid-template-columns:minmax(0,42%) minmax(0,1fr)` on desktop. The
+     buying column landed in the 42% track with the 1fr track empty
+     beside it: the whole panel squeezed into its left two fifths next
+     to a hole. That is not an edge case, it is the shipping state —
+     every Lada product has no photograph until the client loads his
+     shoot — and it is the state the brief calls out by name.
+
+     The empty plate is what the stylesheet was already written for: 4:5
+     at --lada-ground, a reserved frame rather than a collapsed row, the
+     same answer sections/main-product-lada.liquid gives with
+     .lpdp__frame--empty. aria-hidden for the same reason it carries it
+     there: an empty box is nothing to announce. */
+  function buildMedia(doc) {
+    var box = document.createElement('div');
+    box.className = 'lada-qv__media';
+
+    var found = pick(doc, MEDIA_SEL);
+    if (found && found.tagName !== 'IMG') found = found.querySelector('img');
+    if (!found) { box.setAttribute('aria-hidden', 'true'); return box; }
+
+    var img = found.cloneNode(false);
+
+    /* The product page's lead frame is a tabpanel: it is announced as
+       one, it is a tab stop, and it is hidden or shown by a thumbnail
+       strip that is not coming with it. In here it is a photograph and
+       nothing else. */
+    ['id', 'role', 'tabindex', 'aria-label', 'hidden', 'fetchpriority', 'class', 'style']
+      .forEach(function (a) { img.removeAttribute(a); });
+
+    img.className = 'lada-qv__img';
+    img.setAttribute('loading', 'eager');
+    img.setAttribute('decoding', 'async');
+    /* The panel is never full width, so the product page's own sizes
+       would have the browser pick a candidate two steps too large. */
+    img.setAttribute('sizes', '(min-width:760px) 40vw, 92vw');
+
+    box.appendChild(img);
+    return box;
+  }
+
+  /* Ids arriving from another page can collide with ids already on this
+     one — a quick view opened from the related grid ON a product page is
+     the real case. A duplicate id silently breaks the label that points
+     at it, so rename both sides together. */
+  function dedupeIds(root) {
+    var map = {};
+    $$('[id]', root).forEach(function (el) {
+      var id = el.id;
+      if (!id || !document.getElementById(id)) return;
+      var next = 'qv-' + id;
+      map[id] = next;
+      el.id = next;
+    });
+    if (!Object.keys(map).length) return;
+
+    ['for', 'aria-controls', 'aria-labelledby', 'aria-describedby', 'list'].forEach(function (attr) {
+      $$('[' + attr + ']', root).forEach(function (el) {
+        var out = el.getAttribute(attr).split(/\s+/).map(function (v) {
+          return map[v] || v;
+        }).join(' ');
+        el.setAttribute(attr, out);
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------
+     5. THE INJECTED CONTROLS
+
+     assets/kj-v2.js wires the option selects and the quantity stepper
+     by querying the document once at load, so markup that arrives
+     afterwards gets nothing. Rather than ask that file to change, the
+     same two behaviours are delegated here and scoped to the inside of
+     the panel — so the real product page keeps the handlers it already
+     has and nothing is bound twice.
+
+     Add to bag needs no help at all: kj-cart.js listens for submit on
+     form[data-kj-atc] at document level, so the form that arrives in
+     here posts to /cart/add.js and reports its own failures into
+     [data-kj-atc-error] exactly as it does on the product page.
+     --------------------------------------------------------------- */
+
+  function inSlot(el) { return !!(el && el.closest('[data-lada-qv-slot]')); }
+
+  function syncVariants(root) {
+    var form = $('form[data-kj-atc]', root) || $('.pdp__form', root) || $('form', root);
+    if (!form) return;
+
+    var data = $('[data-pdp-variants]', form);
+    var idField = $('[data-pdp-variant-id]', form) || $('input[name="id"]', form);
+    var selects = $$('[data-pdp-option]', form);
+    if (!data || !idField || !selects.length) return;
+
+    var variants;
+    try { variants = JSON.parse(data.textContent); } catch (e) { return; }
+
+    var btn = $('[type="submit"]', form);
+    if (!btn) return;
+    /* Only ever the dedicated label span. Writing text straight into
+       the button would delete the spinner element that kj-cart.js
+       reveals while the add is in flight. A button with no label span
+       simply keeps its wording and only gains or loses `disabled`. */
+    var label = $('.pdp__atc-t, .lcard__quick-t', form);
+
+    /* The two strings this can show are the button's own starting text
+       and one setting on the dialog. Nothing customer-facing is written
+       in this file. */
+    var dlg = dialog();
+    if (label && !label.hasAttribute('data-qv-label')) {
+      label.setAttribute('data-qv-label', label.textContent.trim());
+    }
+    var canBuy = label && label.getAttribute('data-qv-label');
+    var sold = (dlg && dlg.getAttribute('data-lada-qv-sold')) || 'Sold out';
+    function say(text) { if (label) label.textContent = text; }
+
+    var chosen = selects.map(function (s) { return s.value; });
+    var match = variants.filter(function (v) {
+      return v.options && v.options.every(function (o, i) { return o === chosen[i]; });
+    })[0];
+
+    if (!match) { btn.disabled = true; say(sold); return; }
+    idField.value = match.id;
+    btn.disabled = !match.available;
+    say(match.available ? canBuy : sold);
+  }
+
+  /* The Lada product section ships its own behaviour in a <script> at
+     the bottom of the section, scoped to that section's id, and this
+     file deliberately does not run it: a second copy of it would fight
+     the real one on a product page, which is the very thing its author
+     guarded against. Everything it does that only makes the page nicer
+     is simply not done in here, and the page degrades the way that
+     section already documents.
+
+     What is NOT "nicer" is re-supplied below, off the same attributes
+     the section already emits. The first version of this file only
+     re-supplied half of it and shipped two faults, both recorded here
+     because the shape of the markup is what caused them:
+
+     THE VARIANT. sections/main-product-lada.liquid has TWO paths.
+
+       one option   every radio is name="id" value="<variant id>" and
+                    carries data-lpdp-variant-radio; the checked radio
+                    IS the field the form posts, and Liquid disables
+                    the ones that are gone.
+       two or more  the radios are named lpdp-o0, lpdp-o1 and carry an
+                    OPTION VALUE, grouped by [data-lpdp-group], and the
+                    form posts a hidden input[name="id"] carrying
+                    [data-lpdp-variant-id]. Whether a pairing exists at
+                    all is a script's job on that path; Liquid says so
+                    in as many words.
+
+     Only the first path was handled. On the second, nothing ever
+     rewrote that hidden field, so a customer who chose ecru in medium
+     got the FIRST variant added to his bag whatever he picked, at the
+     first variant's price, with the add button never disabled for a
+     pairing that does not exist. Alamghir is colour and Ready to Wear
+     is S/M/L, so both ship on the one-option path today and the fault
+     was invisible — until the first piece is listed in two colours and
+     three sizes, which is a day away, not a year. Both paths are
+     driven below, off [data-lpdp-variants], exactly as the section's
+     own script drives them.
+
+     THE PRICE comes with it: every variant's price is rendered by
+     Liquid and all but one carries `hidden`. A panel that misprices a
+     garment is the worst thing it can do.
+
+     THE WORDING. The button's label span is [data-lpdp-atc-t], not
+     .pdp__atc-t, so syncVariants() below could never have found it.
+     Its resting text is read off the button itself and the only other
+     string is the dialog's own sold-out setting: nothing a customer
+     reads is written in this file.
+
+     THE STEPPER. Its plus and minus ship `hidden` and the section's
+     script reveals them AND sets data-ready on the wrapper. The
+     product stylesheet gives the buttons a display that outranks the
+     hidden attribute, so in here they appeared on their own — but
+     without data-ready the same stylesheet keeps the no-script layout,
+     so the panel showed the native number spinners and the plus and
+     minus at once, in the wider field, with neither button ever
+     dimming at one or at the cap. Both are set here now. The min and
+     max are read off the input, so the section's cap of three is kept
+     rather than restated. */
+  function ladaMap(root) {
+    var json = $('[data-lpdp-variants]', root);
+    if (!json) return [];
+    try { return JSON.parse(json.textContent) || []; } catch (e) { return []; }
+  }
+
+  function ladaById(map, id) {
+    for (var i = 0; i < map.length; i++) {
+      if (String(map[i].id) === String(id)) return map[i];
+    }
+    return null;
+  }
+
+  function ladaByOptions(map, chosen) {
+    for (var i = 0; i < map.length; i++) {
+      var opts = map[i].options || [];
+      var ok = true;
+      for (var k = 0; k < chosen.length; k++) {
+        if (chosen[k] === null || opts[k] !== chosen[k]) { ok = false; break; }
+      }
+      if (ok) return map[i];
+    }
+    return null;
+  }
+
+  function syncLada(root) {
+    if (!root) return;
+
+    var direct = $('[data-lpdp-variant-radio]:checked', root);
+    var groups = $$('[data-lpdp-group]', root);
+
+    /* No choice to make. A piece with one variant renders a hidden id
+       and nothing else, and Liquid has already disabled the button if
+       it is gone — so touching anything here could only undo that. */
+    if (!direct && !groups.length) return;
+
+    var map = ladaMap(root);
+    var variant = null;
+
+    if (direct) {
+      /* The radio IS the id. The map is still the truth about whether
+         that variant can be bought; `disabled` on the radio is Liquid's
+         own answer and stands in if the map did not come with it. */
+      variant = ladaById(map, direct.value) ||
+                { id: direct.value, available: !direct.disabled };
+    } else {
+      var chosen = groups.map(function (g) {
+        var on = $('input:checked', g);
+        return on ? on.value : null;
+      });
+      variant = ladaByOptions(map, chosen);
+    }
+
+    var idField = $('[data-lpdp-variant-id]', root);
+    var atc = $('[data-lpdp-atc]', root) || $('[type="submit"]', root);
+    var label = $('[data-lpdp-atc-t]', root);
+
+    /* Read once and kept on the element: the button's own resting
+       wording, whatever setting the client typed it into. */
+    if (label && !label.hasAttribute('data-qv-label')) {
+      label.setAttribute('data-qv-label', label.textContent.trim());
+    }
+    var dlg = dialog();
+    var addWord = label && label.getAttribute('data-qv-label');
+    var soldWord = (dlg && dlg.getAttribute('data-lada-qv-sold')) || 'Sold out';
+
+    /* A pairing that does not exist reads the same as one that is gone.
+       The dialog's setting says "sold out" and that is right for both:
+       either way the customer cannot have it. One string, not two. */
+    if (!variant) {
+      if (atc) atc.disabled = true;
+      if (label) label.textContent = soldWord;
+      return;
+    }
+
+    /* THE LINE THE WHOLE FIX IS FOR. On the combination path this is
+       the field /cart/add.js receives. */
+    if (idField) idField.value = variant.id;
+    if (atc) atc.disabled = variant.available === false;
+    if (label) label.textContent = variant.available === false ? soldWord : addWord;
+
+    $$('[data-lpdp-vprice]', root).forEach(function (el) {
+      el.hidden = el.getAttribute('data-lpdp-vprice') !== String(variant.id);
+    });
+  }
+
+  /* The wrapper arrives without data-ready, which is how the product
+     stylesheet tells the no-script layout from the wired one, and the
+     two buttons arrive with `hidden`. Both are the section's own
+     handshake and both are completed here, so the row inside the panel
+     is the row the customer sees on the product page. */
+  function syncQty(root) {
+    var wrap = $('[data-lpdp-qty]', root);
+    if (!wrap) return;
+    var input = qtyInput(wrap);
+    var steps = $$('[data-lpdp-step]', wrap);
+    if (!input || !steps.length) return;
+    steps.forEach(function (b) { b.hidden = false; });
+    wrap.setAttribute('data-ready', 'true');
+    sweepQty(wrap);
+  }
+
+  function qtyInput(wrap) {
+    return $('input[type="number"]', wrap) || $('input[name="quantity"]', wrap);
+  }
+
+  function qtyBounds(input) {
+    var min = parseInt(input.getAttribute('min'), 10);
+    var max = parseInt(input.getAttribute('max'), 10);
+    return { min: isNaN(min) ? 1 : min, max: isNaN(max) ? null : max };
+  }
+
+  /* Dimmed at one and at the cap rather than removed, so the row does
+     not change width as the number changes. The product stylesheet
+     already paints :disabled that way. */
+  function sweepQty(wrap) {
+    var input = qtyInput(wrap);
+    if (!input) return;
+    var b = qtyBounds(input);
+    var n = parseInt(input.value, 10);
+    if (isNaN(n)) n = b.min;
+    $$('[data-lpdp-step]', wrap).forEach(function (btn) {
+      var d = parseInt(btn.getAttribute('data-lpdp-step'), 10) || 0;
+      btn.disabled = d > 0 ? (b.max !== null && n >= b.max) : n <= b.min;
+    });
+  }
+
+  function clampQty(input) {
+    var b = qtyBounds(input);
+    var n = parseInt(input.value, 10);
+    if (isNaN(n) || n < b.min) n = b.min;
+    if (b.max !== null && n > b.max) n = b.max;
+    input.value = n;
+  }
+
+  function stepQty(btn) {
+    var wrap = btn.closest('[data-lpdp-qty]') || btn.parentNode;
+    var input = qtyInput(wrap);
+    if (!input) return;
+    var by = parseInt(btn.getAttribute('data-lpdp-step'), 10) || 0;
+    input.value = (parseInt(input.value, 10) || qtyBounds(input).min) + by;
+    clampQty(input);
+    sweepQty(wrap);
+  }
+
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t || !t.closest || !inSlot(t)) return;
+
+    var slot = t.closest('[data-lada-qv-slot]');
+    if (t.closest('[data-pdp-option]')) { syncVariants(slot); return; }
+
+    /* Both Lada paths change through a radio: the one-option path's
+       radio is the id itself, the combination path's is an option value
+       inside a [data-lpdp-group]. syncLada tells them apart. The size
+       guide's inches / centimetres toggle is a radio too and rides in
+       the same form, so it reaches here — syncLada is a no-op for it
+       because it is in no group and carries no variant radio marker. */
+    if (t.type === 'radio') { syncLada(slot); return; }
+
+    var qwrap = t.closest('[data-lpdp-qty]');
+    if (qwrap) { clampQty(t); sweepQty(qwrap); }
+  });
+
+  /* ---------------------------------------------------------------
+     6. CLICKS, ALL DELEGATED
+     --------------------------------------------------------------- */
+
+  /* Where the press started. A drag that begins on the buy form and
+     ends on the scrim is not a request to close the panel. */
+  var downOnScrim = false;
+  document.addEventListener('pointerdown', function (e) {
+    /* The class is only on <html> while the panel is open, so on every
+       other press anywhere on the site this listener costs one string
+       comparison and stops. */
+    if (!document.documentElement.classList.contains('lada-qv-lock')) {
+      downOnScrim = false;
+      return;
+    }
+    var dlg = dialog();
+    downOnScrim = !!(dlg && dlg.hasAttribute('open') &&
+      (e.target === dlg || (e.target.closest && e.target.closest('.lada-qv__scrim'))));
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+
+    var trigger = t.closest('[data-lada-quickview]');
+    if (trigger) {
+      /* Nothing is cancelled unless there is a panel to open. If the
+         snippet was not rendered, a trigger that is a real <a> must be
+         left alone to go to the product page. */
+      if (!dialog()) return;
+      e.preventDefault();
+      open(trigger);
+      return;
+    }
+
+    var dlg = dialog();
+    if (!dlg || !dlg.hasAttribute('open')) return;
+
+    if (t.closest('[data-lada-qv-close]')) { close(); return; }
+
+    /* The dialog element itself fills the viewport with the panel
+       floating inside it, so a click on the dark area lands here. */
+    if ((t === dlg || t.closest('.lada-qv__scrim')) && downOnScrim) { close(); return; }
+
+    var step = t.closest('[data-lpdp-step]');
+    if (step && inSlot(step)) { stepQty(step); return; }
+
+    var up = t.closest('[data-pdp-qty-up]');
+    var down = t.closest('[data-pdp-qty-down]');
+    if ((up || down) && inSlot(up || down)) {
+      var wrap = (up || down).closest('.pdp__buy, [data-kj-qty], form') || dlg;
+      var input = $('[data-pdp-qty]', wrap) || $('input[name="quantity"]', wrap);
+      /* Through the same clamp as the Lada stepper. The shared product
+         page ships min="1" and no max today, so this changes nothing
+         now; it means the day a max is added there the panel honours it
+         instead of letting a customer ask for a quantity /cart/add.js
+         will refuse. */
+      if (input) {
+        input.value = (parseInt(input.value, 10) || 1) + (up ? 1 : -1);
+        clampQty(input);
+      }
+      return;
+    }
+  });
+
+  /* ---------------------------------------------------------------
+     7. HANDING OVER TO THE BAG
+
+     Adding from inside the panel opens the bag drawer on top of it, and
+     kj-cart.js makes the bag modal by putting `inert` on every top
+     level element that is not the drawer. This panel is in the top
+     layer and is not one of those elements, so it would sit ABOVE the
+     bag with the bag unreachable underneath — two modals, and the wrong
+     one on top. kj-cart.js already states the rule for this ("one modal
+     at a time") and closes the nav and the filters when it opens; it
+     cannot close something it does not know about, so the panel steps
+     aside itself.
+
+     There is no event to listen for: kj-cart.js fires none. What it
+     does do is flip data-open on the drawer, and it replaces the whole
+     drawer node on every cart change, so the observer is on the body
+     with an attribute filter rather than on a node that will not
+     survive the first add.
+
+     Started on the first open, not at boot, so a page where nobody ever
+     opens a quick view pays nothing for it.
+     --------------------------------------------------------------- */
+
+  function watchBag() {
+    if (bagWatch || typeof MutationObserver !== 'function') return;
+    bagWatch = new MutationObserver(function (records) {
+      for (var i = 0; i < records.length; i++) {
+        var el = records[i].target;
+        if (!el.hasAttribute || !el.hasAttribute('data-kj-drawer')) continue;
+        if (el.getAttribute('data-open') === 'true') handOff(el);
+        else returnToCard();
+      }
+    });
+    bagWatch.observe(document.body, {
+      subtree: true, attributes: true, attributeFilter: ['data-open']
+    });
+  }
+
+  function handOff(drawer) {
+    if (!isOpen()) return;
+
+    /* Remembered before closing, because closing clears it. The bag
+       has already recorded the add button inside this panel as the
+       thing to focus when it closes, and that button is about to stop
+       being focusable, so focus would land on <body>. Sending it back
+       to the card the customer was looking at is the honest end of
+       the journey. */
+    pendingReturn = lastTrigger;
+
+    close();
+
+    /* dlg.close() returns focus to the card synchronously, which would
+       pull it straight out of the bag that just opened. Put it back.
+
+       Not in one go, though. kj-cart.js's drawer is hidden with
+       visibility:hidden and slid off on a transform, and both only
+       come off when data-open flips — so at the moment this observer
+       runs the panel can still be visibility:hidden, and focus() on
+       something inside it is a silent no-op that leaves focus behind
+       the open bag on a card that is about to be inert. So it is
+       tried, and tried again on the next frame, and once more on a
+       timer. The timer is not redundant: a frame callback does not run
+       at all while the tab is in the background, which is exactly
+       where a slow add can finish. Each attempt stops as soon as focus
+       has landed. */
+    tryFocusBag(drawer);
+    requestAnimationFrame(function () { tryFocusBag(drawer); });
+    setTimeout(function () { tryFocusBag(drawer); }, 120);
+  }
+
+  function tryFocusBag(drawer) {
+    if (!drawer || drawer.getAttribute('data-open') !== 'true') return true;
+    var panel = $('[data-kj-drawer-panel]', drawer) || drawer;
+    if (panel.contains(document.activeElement)) return true;
+    var target = $('[data-kj-drawer-close]:not([tabindex="-1"])', panel) || panel;
+    target.focus({ preventScroll: true });
+    return document.activeElement === target;
+  }
+
+  function returnToCard() {
+    if (!pendingReturn) return;
+    var card = pendingReturn;
+    pendingReturn = null;
+    if (!document.contains(card)) return;
+    if (document.activeElement && document.activeElement !== document.body) return;
+    card.focus({ preventScroll: true });
+  }
+})();

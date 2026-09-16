@@ -1,0 +1,365 @@
+{%- comment -%}
+  sections/main-collection-lada.liquid
+  Rendered by templates/collection.lada.json, which is what the Alamghir
+  and Ready to Wear collections are put on. Every other collection on the
+  store keeps sections/main-collection.liquid and is untouched by this file.
+
+  WHY THIS EXISTS AS A SEPARATE SECTION RATHER THAN A FLAG ON THE SHARED ONE.
+  The shared listing prints a breadcrumb, a title, the collection
+  description, a result count and a filter button. Lada prints the title.
+  Wiring "hide the breadcrumb, hide the description, hide the count" into
+  main-collection.liquid as five settings leaves that file owned by two
+  registers and safe to edit for neither, and the first person to add a
+  sixth thing to it puts it back on this page by accident.
+
+  WHAT IS THE SAME AS main-collection.liquid, ON THE CLIENT'S EXPLICIT
+  INSTRUCTION, AND MUST STAY THE SAME:
+    - the <aside class="filters"> left rail, driven by collection.filters,
+      same markup, same .chip, same price range, same data-filters /
+      data-filter-toggle / data-filter-close / data-scrim hooks that
+      assets/site.js already binds. No new JS, none needed.
+    - paginate by 24
+    - the product grid is .pgrid, so a Lada card sits on exactly the same
+      column count and the same 4:5 plate as every other listing
+    - pagination through {{ paginate | default_pagination }}
+  Only the look changes: dark ground, champagne hairlines, Lada card.
+
+  THREE THINGS IN THAT RAIL ARE NOT COPIES, AND EACH ONE IS A BUG IN THE
+  SHARED FILE THAT IS NOT THIS TASK'S TO EDIT:
+    - the aside carries id="LadaFilters", which is what the phone
+      button's aria-controls points at. The shared button points at
+      "filters" and nothing on that page carries that id.
+    - the price inputs carry onchange="this.form.submit()". Without it
+      there is no way to apply a price at all; see the comment on those
+      inputs.
+    - the chips draw their focus ring on :focus-within, in the
+      stylesheet, because the thing that takes focus is the off-screen
+      checkbox inside the label.
+  A fourth is in the stylesheet: the phone drawer goes visibility:hidden
+  when it is shut, so its checkboxes are not still in the tab order
+  under the bottom of the screen.
+
+  WHAT IS ABOVE THE GRID: the collection name. Nothing else.
+  No kicker, no description, no result count, no sort control, no
+  breadcrumb. The previous Lada build was rejected for exactly this: too
+  much writing, too many options. The reference the client gave,
+  faizasaqlain.pk, puts one word above a wall of photographs. If a future
+  pass wants to add a line here, that is the line to argue about first.
+
+  THE RAIL IS DROPPED, NOT EMPTIED, WHEN THERE ARE NO FACETS.
+  Search & Discovery populates collection.filters from the products in the
+  collection, so a collection with nothing in it returns zero filter
+  groups. The shared section still renders the <aside> in that state: a
+  248px column holding a heading and no controls, standing next to an
+  empty grid. Here the aside is not emitted at all and the grid takes the
+  full measure, so the page has one empty thing on it instead of two.
+
+  enabled_on TEMPLATES: COLLECTION. The section carries a preset, and a
+  preset can be dropped on any JSON template from the theme editor. On a
+  page or the home page `collection` is nil, and `paginate nil` and
+  `nil > 0` both print a Liquid error where the grid should be. The
+  restriction keeps it out of the picker everywhere it cannot work.
+
+  EMPTY IS THE SHIPPING STATE. Both Lada collections have zero products
+  today and the client loads them himself after handover. One line and a
+  WhatsApp route, no plate, no heading of its own, nothing that has to be
+  written again when the products land.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading = section.settings.heading | default: collection.title
+
+  # Two different questions, and the page needs both.
+  #
+  #   has_filters  is there a rail to draw at all. False on an empty
+  #                  collection, which is every Lada collection today.
+  #   filters_on   has the customer actually narrowed something. Only
+  #                  ever true when has_filters is true, and it is what
+  #                  separates "nothing has been listed yet" from "your
+  #                  filters matched nothing", which are the same empty
+  #                  grid and completely different sentences.
+  #
+  # active_values covers list, boolean and swatch facets. A price range
+  # has no active_values, it reports through min_value / max_value, so it
+  # is asked separately or a customer who has set only a price ceiling
+  # gets told the shop is empty.
+  assign has_filters = false
+  if collection.filters.size > 0
+    assign has_filters = true
+  endif
+
+  assign filters_on = false
+  for filter in collection.filters
+    if filter.active_values.size > 0
+      assign filters_on = true
+    endif
+    if filter.type == 'price_range'
+      if filter.min_value.value != blank or filter.max_value.value != blank
+        assign filters_on = true
+      endif
+    endif
+  endfor
+
+  assign wa      = section.settings.whatsapp | default: '923019090590'
+  assign wa_text = section.settings.whatsapp_text | default: 'I would like to ask about'
+
+  # The collection name is appended rather than typed into the message,
+  # because one section file serves both Alamghir and Ready to Wear and
+  # the shopkeeper needs to know which one the message came from without
+  # the client having to keep two copies of the same sentence in step.
+  assign wa_msg = wa_text | append: ' ' | append: collection.title | append: '.'
+
+  # Card strings live on the section, not in the snippet, so the client
+  # edits them once for the whole grid instead of once per product.
+  assign quickview_label = section.settings.quickview_label | default: 'Quick view'
+  assign add_label       = section.settings.add_label       | default: 'Add to bag'
+  assign sold_label      = section.settings.sold_label      | default: 'Sold out'
+-%}
+
+<div class="wrap lcoll">
+
+  {%- comment -%}
+    One h1 per page, and it is the collection name. Uppercase, if the
+    client ever wants it, comes from text-transform in the stylesheet,
+    never from capitals typed into the heading setting, because a
+    setting value typed in capitals is stuck that way in search results,
+    in the browser tab and in every screen reader that spells out
+    all-caps words letter by letter.
+  {%- endcomment -%}
+  <div class="lcoll__head">
+    <h1 class="lcoll__h1">{{ heading }}</h1>
+  </div>
+
+  <div class="listing lcoll__listing{% unless has_filters %} lcoll__listing--wide{% endunless %}">
+
+    {%- if has_filters -%}
+      {%- comment -%}
+        The id is new. main-collection.liquid points aria-controls at
+        "filters" and nothing on that page carries that id, so the
+        relationship it announces does not resolve. Fixed here rather
+        than there because that file is not this task's to touch.
+      {%- endcomment -%}
+      <aside class="filters" id="LadaFilters" data-filters aria-label="Filters">
+        <div class="filters__bar">
+          <h2 class="filters__h">{{ section.settings.filters_title | default: 'Filter' }}</h2>
+          <button class="iconbtn filters__close" type="button" data-filter-close
+                  aria-label="Close filters">&times;</button>
+        </div>
+
+        {%- comment -%}
+          Identical to the shared rail. The checkbox is a real checkbox
+          kept off-screen with .vh rather than opacity:0, so it stays in
+          the tab order and still reports checked state; the label is the
+          44px target around it. onchange submit is how the shared rail
+          applies a facet without JS of its own, and Shopify's own
+          filtering reads the resulting query string.
+        {%- endcomment -%}
+        <form id="FacetFilterForm">
+          {%- for filter in collection.filters -%}
+            <div class="filters__grp">
+              <h3>{{ filter.label }}</h3>
+              <div class="filters__list" data-facet>
+                {%- if filter.type == 'price_range' -%}
+                  {%- comment -%}
+                    onchange IS NOT DECORATION HERE, IT IS THE ONLY WAY TO
+                    APPLY A PRICE.
+
+                    This form has no submit button: the checkboxes post
+                    themselves through onchange and the only button in the
+                    rail, "View results", is type="button" and just shuts the
+                    phone drawer. HTML's implicit submission then refuses to
+                    fire, because a form with no submit button only submits on
+                    Enter when it holds ONE field that blocks implicit
+                    submission and a price range is two number inputs. So on
+                    the shared rail a customer can type 2000 into Min, press
+                    Enter, and nothing happens, on a phone and on a desktop
+                    alike. The checkbox idiom one branch below is the fix, on
+                    the same event: change fires when the value is committed,
+                    which is Enter or leaving the field.
+
+                    Same defect on main-collection.liquid. Not back-ported,
+                    that file is not this task's to edit.
+                  {%- endcomment -%}
+                  <div class="filters__price">
+                    <input type="number" inputmode="numeric" name="{{ filter.min_value.param_name }}"
+                           placeholder="Min" value="{{ filter.min_value.value }}" aria-label="Minimum price"
+                           onchange="this.form.submit()">
+                    <span aria-hidden="true">&ndash;</span>
+                    <input type="number" inputmode="numeric" name="{{ filter.max_value.param_name }}"
+                           placeholder="Max" value="{{ filter.max_value.value }}" aria-label="Maximum price"
+                           onchange="this.form.submit()">
+                  </div>
+                {%- else -%}
+                  {%- for value in filter.values -%}
+                    <label class="chip" aria-pressed="{{ value.active }}">
+                      <input type="checkbox" class="vh" name="{{ value.param_name }}" value="{{ value.value }}"
+                             {% if value.active %}checked{% endif %} onchange="this.form.submit()">
+                      {{ value.label }} <span class="chip__n">{{ value.count }}</span>
+                    </label>
+                  {%- endfor -%}
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </form>
+
+        {%- comment -%}
+          Phone only. site.css hides .filters__done from 1000px up, where
+          the rail is a column on the page and there is nothing to close.
+        {%- endcomment -%}
+        <div class="filters__done">
+          <button class="btn-lada" type="button" data-filter-close>{{ section.settings.filters_done | default: 'View results' }}</button>
+        </div>
+      </aside>
+    {%- endif -%}
+
+    <div class="lcoll__main">
+
+      {%- comment -%}
+        What is left of the toolbar: the button that opens the rail on a
+        phone. The shared one also prints "N products", which is the
+        result count the client struck out, and on a range this size a
+        count only tells the customer how short it is. The row is hidden
+        from 1000px up, so on a desktop nothing sits between the name and
+        the photographs.
+      {%- endcomment -%}
+      {%- if has_filters -%}
+        <div class="lcoll__bar">
+          <button class="btn-lada btn-lada--ghost" type="button"
+                  data-filter-toggle aria-expanded="false" aria-controls="LadaFilters">{{ section.settings.filters_button | default: 'Filter' }}</button>
+        </div>
+      {%- endif -%}
+
+      {%- paginate collection.products by 24 -%}
+        {%- if collection.products.size == 0 -%}
+
+          {%- comment -%}
+            Two empty states, because they are two different facts.
+            Neither gets a heading: the collection name is already the h1
+            eighty pixels above, and repeating it in a box is the second
+            sentence this page was cut down to remove.
+          {%- endcomment -%}
+          <div class="lcoll__empty">
+            {%- if filters_on -%}
+              <p class="lcoll__empty-p">{{ section.settings.no_match_text | default: 'Nothing here with those filters.' }}</p>
+              <a class="lada__link" href="{{ collection.url }}">{{ section.settings.no_match_label | default: 'Show everything' }}</a>
+            {%- else -%}
+              <p class="lcoll__empty-p">{{ section.settings.empty_text | default: 'Nothing listed here yet. Ask us what is in the shop today.' }}</p>
+              <a class="btn-lada" href="https://wa.me/{{ wa }}?text={{ wa_msg | url_encode }}"
+                 target="_blank" rel="noopener">{{ section.settings.empty_cta | default: 'Ask on WhatsApp' }}</a>
+            {%- endif -%}
+          </div>
+
+        {%- else -%}
+
+          {%- comment -%}
+            .pgrid, the shared grid, on purpose: 2 columns, 3 from 760px,
+            4 from 1100px, the same as every other listing on the store.
+            The client asked for the listings to match and this is the
+            single line that keeps them matching, so a Lada card lands on
+            the same column width and the same 4:5 plate as a .pcard.
+          {%- endcomment -%}
+          <div class="pgrid lcoll__grid">
+            {%- for product in collection.products -%}
+              {% render 'lada-product-card', product: product, index: forloop.index0,
+                 quickview_label: quickview_label, add_label: add_label, sold_label: sold_label %}
+            {%- endfor -%}
+          </div>
+
+          {%- if paginate.pages > 1 -%}
+            <nav class="pagination lcoll__pages" aria-label="Pagination">
+              {{ paginate | default_pagination }}
+            </nav>
+          {%- endif -%}
+
+        {%- endif -%}
+      {%- endpaginate -%}
+    </div>
+
+    {%- comment -%}
+      The scrim is only emitted alongside a rail. The shared section
+      prints it unconditionally, which on a filterless collection leaves
+      a third child in the .listing grid that nothing can ever open.
+    {%- endcomment -%}
+    {%- if has_filters -%}
+      <div class="scrim" data-scrim></div>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- comment -%}
+  THE QUICK VIEW PANEL, ONCE PER PAGE AND ONLY WHERE THERE IS SOMETHING
+  TO OPEN IT.
+
+  snippets/lada-product-card.liquid emits the trigger, this section owns
+  the panel. That split is deliberate: the panel carries ids, so one per
+  page, and the card is rendered once per product. Any section that
+  renders the Lada card has to carry this line too.
+
+  Gated on products_count rather than rendered unconditionally. On an
+  empty collection, or on a filter that matched nothing, the grid emits
+  no triggers at all, and a <dialog> with three ids in it that nothing
+  on the page can ever open is markup for a state that does not exist.
+  products_count respects the active filters, which is exactly the
+  question being asked.
+{%- endcomment -%}
+{%- if collection.products_count > 0 -%}
+  {%- comment -%}
+    sold_label is passed the same string the cards were given. The panel
+    writes it over its add button when a chosen colour or size is gone,
+    and it defaults to "Sold out" on its own, so leaving it out did not
+    break anything visibly. It did mean a client who renamed the label in
+    the one place the theme editor offers it got the new word on every
+    card in the grid and the old one inside the panel that opens off
+    those cards.
+  {%- endcomment -%}
+  {% render 'lada-quick-view',
+     qv_section_id: section.settings.qv_section_id,
+     close_label: section.settings.qv_close_label,
+     loading_label: section.settings.qv_loading_label,
+     error_text: section.settings.qv_error_text,
+     full_label: section.settings.qv_full_label,
+     sold_label: sold_label,
+     fallback_title: section.settings.qv_title %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Lada collection",
+  "settings": [
+    { "type": "paragraph", "content": "Above the grid this page shows the collection name and nothing else. No description, no result count, no sort control. The photographs are the design." },
+    { "type": "text", "id": "heading", "label": "Heading", "info": "Leave empty to use the collection name. One word where possible." },
+    { "type": "header", "content": "Product cards" },
+    { "type": "paragraph", "content": "These labels apply to every card in the grid. Type them in sentence case: the capitals on the page come from the stylesheet." },
+    { "type": "text", "id": "quickview_label", "label": "Quick view button", "default": "Quick view" },
+    { "type": "text", "id": "add_label", "label": "Add button", "default": "Add to bag" },
+    { "type": "text", "id": "sold_label", "label": "Sold out label", "default": "Sold out" },
+    { "type": "header", "content": "Quick view panel" },
+    { "type": "paragraph", "content": "The panel that opens from a card. It pulls the live product page in, so nothing in it is a second copy of anything." },
+    { "type": "text", "id": "qv_title", "label": "Panel title before the product loads", "default": "Quick view" },
+    { "type": "text", "id": "qv_close_label", "label": "Close button", "default": "Close" },
+    { "type": "text", "id": "qv_loading_label", "label": "While it loads", "default": "Loading" },
+    { "type": "text", "id": "qv_error_text", "label": "If it does not load", "default": "This did not load." },
+    { "type": "text", "id": "qv_full_label", "label": "Link to the product page", "default": "see the full page" },
+    { "type": "text", "id": "qv_section_id", "label": "Product section key", "default": "main", "info": "The name of the main section inside the product template. Leave this alone unless the product template names it something other than main." },
+    { "type": "header", "content": "Filter rail" },
+    { "type": "paragraph", "content": "The filters come from the Search & Discovery app and appear on their own once this collection has products in it. While it is empty there is no rail and the photographs take the full width." },
+    { "type": "text", "id": "filters_title", "label": "Rail heading", "default": "Filter" },
+    { "type": "text", "id": "filters_button", "label": "Phone open button", "default": "Filter" },
+    { "type": "text", "id": "filters_done", "label": "Phone close button", "default": "View results" },
+    { "type": "header", "content": "While the collection is empty" },
+    { "type": "paragraph", "content": "This is what the page shows until products are added, so it is the state it ships in. Keep it to one line." },
+    { "type": "text", "id": "empty_text", "label": "Line", "default": "Nothing listed here yet. Ask us what is in the shop today." },
+    { "type": "text", "id": "empty_cta", "label": "Button", "default": "Ask on WhatsApp" },
+    { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590" },
+    { "type": "text", "id": "whatsapp_text", "label": "Pre-filled message", "default": "I would like to ask about", "info": "The collection name is added to the end, so one message serves both Lada collections." },
+    { "type": "header", "content": "When a filter matches nothing" },
+    { "type": "text", "id": "no_match_text", "label": "Line", "default": "Nothing here with those filters." },
+    { "type": "text", "id": "no_match_label", "label": "Link", "default": "Show everything" }
+  ],
+  "enabled_on": { "templates": ["collection"] },
+  "presets": [
+    { "name": "Lada collection" }
+  ]
+}
+{% endschema %}

@@ -47,7 +47,7 @@
         <a href="{{ collection.url }}">{{ collection.title }}</a>
         <span aria-hidden="true">/</span>
       {%- endif -%}
-      <span aria-current="page">{{ product.title | split: ' — ' | first }}</span>
+      <span aria-current="page">{{ product.title | split: ' - ' | first }}</span>
     </nav>
 
     <div class="pdp__grid">
@@ -107,7 +107,7 @@
           <p class="pdp__house pdp__house--own">Lada &middot; woven in-house</p>
         {%- endif -%}
 
-        <h1 class="pdp__title">{{ product.title | split: ' — ' | first }}</h1>
+        <h1 class="pdp__title">{{ product.title | split: ' - ' | first }}</h1>
 
         {%- if v.sku != blank -%}
           <p class="pdp__sku">{{ v.sku }}</p>

@@ -339,20 +339,7 @@
    The plate is the section's only direct img child. */
 .lada__hero > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .lada__hero::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(14,14,15,.82) 0%,rgba(14,14,15,.55) 28%,rgba(14,14,15,0) 62%)}
-.lada__hero-in{position:relative;z-index:2;padding-block:clamp(3rem,9vh,6rem)}.lada__eyebrow{margin:0;font-size:var(--fs-micro);letter-spacing:.24em;text-transform:uppercase;
-  color:var(--lada-champagne)}.lada__wordmark--mark{margin:var(--s4) 0 0;display:block;max-width:min(460px,74vw)}
-.lada__wordmark--mark .kj-mark{width:100%;height:auto}
-.lada__wordmark{margin:var(--s4) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:.88;
-  font-size:clamp(3.4rem,12vw,8rem);letter-spacing:-.03em;color:var(--lada-bone)}
-/* Tracking is rationed, not sprayed. The Lada block shipped seven
-   letter-spacing values and nothing at 0, so nothing read as
-   deliberate. Body and headings sit at 0; the eyebrow keeps its .36em
-   and is now the only element on the page carrying any. */
-.lada__lede,.lada__p,.lada__stage h3{letter-spacing:0}
-.lada__lede{margin:var(--s5) 0 0;max-width:48ch;color:var(--lada-muted);
-  font-size:clamp(.98rem,1.5vw,1.08rem);line-height:1.8}
-.lada__ctas{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s6)}.btn-lada{display:inline-flex;align-items:center;justify-content:center;min-height:52px;
+  background:linear-gradient(to top,rgba(14,14,15,.82) 0%,rgba(14,14,15,.55) 28%,rgba(14,14,15,0) 62%)}.btn-lada{display:inline-flex;align-items:center;justify-content:center;min-height:52px;
   padding-inline:2.3rem;background:var(--lada-champagne);color:var(--lada-ground);
   border:1px solid var(--lada-champagne);font-size:var(--fs-micro);font-weight:600;
   letter-spacing:.24em;text-transform:uppercase;
@@ -360,38 +347,13 @@
 .btn-lada:hover{background:transparent;color:var(--lada-champagne)}
 .btn-lada--ghost{background:transparent;color:var(--lada-bone);border-color:var(--lada-line)}
 .btn-lada--ghost:hover{border-color:var(--lada-champagne);color:var(--lada-champagne)}
-
-/* ---------- proof band ----------
-   The three seals, out of the hero and into a band of their own
-   directly under it. Lines and type only: rule above, rules between,
-   nothing else. No icon, no box, no shadow, no fill beyond the panel.
-
-   dd runs --lada-muted #8B8579 on --lada-panel #17171A, which measures
-   4.88:1 — over the 4.5:1 floor, so 13px at weight 300 is legible and
-   still recessive. It is a slightly harder ground than --lada-ground
-   (5.6:1); do not darken the type to match the hero. */
-.lada__proof{background:var(--lada-panel);border-top:1px solid var(--lada-line)}
 .lada__proof-list{display:grid;gap:0;margin:0}
-.lada__proof-item{padding-block:var(--s5)}
-.lada__proof-item + .lada__proof-item{border-top:1px solid var(--lada-line)}
 @media (min-width:760px){
   .lada__proof-list{grid-template-columns:repeat(3,1fr)}
   .lada__proof-item{padding-block:var(--s6);padding-inline-end:var(--s6)}
   .lada__proof-item + .lada__proof-item{border-top:0;
     border-inline-start:1px solid var(--lada-line);padding-inline-start:var(--s6)}
 }
-.lada__proof-item dt{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--lada-champagne)}
-.lada__proof-item dd{margin:var(--s3) 0 0;font-size:.8125rem;font-weight:300;line-height:1.7;
-  color:var(--lada-muted)}
-
-/* ---------- measure ----------
-   Copy on the left across both rows; the photograph and the two routes
-   stack down the right. With no photograph the grid collapses to one
-   column and the routes simply follow the copy, so the section ships
-   before the shoot does. */
-.lada__measure{background:var(--lada-panel)}
-.lada__measure-grid{display:grid;gap:var(--s6)}
 @media (min-width:900px){
   .lada__measure-grid{grid-template-columns:1fr 1fr;column-gap:var(--s8);row-gap:var(--s5);
     grid-template-areas:"copy media" "copy act";align-items:start}
@@ -400,23 +362,6 @@
   .lada__measure-act{grid-area:act}
   .lada__measure-grid--solo{grid-template-columns:minmax(0,68ch);grid-template-areas:"copy" "act"}
 }
-.lada__steps{margin:var(--s6) 0 0;padding:0;list-style:none}
-.lada__steps li{display:grid;grid-template-columns:auto 1fr;gap:var(--s4);align-items:baseline;
-  padding-block:var(--s4);border-top:1px solid var(--lada-line);
-  font-size:.9375rem;font-weight:300;line-height:1.75;color:var(--lada-bone)}
-.lada__steps li:last-child{border-bottom:1px solid var(--lada-line)}
-.lada__steps .n{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  color:var(--lada-champagne);font-variant-numeric:tabular-nums}
-.lada__lead{margin:var(--s5) 0 0}
-.lada__lead>div{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;
-  gap:var(--s2) var(--s4);padding-block:var(--s3);border-bottom:1px solid var(--lada-line)}
-.lada__lead dt{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--lada-champagne)}
-.lada__lead dd{margin:0;font-size:.8125rem;font-weight:300;line-height:1.7;color:var(--lada-muted)}
-.lada__measure-act{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s5)}
-.lada__measure-media{margin:0}
-.lada__measure-media img{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;
-  filter:saturate(.8) contrast(1.06)}
 
 /* The underline that completes itself rather than changing colour:
    half a rule at rest, anchored right, finishing on hover. */
@@ -426,81 +371,22 @@
   width:50%;height:1px;background:var(--lada-champagne);transition:width .3s var(--ease)}
 .lada__link:hover::before,.lada__link:focus-visible::before{width:100%}
 .lada__link:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:4px}
-
-/* ---------- the house ----------
-   Address, hours and landline as selectable text. Hours and the
-   landline render only when they are filled in — the section must not
-   publish an opening time nobody has confirmed. */
-.lada__house{border-top:1px solid var(--lada-line)}
 .lada__house-grid{display:grid;gap:var(--s6);margin-top:var(--s6)}
 @media (min-width:900px){.lada__house-grid{grid-template-columns:1fr 1fr;
   column-gap:var(--s8);align-items:start}}
-.lada__address{font-style:normal;max-width:36ch;
-  font-size:.9375rem;font-weight:300;line-height:1.75;color:var(--lada-bone)}
-.lada__house-facts{margin:var(--s5) 0 0}
-.lada__house-facts>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2) var(--s4);
-  padding-block:var(--s3);border-top:1px solid var(--lada-line)}
-.lada__house-facts>div:last-child{border-bottom:1px solid var(--lada-line)}
-.lada__house-facts dt{min-width:9ch;font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--lada-champagne)}
-.lada__house-facts dd{margin:0;font-size:.8125rem;font-weight:300;line-height:1.7;
-  color:var(--lada-muted)}
-.lada__house-facts a{color:var(--lada-bone);text-decoration:none;
-  border-bottom:1px solid var(--lada-line)}
-.lada__house-facts a:hover{border-bottom-color:var(--lada-champagne)}
-.lada__house-facts a:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:3px}
-.lada__house-media{margin:0}
-.lada__house-media img{width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;
-  filter:saturate(.8) contrast(1.06)}
 .lada__routes{display:grid;gap:var(--s5);margin-top:clamp(2.5rem,6vh,4rem);
   padding-top:var(--s5);border-top:1px solid var(--lada-line)}
 @media (min-width:760px){.lada__routes{grid-template-columns:repeat(2,1fr);gap:var(--s6)}}
-.lada__route-h{margin:0 0 var(--s4);font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--lada-champagne)}
-
-/* One launcher, on-register — champagne on ground, radius 0, 44px.
-   z-index 55 is deliberately BELOW the header (60), the filter sheet
-   (70), the skip link (100) and the cart drawer (120), so it can never
-   sit on top of anything a customer is trying to use. */
-.lada__wa{position:fixed;inset-inline-end:var(--s4);bottom:var(--s4);z-index:55;
-  display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;padding-inline:var(--s4);
-  background:var(--lada-champagne);color:var(--lada-ground);border-radius:0;
-  font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;text-decoration:none;
-  transition:background .25s var(--ease),color .25s var(--ease)}
-.lada__wa:hover{background:var(--lada-bone)}
-.lada__wa:focus-visible{outline:2px solid var(--lada-bone);outline-offset:3px}
-
-.lada__sec{padding-block:clamp(3.5rem,10vh,7rem)}.lada__kicker{font-size:var(--fs-micro);letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}.lada__h2{margin:var(--s3) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);line-height:1.06;
-  font-size:clamp(1.75rem,3.2vw,2.5rem);letter-spacing:-.01em;color:var(--lada-bone)}
-.lada__p{margin:var(--s4) 0 0;max-width:60ch;color:var(--lada-muted);font-size:.98rem;line-height:1.8}
 
 .lada__stages{display:grid;gap:var(--s6);margin-top:var(--s7)}
 @media (min-width:820px){.lada__stages{grid-template-columns:repeat(3,1fr);gap:var(--s5)}}
-.lada__stage{border-top:1px solid var(--lada-line);padding-top:var(--s4)}
-.lada__stage img{aspect-ratio:4/5;object-fit:cover;width:100%;margin-bottom:var(--s4);
-  filter:saturate(.8) contrast(1.06)}.lada__stage .n{font-size:var(--fs-micro);letter-spacing:.24em;color:var(--lada-champagne);text-transform:uppercase}.lada__stage h3{margin:var(--s2) 0 0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem}
-.lada__stage p{margin:var(--s2) 0 0;color:var(--lada-muted);font-size:.9rem;line-height:1.75}
-
-.lada__split{display:grid;gap:var(--s6);margin-top:var(--s6)}
 @media (min-width:900px){.lada__split{grid-template-columns:1fr 1fr;gap:var(--s8)}}
-.lada__panel{border:1px solid var(--lada-line);background:var(--lada-panel);padding:var(--s6)}.lada__panel h3{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.35rem;
-  color:var(--lada-bone)}
-.lada__panel ul{margin:var(--s4) 0 0;padding:0;list-style:none}
-.lada__panel li{padding:.6rem 0;border-bottom:1px solid var(--lada-line);
-  color:var(--lada-muted);font-size:.9rem;line-height:1.6}
-.lada__panel li:last-child{border-bottom:0}
 
 .lada__sizes{width:100%;border-collapse:collapse;margin-top:var(--s5)}
 .lada__sizes th,.lada__sizes td{text-align:start;padding:.7rem .6rem;font-size:.85rem;
   border-bottom:1px solid var(--lada-line)}.lada__sizes th{font-size:var(--fs-micro);letter-spacing:.24em;text-transform:uppercase;
   color:var(--lada-champagne);font-weight:600}
 .lada__sizes td{color:var(--lada-muted);font-variant-numeric:tabular-nums}
-
-.lada__empty{border:1px solid var(--lada-line);background:var(--lada-panel);
-  padding:clamp(2.5rem,6vh,4rem) var(--s5);text-align:center}.lada__empty h3{margin:0;font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.6rem;
-  color:var(--lada-bone)}
-.lada__empty p{margin:var(--s3) auto var(--s5);max-width:48ch;color:var(--lada-muted);font-size:.92rem}
 
 /* Lada product cards invert to the dark register */
 .lada .pcard__media{background:var(--lada-panel)}
@@ -656,9 +542,6 @@
 .lada__lead dt,.lada__lead dd,.lada__link,.lada__address,.lada__house-facts dt,
 .lada__house-facts dd,.lada__route-h,.lada__wa{font-family:var(--font-ui)}
 
-.shead__t,.crail__h,.bmq__lead h2,.bmq__item span,.lada__h2,.lada__stage h3,.lada__panel h3,
-.lada__empty h3{font-family:var(--font-display);font-weight:var(--font-weight-heading)}
-
 /* ---------- moved out of inline style= attributes ---------- */
 .foot__about{margin:var(--s4) 0 0;max-width:32ch;color:var(--text-tertiary);font-size:.9rem}
 .foot__tag{margin:var(--s4) 0 0;font-size:var(--fs-micro);letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
@@ -691,8 +574,6 @@
   letter-spacing:.36em;text-transform:uppercase;color:var(--lada-champagne)}
 .lband__mark{margin:var(--s5) 0 0;width:100%;display:flex;justify-content:center}
 .lband__mark .kj-mark{width:clamp(210px,38vw,360px);color:var(--lada-champagne)}
-.lband__by{margin:var(--s3) 0 0;font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:400;
-  letter-spacing:.44em;text-transform:uppercase;color:var(--lada-champagne)}
 .lband__text{margin:var(--s6) 0 0;max-width:46ch;color:var(--lada-muted);
   font-size:clamp(.95rem,1.5vw,1.05rem);line-height:1.75}
 .lband__btn{border-radius:var(--radius);margin-top:var(--s6);display:inline-flex;align-items:center;justify-content:center;
@@ -1187,55 +1068,6 @@
    the one place where any padding at all would be a visible seam. */
 .lada__lookbook{padding:0}
 
-/* 2px of ground between frames, sapphire's gutter. Wide enough to read
-   as a deliberate rule between two photographs, narrow enough that the
-   run still reads as continuous. */
-.lada__frames{display:grid;gap:2px}
-
-/* --lada-panel rather than --lada-ground behind the picture: while a
-   frame is still decoding it should read as a reserved plate, not as a
-   hole in the page. */
-.lada__frame{position:relative;margin:0;overflow:hidden;background:var(--lada-panel);
-  scroll-snap-align:start;scroll-margin-block-start:64px}
-.lada__frame--tall{aspect-ratio:2/3}
-.lada__frame--wide{aspect-ratio:3/2}
-
-/* The anchor and the picture are both absolutely positioned against the
-   frame rather than sized with height:100%. A percentage height has to
-   resolve against a definite containing-block height, and the frame's
-   height is not specified, it is derived from aspect-ratio and then
-   clamped again by max-block-size in the capped variant. Every current
-   engine does resolve that chain, but it is two percentage hops deep on
-   a linked frame (figure -> a -> img) and it collapses to a zero-height
-   photograph the moment one of them declines. inset:0 has no such
-   dependency and gives the identical box. */
-.lada__frame-a,
-.lada__frame img{position:absolute;inset:0;display:block;width:100%;height:100%}
-.lada__frame img{object-fit:cover}
-
-/* A 2:3 portrait at 100vw is close to three screens tall on a desktop.
-   That is the naushemian register and it is the default, but the client
-   gets one checkbox to stop every frame at a single screen instead. The
-   picture crops rather than squashes, because the img is object-fit:cover. */
-.lada__lookbook--capped .lada__frame{max-block-size:100svh}
-
-/* The whole affordance. No arrow, no overlay, no hover label, no
-   caption: the only tell that a frame is shoppable is the cursor, and
-   the only tell for a keyboard is the focus ring, which is inset so it
-   sits on the photograph instead of in the 2px gutter. */
-.lada__frame-a{cursor:pointer}
-.lada__frame-a:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:-6px}
-
-/* SNAP BELONGS TO THE SCROLLPORT. scroll-snap-type on .lada__frames
-   would be inert: the property only does anything on an element that
-   actually scrolls, and that div does not. Scoping it to the document
-   with :has() gets the spec's behaviour without opening a nested
-   scroller, which is the thing that breaks find-in-page, deep links and
-   trackpads. Proximity, not mandatory, so a reader can still stop
-   between two frames, and no wheel handler anywhere. Browsers without
-   :has() simply scroll normally, which is a complete page. */
-html:has(.lada__lookbook){scroll-snap-type:y proximity}
-
 /* Narrative sits below the last frame and owns its own rhythm through
    .lada__sec; the section around it stays at zero. */
 .lada__lookbook-note .lada__link{margin-top:var(--s6)}
@@ -1243,96 +1075,9 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
 @media (prefers-reduced-motion:reduce){
   html:has(.lada__lookbook){scroll-snap-type:none}
 }
-
-/* ---------- editor only ----------
-   Both of these are emitted inside request.design_mode and can never
-   reach a customer. They exist because the live rule (no photograph,
-   no markup) also meant no editor: an invisible section cannot be
-   positioned and its empty blocks carry no shopify_attributes, so the
-   client could not click the frame he was trying to fill. The ghost
-   drops aspect-ratio deliberately, because eight 2:3 boxes at 100vw
-   would be twenty thousand pixels of empty editor. */
-.lada__lookbook-editor{margin:0;padding:var(--s4) var(--s5);
-  border-block-end:1px solid var(--lada-line);background:var(--lada-panel);
-  font-family:var(--font-ui);font-size:.8125rem;font-weight:300;line-height:1.7;
-  letter-spacing:0;color:var(--lada-muted)}
-
-.lada__frame--ghost{display:grid;place-items:center;padding:var(--s5);
-  aspect-ratio:auto;background:var(--lada-panel);
-  border:1px dashed var(--lada-line);text-align:center}
-.lada__frame--tall.lada__frame--ghost{block-size:220px}
-.lada__frame--wide.lada__frame--ghost{block-size:150px}
-.lada__ghost-l{font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
-  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-muted)}
-
-
-/* ---------------- collection ---------------- */
-/* ============================================================
-   LADA COLLECTION + LADA PRODUCT CARD
-   sections/lada-collection.liquid, snippets/lada-product-card.liquid
-
-   Uses only the Lada tokens already declared at the top of this
-   stylesheet. Defines nothing new and touches no .pcard rule: the
-   shared card keeps every one of its own.
-   ============================================================ */
-
-/* ---------- sub-category pills ----------
-   0 radius, hairline, filling to --lada-panel on hover. One scrollable
-   row and nothing else: no filter rail, no sort control, no result
-   count. At five to thirteen pieces those are furniture pretending to
-   be depth, and a count only advertises how short the range is.
-
-   The row bleeds to the screen edge below 760px so a cut-off pill is
-   visible at the margin and the row reads as scrollable. Above that
-   the four pills fit and the bleed would just push them out of the
-   1180px measure, so it is dropped.
-
-   Scrollbar hidden rather than styled: on the one breakpoint where
-   this scrolls the pills themselves are the affordance, and a dark
-   scrollbar track under a hairline row reads as a second, broken rule.
-
-   .24em of tracking leaves a trailing space after the last letter, so
-   centred label sits ~1.3px left of true. The extra .24em on the
-   leading padding cancels it. Same correction on the card button.
-
-   The 6px of padding on all four sides is not decoration, it is room
-   for the focus ring. overflow-x:auto makes overflow-y compute to auto
-   too, so this box clips its own children: without the padding the
-   2px champagne outline at 3px offset was sheared off the top and the
-   bottom of every pill and off the outer edge of the first and last,
-   which is the one state a keyboard user has to be able to see. The
-   negative margin puts the row's optical left edge back on the same
-   line as the kicker and the h2. Below 760px the wider bleed rule
-   below replaces the inline half and does the same job. */
-.lada__pills{display:flex;gap:var(--s2);margin-top:calc(var(--s6) - 6px);
-  padding:6px;margin-inline:-6px;
-  overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;
-  scrollbar-width:none;-ms-overflow-style:none}
-.lada__pills::-webkit-scrollbar{display:none}
 @media (max-width:759px){
   .lada__pills{margin-inline:-1.25rem;padding-inline:1.25rem}
 }
-.lada__pill{display:inline-flex;align-items:center;flex:0 0 auto;
-  min-height:44px;padding-inline:calc(var(--s4) + .24em) var(--s4);
-  border:1px solid var(--lada-line);border-radius:0;background:transparent;
-  color:var(--lada-bone);font-family:var(--font-ui);font-size:var(--fs-micro);
-  font-weight:600;letter-spacing:.24em;text-transform:uppercase;
-  text-decoration:none;white-space:nowrap;scroll-snap-align:start;
-  transition:background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
-.lada__pill:hover{background:var(--lada-panel);border-color:var(--lada-champagne)}
-.lada__pill:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:3px}
-/* The first pill with no destination is the view you are already
-   standing in, and so is any linked pill whose URL is this page. Exactly
-   one thing in this row is ever painted. */
-.lada__pill[aria-current]{background:var(--lada-panel);
-  border-color:var(--lada-champagne);color:var(--lada-champagne)}
-/* Every later unwired pill. The client's preset ships four pills with
-   no links on them; three of them are this. Muted rather than bone, and
-   the hover fill is taken back off, because a box that lights up under
-   the cursor and then does nothing is a promise the pill cannot keep.
-   #8B8579 on #0E0E0F is 5.26:1, so quiet is not the same as illegible. */
-.lada__pill--inert{color:var(--lada-muted);cursor:default}
-.lada__pill--inert:hover{background:transparent;border-color:var(--lada-line)}
 
 /* ---------- the grid ----------
    Roughly 4:1 vertical to horizontal. .pgrid runs var(--s6)/var(--s4),
@@ -1345,7 +1090,6 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
   column-gap:var(--s4);row-gap:var(--s8);margin-top:var(--s6)}
 @media (min-width:760px){.lada__grid{grid-template-columns:repeat(3,1fr)}}
 @media (min-width:1100px){.lada__grid{grid-template-columns:repeat(4,1fr)}}
-.lada__grid-more{margin:var(--s7) 0 0;padding-bottom:8px}
 
 /* ---------- the card ----------
    Four things: photograph, cloth-and-cut eyebrow, piece name, price.
@@ -1378,23 +1122,6 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
 .lcard__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   transition:opacity .5s var(--ease),transform 2s cubic-bezier(0,0,.44,1.18)}
 .lcard__img--alt{opacity:0}
-
-/* Gated on BOTH hover support and .lcard--pair, which the snippet only
-   adds when a real second frame exists. A one-image piece therefore has
-   no hover rule at all, rather than a hover that fades the photograph
-   into itself. That phantom state is what the current grid does and it
-   is worse than no hover, because it promises a second view and then
-   shows the first one again. */
-@media (hover:hover) and (pointer:fine){
-  .lcard--pair:hover .lcard__img--main,
-  .lcard--pair:focus-within .lcard__img--main{opacity:0}
-  .lcard--pair:hover .lcard__img--alt,
-  .lcard--pair:focus-within .lcard__img--alt{opacity:1;transform:scale(1.05)}
-}
-
-.lcard__eyebrow{margin:var(--s3) 0 0;font-family:var(--font-ui);
-  font-size:var(--fs-micro);font-weight:400;letter-spacing:.24em;line-height:1.5;
-  text-transform:uppercase;color:var(--lada-muted)}
 
 /* 15px/500 sentence case. Uppercase is typed nowhere: it is the eyebrow's
    text-transform and nothing else on this card. */
@@ -1511,29 +1238,6 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
   .lcard__spin{animation:none}
 }
 
-/* ---------- empty state ----------
-   The Lada collection has zero products in it today, so this is the
-   state the section ships in and it has to look like an object rather
-   than a gap. Copy rewritten from cloth to garments; the WhatsApp
-   reserve route is kept because it is the only route this funnel has.
-
-   The plate is optional and there is exactly one Lada photograph in
-   existence, so with nothing picked the panel is copy inside a hairline
-   box and that is a finished thing. Specificity: the existing
-   `.lada__empty h3` and `.lada__empty p` are (0,1,1), so these have to
-   be scoped to beat them rather than left as bare classes. */
-.lada__empty-plate{margin:0 0 var(--s6);padding:0}
-.lada__empty-plate img{display:block;width:100%;height:auto;aspect-ratio:16/9;
-  object-fit:cover}
-.lada__empty .lada__empty-h{margin:0;font-family:var(--font-display);
-  font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:500;letter-spacing:0;
-  line-height:1.2;color:var(--lada-bone)}
-.lada__empty .lada__empty-p{margin:var(--s4) auto 0;max-width:48ch;
-  font-size:.9375rem;font-weight:300;line-height:1.75;letter-spacing:0;
-  color:var(--lada-muted)}
-.lada__empty-act{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
-  gap:var(--s5);margin-top:var(--s6);padding-bottom:8px}
-
 
 /* ---------------- craft ---------------- */
 /* ============================================================
@@ -1560,83 +1264,9 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
 @media (min-width:820px){
   .lada__stages{grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))}
 }
-
-/* Dark placeholder while a lazy frame is still in flight, so the 4:5
-   box never flashes the page ground at a different value than the
-   photograph that lands in it. */
-.lada__stage img{background:var(--lada-panel)}
-
-/* THE STATE THIS SHIPS IN: no image on any stage.
-
-   With the photographs gone the column is a hairline, a numeral, a
-   title and four lines of copy, and at the picture-grid spacing that
-   reads as a gallery with the pictures missing. More air above the
-   numeral and a wider column gutter turn the same three columns into
-   set type, which is a thing a page can legitimately be. Row gap goes
-   up too, because on a phone the three stages stack and the hairline
-   is the only thing separating them. */
-.lada__stages--nomedia{row-gap:var(--s7)}
-.lada__stages--nomedia .lada__stage{padding-top:var(--s5)}
 @media (min-width:820px){
   .lada__stages--nomedia{column-gap:var(--s6)}
 }
-
-/* Stage copy at the page's stated body size. It was .9rem/400, which
-   is neither the 15px body nor the 13px secondary and so sat outside
-   the two-size system; 300 matches every other run of prose on the
-   page. Tracking stays at 0.
-
-   max-width is the cost of the auto-fit rule above. At three stages
-   the column is about 377px, roughly 42ch, and the cap never bites.
-   At two it is about 574px, roughly 64ch, and it still does not. But
-   a client who deletes down to one stage gets a single collapsed
-   track the full 1180px of the wrap, which is a 131-character line of
-   15px copy, and that is the one measure on this page nobody could
-   read. 66ch stops that case and leaves the other two untouched. */
-.lada__stage p{max-width:66ch;font-size:.9375rem;font-weight:var(--font-weight-lede);
-  line-height:1.75;letter-spacing:0}
-
-/* The numeral is a micro cap, so it takes the micro-cap weight. It is
-   also a <p> inside .lada__stage, so it would otherwise inherit the
-   300 set immediately above and render as a hairline at 11px. */
-.lada__stage .n{font-weight:600}
-
-/* Karigar credit.
-
-   13px is the floor for a full sentence on this page and this is a
-   full sentence, so it sits there and no lower. It gets a short
-   champagne-tinted rule instead of its own micro-cap label: a "Karigar"
-   eyebrow above each stage would add three more tracked lines to a
-   page that spends tracking on exactly two things. Sentence case,
-   tracking 0, muted on the ground at 5.26:1, over the 4.5 floor. */
-.lada__stage .lada__stage-credit{display:flex;gap:var(--s3);
-  margin:var(--s4) 0 0;max-width:34ch;
-  font-family:var(--font-ui);font-size:.8125rem;font-weight:var(--font-weight-lede);
-  line-height:1.7;letter-spacing:0;color:var(--lada-muted)}
-.lada__stage .lada__stage-credit::before{content:"";flex:0 0 1.25rem;height:1px;
-  margin-top:.72em;background:var(--lada-line)}
-
-/* The owner's line.
-
-   Montserrat is self-hosted in fonts.css as a variable face at 100-900
-   in italic as well as roman, so 300 italic is a face that exists and
-   not a browser slant. 14px is deliberate: one step under the 15px
-   body so a single human voice does not out-shout the three stages
-   above it, one step over the 13px secondary so it is not filed as
-   small print. Bone rather than muted, because this is the one
-   sentence on the section a customer is meant to read twice.
-
-   Drawn with an inline-start rule rather than a panel: the rest of
-   this page's information architecture is lines, and a filled box
-   here would be the only card in eight sections. */
-.lada__craft-note{margin:var(--s7) 0 0;max-width:56ch;
-  padding-inline-start:var(--s5);border-inline-start:1px solid var(--lada-line)}
-.lada__craft-say{margin:0;font-family:var(--font-ui);font-style:italic;
-  font-size:.875rem;font-weight:var(--font-weight-lede);line-height:1.75;
-  letter-spacing:0;color:var(--lada-bone)}
-.lada__craft-sig{margin:var(--s4) 0 0;font-family:var(--font-ui);
-  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--lada-champagne)}
 
 
 /* ---------------- sizing ---------------- */
@@ -1668,13 +1298,6 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
    a phone: the chart, then what the numbers mean, then how to take
    them. */
 .lada__fit{display:grid;gap:var(--s6);margin-top:var(--s6)}
-/* A grid item's automatic minimum size is its content, and the chart
-   sets white-space:nowrap, so without this the single-column phone
-   layout inflates the whole grid to the widest the table wants to be
-   and the PAGE scrolls sideways instead of the table. The scroller is
-   a grandchild, not the grid item, so its own overflow:auto does not
-   release the track on its own. */
-.lada__fit > *{min-width:0}
 @media (min-width:980px){
   .lada__fit{grid-template-columns:minmax(0,1fr) minmax(240px,320px);
     column-gap:var(--s8);row-gap:var(--s7);align-items:start;
@@ -1764,106 +1387,9 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
 .lada__sizes-note{margin:var(--s4) 0 0;max-width:60ch;font-family:var(--font-ui);
   font-size:.8125rem;font-weight:300;line-height:1.7;letter-spacing:0;color:var(--lada-muted)}
 
-/* ---------- the drawing ---------- */
-/* currentColor on the figure is the only place the line colour is set;
-   the SVG inherits it, so the same markup would come out correctly on
-   a light ground in the PDP popover by changing one declaration.
-   non-scaling-stroke is applied to every child because vector-effect
-   is not an inherited property and would otherwise have to be repeated
-   on eleven elements in the Liquid. */
-.lada__diagram{margin:0;color:var(--lada-champagne)}
-.lada__diagram-svg{display:block;width:100%;max-width:300px;height:auto}
-.lada__diagram-svg *{vector-effect:non-scaling-stroke}
-.lada__diagram-svg text{font-family:var(--font-ui);letter-spacing:0}
-.lada__diagram-call{opacity:.9}
-/* The caption is the first child of the figure, not the middle one, so
-   the margin runs downward. */
-.lada__diagram-cap{margin:0 0 var(--s4);font-family:var(--font-ui);font-size:var(--fs-micro);
-  font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}
-
-.lada__points{margin:var(--s5) 0 0;padding:0;list-style:none}
-.lada__points li{display:grid;grid-template-columns:1.5rem 1fr;gap:var(--s1) var(--s3);
-  padding-block:var(--s3);border-top:1px solid var(--lada-line)}
-.lada__points li:last-child{border-bottom:1px solid var(--lada-line)}
-/* A lone numeral takes no tracking: .24em on one character is a right
-   margin, not letter-spacing. */
-.lada__points .n{font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
-  letter-spacing:0;line-height:1.6;color:var(--lada-champagne);font-variant-numeric:tabular-nums}
-.lada__point-t{font-family:var(--font-ui);font-size:.9375rem;font-weight:500;line-height:1.4;
-  letter-spacing:0;color:var(--lada-bone)}
-.lada__point-n{grid-column:2;font-family:var(--font-ui);font-size:.8125rem;font-weight:300;
-  line-height:1.7;letter-spacing:0;color:var(--lada-muted)}
-
-/* ---------- how to measure ---------- */
-/* Stretch, not flex-start: the how-to rules have to start and end on
-   the same lines as the chart's rules above them, and a shrink-to-fit
-   column would end each rule wherever that sentence happened to stop.
-   The width is held by max-width on the list itself instead. */
-.lada__fit-help{display:flex;flex-direction:column}
-.lada__howto-h{margin:0;font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
-  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}
-/* The measure sits on the span, not the li. With max-width on the list
-   every how-to rule stopped 190px short of the chart's rules directly
-   above it, in the same column, which in a section drawn entirely in
-   hairlines reads as a mistake rather than as a measure. The li holds
-   the rule and spans the column; the sentence inside it still stops at
-   a readable length. */
-.lada__howto{margin:var(--s4) 0 0;padding:0;list-style:none}
-.lada__howto li{padding-block:var(--s3);border-top:1px solid var(--lada-line)}
-.lada__howto li:last-child{border-bottom:1px solid var(--lada-line)}
-.lada__howto-t{display:block;max-width:60ch;font-family:var(--font-ui);font-size:.9375rem;
-  font-weight:300;line-height:1.75;letter-spacing:0;color:var(--lada-bone)}
-.lada__fit-act{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s5) var(--s6);
-  margin-top:var(--s6)}
-
 @media (prefers-reduced-motion:reduce){
   .lada__units-opt{transition:none}
 }
-
-
-/* ---------------- promise ---------------- */
-/* ============================================================
-   LADA PROMISE : the guarantee, and the two no-JS accordions.
-   Merge target: kj-v2.css, after the .lada__house block.
-   Tokens only; nothing here redefines a variable.
-
-   Replaces nothing. The old comparison used .lada__split and
-   .lada__panel. An earlier draft of this header said both were still
-   in use by lada-sizing and must be kept: that was true when it was
-   written and is not true now. lada-sizing has since been rewritten
-   and `grep -rn "lada__split\|lada__panel" theme/` outside kj-v2.css
-   itself now returns nothing, so kj-v2.css lines 485-492 are dead.
-   Re-run that grep at merge time rather than trusting this line, then
-   delete them if it is still empty. Nothing here depends on them
-   either way.
-   ============================================================ */
-
-/* ---------- the centred block ----------
-   48ch, which is the lede measure from the type spec, and the same
-   measure the accordions below take so the whole section reads as one
-   narrow column with hairlines across it rather than two stacked
-   components. Centred here and nowhere else on the page: it is the one
-   section that is a statement rather than a display. */
-.lada__promise-block{max-width:48ch;margin-inline:auto;text-align:center}
-.lada__promise-lede{margin:var(--s5) 0 0;font-size:.9375rem;font-weight:300;line-height:1.75;
-  letter-spacing:0;color:var(--lada-bone)}
-
-/* ---------- the three lines ----------
-   Hairline-separated, label above value. The label is the only micro
-   cap in the block and carries the page's single tracked value; the
-   value sits at the 13px secondary size, at --lada-muted, which
-   measures 5.26:1 on --lada-ground against a 4.5:1 floor. (The type
-   spec rounds that to "about 5.6"; computed off the two hex values it
-   is 5.26. Still passing, and 13px is the floor for a full sentence,
-   so neither number may drift down.) --lada-champagne on the same
-   ground is 7.95:1 and --lada-bone is 15.8:1. */
-.lada__terms{margin:var(--s7) 0 0}
-.lada__terms>div{padding-block:var(--s5);border-top:1px solid var(--lada-line)}
-.lada__terms>div:last-child{border-bottom:1px solid var(--lada-line)}
-.lada__terms dt{font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--lada-champagne)}
-.lada__terms dd{margin:var(--s3) 0 0;font-size:.8125rem;font-weight:300;line-height:1.7;
-  letter-spacing:0;color:var(--lada-muted)}
 /* The WhatsApp link, which is the only control in the guarantee block
    and therefore the only thing here that has to survive a thumb.
 
@@ -1894,69 +1420,6 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
    gutter on a narrow handset for no gain. */
 .lada__terms .lada__link{line-height:1.4}
 .lada__terms .lada__link::after{content:"";position:absolute;inset-block:-15px;inset-inline:0}
-
-/* ---------- the two accordions ----------
-   Same 48ch measure as the block above, so the hairlines line up with
-   the ones in the guarantee and the section is one column top to
-   bottom. Drawn in lines only: no card, no shadow, no fill. */
-.lada__info{max-width:48ch;margin:clamp(2.5rem,6vh,4rem) auto 0}
-.lada__acc{border-top:1px solid var(--lada-line)}
-.lada__acc:last-of-type{border-bottom:1px solid var(--lada-line)}
-
-/* 12px/600, sentence case, tracking 0. Below the 13px floor on
-   purpose and permitted: the floor is for full sentences, and these
-   are two-word titles. */
-.lada__acc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
-  padding-block:var(--s4);cursor:pointer;list-style:none;
-  font-size:.75rem;font-weight:600;letter-spacing:0;line-height:1.4;
-  color:var(--lada-bone);transition:color .25s var(--ease)}
-/* Two resets, because the marker is hidden differently per engine:
-   list-style covers Firefox and Chrome, the pseudo-element covers
-   Safari and iOS. */
-.lada__acc-h::marker{content:""}
-.lada__acc-h::-webkit-details-marker{display:none}
-.lada__acc-h:hover{color:var(--lada-champagne)}
-.lada__acc-h:focus-visible{outline:2px solid var(--lada-champagne);outline-offset:3px}
-/* The title inside the summary is a real h3, for screen-reader
-   navigation between the panels. It must take every scrap of its type
-   from the summary: a UA h3 would arrive at 1.17em bold with a block
-   margin and break both the 12px title size and the flex row. */
-.lada__acc-t{margin:0;font:inherit;letter-spacing:inherit;color:inherit}
-
-/* The indicator is two 1px rules rather than a + and a - glyph, so it
-   is the same hairline weight as every other line in the section and
-   does not change width when the character swaps. Open collapses the
-   upright stroke to nothing and leaves the bar. */
-.lada__acc-ind{position:relative;flex:0 0 auto;width:11px;height:11px}
-.lada__acc-ind::before,.lada__acc-ind::after{content:"";position:absolute;
-  background:var(--lada-champagne);transition:transform .25s var(--ease)}
-.lada__acc-ind::before{inset-inline:0;top:5px;height:1px}
-.lada__acc-ind::after{inset-block:0;inset-inline-start:5px;width:1px}
-.lada__acc[open] .lada__acc-ind::after{transform:scaleY(0)}
-
-.lada__acc-body{padding-block:0 var(--s5)}
-
-/* ---------- cloth panel ----------
-   Label left, fact right, one hairline between rows. The trade name
-   and the composition are two rows because they are two facts; the
-   value sits at --lada-bone, not --lada-muted, because the disclosure
-   is the thing the customer came into the panel to read. */
-.lada__spec{margin:0}
-.lada__spec>div{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2) var(--s4);
-  padding-block:var(--s3)}
-.lada__spec>div+div{border-top:1px solid var(--lada-line)}
-.lada__spec dt{min-width:11ch;font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--lada-champagne)}
-.lada__spec dd{margin:0;flex:1 1 16ch;font-size:.8125rem;font-weight:300;line-height:1.7;
-  letter-spacing:0;color:var(--lada-bone)}
-
-/* ---------- care panel ---------- */
-.lada__care-intro{margin:0;padding-block:0 var(--s3);font-size:.8125rem;font-weight:300;
-  line-height:1.7;letter-spacing:0;color:var(--lada-bone)}
-.lada__care{margin:0;padding:0;list-style:none}
-.lada__care li{padding-block:var(--s3);font-size:.8125rem;font-weight:300;line-height:1.7;
-  letter-spacing:0;color:var(--lada-muted)}
-.lada__care li+li{border-top:1px solid var(--lada-line)}
 
 /* The panels open instantly either way; the only motion in the section
    is the 11px stroke collapsing, and reduced motion drops that too. */
@@ -2252,12 +1715,6 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
    translateX(10px) below nudges it leftwards, which is forwards in
    Urdu. One value, both directions, no second rule to keep in sync. */
 [dir="rtl"] .btn-lada{--lada-arrow-dir:-1}
-
-.btn-lada__arrow{
-  flex:none;
-  margin-inline-start:var(--s3);
-  transform:scaleX(var(--lada-arrow-dir));
-  transition:transform .3s var(--ease)}
 .btn-lada:hover .btn-lada__arrow,
 .btn-lada:focus-visible .btn-lada__arrow{
   transform:scaleX(var(--lada-arrow-dir)) translateX(10px)}
@@ -2463,4 +1920,1945 @@ html:has(.lada__lookbook){scroll-snap-type:y proximity}
   .template-page-lada:has(.lada__hero) .nav__grp h4 a:hover{color:var(--lada-bone)}
   .template-page-lada:has(.lada__hero) .nav__grp ul a{color:var(--lada-muted)}
   .template-page-lada:has(.lada__hero) .nav__grp ul a:hover{color:var(--lada-champagne)}
+}
+
+
+/* ================================================================
+   LADA, REBUILT AS A GATEWAY  —  16 Sep 2026
+   ================================================================
+   The nine-section Lada page is gone. It was built to a teardown
+   spec and the client's verdict was that it overwhelmed an ordinary
+   customer: too much writing, too many choices. What replaces it is
+   a full-screen gateway with two doors, Alamghir and Ready to wear,
+   and then the normal shop behind each one, in a dark register.
+
+   Everything below is scoped to .template-page-lada,
+   .template-collection-lada or .template-product-lada, which
+   layout/theme.liquid emits on <body>. Nothing here can reach any
+   other page on the site. 155 dead rules from the old page were
+   removed above rather than left to rot.
+   ================================================================ */
+
+
+/* ---------------- gateway ---------------- */
+/* ============================================================
+   LADA GATEWAY — sections/lada-gateway.liquid, page.lada.json
+   One screen, two doors. Merge as one block into kj-v2.css.
+
+   EVERY RULE IS SCOPED TO .template-page-lada, which theme.liquid
+   emits on <body> for page.lada.json. Nothing here may leak onto the
+   white shop: the gateway is the only black page on this template and
+   the classes it uses (.lada-gate*) exist nowhere else, but the
+   template scope is the guarantee, not the class names.
+
+   Tokens are used, never redefined. --lada-ground/panel/line/
+   champagne/bone, --s*, --fs-micro, --ease, --font-display/ui all come
+   from the :root blocks in site.css and kj-v2.css.
+   ============================================================ */
+
+/* ---------- the screen ----------
+   Fills the viewport under the header and stops. svh, not vh: on iOS
+   Safari 100vh is the height the page would have if the toolbars were
+   hidden, so with vh the bottom of the second door sits under the URL
+   bar until the visitor scrolls. svh is the small — toolbars showing —
+   height, which is the height a phone actually gives you.
+
+   The header is sticky AND IN FLOW (site.css .hdr), so it has already
+   taken its 61px out of the page before this section starts; 100svh on
+   its own would overflow by exactly that and put a scrollbar on a page
+   that is meant to be one screen. --lada-hdr-h is the variable
+   kj-v2.js publishes when it measures the bar; it is not published on
+   this page, because that routine returns early unless .lada__hero is
+   present, so the 61px fallback — a 60px bar plus its hairline — is
+   what is used in practice. Left as a variable so it self-corrects if
+   the measurement is ever extended to this template.
+
+   THE SHORT-SCREEN FLOOR IS ON THE DOOR, NOT ON THE SECTION, and that
+   is deliberate. This carried max(520px, …) at first, and on a phone
+   held sideways — 740x380, so 319px of page under the header — the
+   520 won, the section outgrew the screen, and the two names ended up
+   below the fold on the one screen whose entire job is to show both
+   choices at once. The real thing worth protecting is the height of a
+   single door, and .lada-gate__cell already guarantees that, so the
+   section is left to ask for the viewport and nothing more. On a short
+   screen it ends up at whatever the doors need and the page scrolls by
+   a few dozen pixels, which is the smallest version of the compromise.
+
+   The first, plain min-block-size is for engines without svh: they
+   discard the calc() line entirely and fall back to it. */
+.template-page-lada .lada-gate{
+  /* The rgb channels of --lada-ground #0E0E0F. A gradient scrim needs
+     alpha and there is no --lada-ground-rgb token; declaring it here,
+     on the section, keeps it local and leaves the token untouched. */
+  --gate-ink:14,14,15;
+
+  position:relative;
+  display:flex;flex-direction:column;
+  background:var(--lada-ground);color:var(--lada-bone);
+  min-block-size:520px;
+  min-block-size:calc(100svh - var(--lada-hdr-h,61px))}
+
+/* ---------- the mark ----------
+   Small, once, above the doors, and that is the entire top of the
+   page. When the checkbox is off the same h1 is still in the markup
+   carrying .vh, so the page never loses its only top-level heading —
+   see the comment in the section. .vh is absolutely positioned and
+   clipped, so this padding and hairline cost nothing in that state.
+
+   An explicit width is required: site.css sets .kj-mark{width:100%},
+   so without one the mark would run the full width of the screen.
+   Ratio is held by .kj-mark--lada{aspect-ratio:600/447} in kj-v2.css. */
+.template-page-lada .lada-gate__crest{
+  margin:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:var(--s5);
+  border-bottom:1px solid var(--lada-line)}
+.template-page-lada .lada-gate__crest .kj-mark--lada{
+  width:clamp(84px,10vw,124px);height:auto}
+/* .vh wins the layout argument but not the paint one: the crest rule
+   above is (0,2,0) and site.css's .vh is (0,1,0), so the clipped
+   heading would keep 24px of padding and a hairline on a 1px box. It
+   is out of flow and clip-path'd either way, but a live box left on a
+   hidden element is the kind of thing that turns up later as a stray
+   line in a screenshot nobody can explain. */
+.template-page-lada .lada-gate__crest.vh{padding:0;border-bottom:0}
+
+/* A phone held sideways gives 319px of page under the bar, and the
+   crest was taking 112px of it — 84px of mark plus 48px of padding —
+   which left the two 220px doors 13px over the edge and put the whole
+   screen on a scroll it should not need. The mark is not the point of
+   this page, the two doors are, so on a short screen it keeps its size
+   and gives up its air: 87px of crest plus 220px of door is 307px and
+   the choice fits in one look again. Keyed on height, not width, so a
+   short desktop window gets the same courtesy and a tall phone is
+   untouched. */
+@media (max-height:600px){
+  .template-page-lada .lada-gate__crest{padding:var(--s3)}
+}
+
+/* ---------- the two doors ----------
+   Stacked on a phone, side by side from 600px. The 1px gap over a
+   --lada-line ground is the hairline between them: one line, drawn
+   once, with no border on either door to double up at the join.
+   flex:1 makes the row eat whatever height the mark left over.
+
+   600px, NOT the 768 this started at. A phone held sideways is
+   740x380 or thereabouts: under a 768 breakpoint it kept stacking, so
+   two 220px doors ran off a 319px screen and the second one was
+   entirely below the fold on a gateway whose whole job is to show both
+   at once. Turning at 600 puts a landscape phone into two columns,
+   where each door gets the full height and the choice is visible in
+   one look. The smallest tile this produces is about 300px wide, which
+   a name and a five-word note sit in comfortably. */
+.template-page-lada .lada-gate__doors{
+  flex:1 1 auto;
+  margin:0;padding:0;list-style:none;
+  display:grid;grid-template-columns:1fr;
+  gap:1px;background:var(--lada-line)}
+@media (min-width:600px){
+  .template-page-lada .lada-gate__doors{grid-template-columns:1fr 1fr}
+}
+
+/* THE ONE FLOOR ON THIS PAGE. 220px is a door: 64px of padding, a
+   36px name, a line of micro caps and still about 90px of photograph
+   above them. Anything less is a letter slot. Two of these stacked is
+   also what sets the section's height on a short screen, which is why
+   the section itself no longer carries a minimum of its own.
+   The cell is the grid item and the anchor fills it, so the whole tile
+   is the hit area rather than the text inside it. */
+.template-page-lada .lada-gate__cell{display:flex;min-block-size:220px}
+
+.template-page-lada .lada-gate__door{
+  position:relative;flex:1 1 auto;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  min-block-size:44px;
+  padding:var(--s6);
+  overflow:hidden;
+  background:var(--lada-panel);color:var(--lada-bone);
+  text-decoration:none}
+
+/* NO PHOTOGRAPH IS THE SHIPPING STATE. A bare door is a panel with a
+   hairline round it and its name on it. The ring is inset rather than
+   a border so it does not change the box and does not stack with the
+   grid's own hairline at the join. */
+.template-page-lada .lada-gate__door--bare{
+  box-shadow:inset 0 0 0 1px var(--lada-line)}
+
+/* ---------- the photograph ----------
+   Absolutely filling the door and cropped by object-fit, so any shape
+   the client uploads fills its half without letterboxing. --lada-panel
+   underneath means a slow-loading or missing file shows the panel, not
+   white. */
+.template-page-lada .lada-gate__media{
+  position:absolute;inset:0;overflow:hidden;background:var(--lada-panel)}
+.template-page-lada .lada-gate__media img{
+  width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  transform:scale(1);
+  transition:transform 1.4s var(--ease)}
+
+/* Two overlays, both absolute so they paint above the static <img>.
+   ::after is the permanent scrim that the type sits on — it is a
+   bottom-weighted gradient rather than a flat wash so the top of the
+   photograph stays a photograph.
+   ::before is the hover lift and is the only thing that animates on
+   the scrim; a gradient's colour stops cannot be transitioned, which
+   is why this is a second layer fading in rather than one gradient
+   changing. */
+.template-page-lada .lada-gate__media::before,
+.template-page-lada .lada-gate__media::after{
+  content:"";position:absolute;inset:0;pointer-events:none}
+
+/* THE STOPS ARE IN rem, NOT PER CENT, AND THAT IS THE WHOLE POINT.
+
+   This was written as 0%/30%/62%/100%, which reads fine and fails in
+   the one place it matters. Percentage stops scale with the door, so
+   the shorter the door the weaker the scrim is at the height the type
+   actually sits at — and the type does not shrink with the door, it
+   stays pinned 24-32px off the bottom. Measured in a browser over a
+   blown-out white photograph, which is the worst ground the client can
+   upload:
+
+     1280x820  door 618px  note at alpha .81  champagne 4.5:1  (just)
+      375x812  door 319px  note at alpha .77  champagne 3.9:1  FAILS
+      740x380  door 220px  note at alpha .63  champagne 2.3:1  FAILS
+                           name at alpha .41  bone      2.2:1  FAILS
+
+   A landscape phone is not an edge case on this page: it is the one
+   viewport the two-column breakpoint was moved to 600px to serve.
+
+   Anchored in rem the deep band is the same 7rem of real estate on
+   every screen, and the plate is at most 98px tall (36px name, 8px
+   gap, 19px note, 32px padding), so the type is always inside it.
+   rgba(ink,.88) over pure white is #2B2B2C: champagne 5.83:1, bone
+   11.58:1. Over anything darker than white it is better. A two-line
+   note pushes the name to about 117px, five pixels past the flat
+   band and onto a ramp that is still at .86 there, so that degrades
+   to roughly 10:1 rather than off a cliff.
+
+   Above 7rem the photograph opens up exactly as before: on a 618px
+   door the top 234px carries no scrim at all. */
+.template-page-lada .lada-gate__media::after{
+  background:linear-gradient(to top,
+    rgba(var(--gate-ink),.92) 0,
+    rgba(var(--gate-ink),.88) 7rem,
+    rgba(var(--gate-ink),.30) 15rem,
+    rgba(var(--gate-ink),0) 24rem)}
+.template-page-lada .lada-gate__media::before{
+  background:rgba(var(--gate-ink),.26);
+  opacity:0;
+  transition:opacity .5s var(--ease)}
+
+/* ---------- the name ----------
+   Two tracking values on this page and no third: 0 here, .24em on the
+   11px caps below. 36px ceiling, under the page's 40px limit.
+   position:relative lifts the plate above the scrim without a z-index
+   war — the media is the only other positioned child. */
+.template-page-lada .lada-gate__plate{
+  position:relative;
+  display:flex;flex-direction:column;gap:var(--s2)}
+.template-page-lada .lada-gate__name{
+  font-family:var(--font-display);
+  font-weight:var(--font-weight-heading);
+  font-size:clamp(1.5rem,3vw,2.25rem);
+  line-height:1.08;letter-spacing:0;
+  text-transform:uppercase;
+  color:var(--lada-bone)}
+/* Uppercase comes from here, never from what is typed into the
+   setting. Same micro rule as .lada__proof-item dt: 11px, 600, .24em,
+   champagne — 7.95:1 on --lada-ground, 7.37:1 on --lada-panel. */
+.template-page-lada .lada-gate__note{
+  font-family:var(--font-ui);
+  font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;line-height:1.7;
+  text-transform:uppercase;
+  color:var(--lada-champagne);
+  /* em, not ch: ch is the width of a "0" and takes no account of the
+     .24em tracking, which adds roughly a third again to every line of
+     micro caps. 38ch measured out at 274px against a line that needs
+     302px, so the default note wrapped on a wide desktop tile for no
+     reason. 40em of the note's own 11px is 440px, which holds the
+     default on one line at half a 1280 screen and still wraps
+     sensibly on a phone. */
+  max-inline-size:40em}
+
+/* ---------- hover, and the ring ----------
+   Restrained on purpose: the photograph creeps, the scrim lifts, and
+   nothing moves the type. Gated on (hover:hover) so a touch device
+   does not hold the hover state after a tap on the way to the
+   collection.
+
+   The focus ring is inset. The doors run edge to edge and touch each
+   other, so an outward outline would be overlapped by the neighbouring
+   tile on one side and clipped by the viewport on the other — the one
+   place a keyboard user needs it to be unmistakable. */
+@media (hover:hover){
+  .template-page-lada .lada-gate__door:hover .lada-gate__media img{transform:scale(1.045)}
+  .template-page-lada .lada-gate__door:hover .lada-gate__media::before{opacity:1}
+}
+
+/* THE RING CARRIES ITS OWN GROUND. A champagne ring is 7.95:1 on the
+   bare panel and 2.0:1 on a white shirt, and the ring sits at the top
+   edge of the tile where the scrim has already run out — so on a pale
+   photograph the one indicator a keyboard user has would be under the
+   3:1 floor for non-text contrast. The 14px inset shadow lays a dark
+   band round the whole inside edge on focus only; the 2px ring floats
+   in the middle of it at 10-12px, dark on both sides. Champagne on
+   rgba(ink,.85) over white is 4.8:1, and over the panel 7.6:1.
+   The hairline is listed first so it still paints on top of the band
+   on a bare door, which would otherwise lose its outline on focus. */
+.template-page-lada .lada-gate__door:focus-visible{
+  outline:2px solid var(--lada-champagne);
+  outline-offset:-10px;
+  box-shadow:inset 0 0 0 1px var(--lada-line),
+             inset 0 0 0 14px rgba(var(--gate-ink),.85)}
+
+/* Last, so it wins on source order. A media query adds no specificity,
+   so the hover rules above and these are equal weight and only order
+   separates them — the same trap that left reduced-motion users with a
+   transitioning header in the block further down this file. */
+@media (prefers-reduced-motion:reduce){
+  .template-page-lada .lada-gate__media img,
+  .template-page-lada .lada-gate__media::before{transition:none}
+  .template-page-lada .lada-gate__door:hover .lada-gate__media img{transform:none}
+}
+
+/* ============================================================
+   HEADER OVER THE GATEWAY.
+
+   FOR THE MERGE: this is the same treatment as the existing block
+   `.template-page-lada:has(.lada__hero) .hdr` in kj-v2.css §3, for a
+   page that no longer has a .lada__hero on it. The tidier merge is to
+   add `.template-page-lada:has(.lada-gate) …` to each selector list in
+   that block and delete everything below this line. It is written out
+   here only so this file is complete on its own.
+
+   WHAT IS DELIBERATELY DIFFERENT FROM THAT BLOCK. The header is NOT
+   made position:fixed here and there is no scrolled-past state. The
+   hero block goes fixed so the plate can start at y=0 and run behind
+   the mark, and pays for it with a measured height, a scroll listener
+   and scroll-margin on every anchor target. The gateway has no anchor
+   targets, nothing to run behind the bar and nothing below the fold,
+   so it keeps site.css's sticky-in-flow header and is simply painted
+   dark from the first frame. No JavaScript is involved, which also
+   means no white flash before a script runs.
+
+   :has(.lada-gate) is the safety catch, exactly as :has(.lada__hero)
+   is in the other block: remove the section in the theme editor, or
+   load the page in an engine without :has(), and the header falls back
+   to the ordinary white bar rather than to bone text on white. */
+.template-page-lada:has(.lada-gate) .hdr{
+  --header-content-color:var(--lada-bone);
+  background:var(--lada-ground);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  border-bottom-color:var(--lada-line)}
+
+/* site.css paints these from --text and --accent, both tuned for the
+   white shop. Repointed so one declaration above moves all of them.
+   On --lada-ground #0E0E0F: bone 15.8:1, champagne 7.95:1. */
+.template-page-lada:has(.lada-gate) .hdr__brand{color:var(--lada-champagne)}
+.template-page-lada:has(.lada-gate) .hdr__brand b{color:var(--header-content-color)}
+.template-page-lada:has(.lada-gate) .iconbtn{color:var(--header-content-color)}
+.template-page-lada:has(.lada-gate) .iconbtn:hover{color:var(--lada-champagne)}
+.template-page-lada:has(.lada-gate) .iconbtn:focus-visible{outline-color:var(--lada-champagne)}
+.template-page-lada:has(.lada-gate) .nav__link{color:var(--header-content-color)}
+.template-page-lada:has(.lada-gate) .nav__link:hover,
+.template-page-lada:has(.lada-gate) .nav__link[aria-current="page"]{color:var(--lada-champagne)}
+.template-page-lada:has(.lada-gate) .nav__link--lada{color:var(--lada-champagne)}
+
+/* Tracking normalised to the page's two values: 0 on everything that
+   is not 11px caps, .24em on what is. */
+.template-page-lada:has(.lada-gate) .hdr__brand b,
+.template-page-lada:has(.lada-gate) .nav__link,
+.template-page-lada:has(.lada-gate) .nav__link--lada{letter-spacing:0}
+.template-page-lada:has(.lada-gate) .nav__grp h4{letter-spacing:.24em}
+.template-page-lada:has(.lada-gate) .nav__grp h4 a{font-size:inherit}
+@media (max-width:1023px){
+  .template-page-lada:has(.lada-gate) .nav__grp h4 a{
+    display:flex;align-items:center;min-height:44px}
+}
+
+/* The drawer and the mega panel are white surfaces hanging off a now
+   dark bar, and the accent hover #9A1B2F measures 2.36:1 on
+   --lada-ground, so they come onto the Lada palette with it. Link
+   colour is scoped to `.nav__grp ul a`, not `.nav__grp a`: the group
+   heading is <h4><a>…</a></h4> and the looser selector repaints the
+   heading muted, collapsing it into the list underneath. */
+@media (max-width:1023px){
+  .template-page-lada:has(.lada-gate) .nav{
+    background:var(--lada-ground);border-bottom-color:var(--lada-line)}
+  .template-page-lada:has(.lada-gate) .nav__sec{border-top-color:var(--lada-line)}
+  .template-page-lada:has(.lada-gate) .nav__grp h4,
+  .template-page-lada:has(.lada-gate) .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-page-lada:has(.lada-gate) .nav__grp ul a{color:var(--lada-muted)}
+  .template-page-lada:has(.lada-gate) .nav__grp ul a:hover{color:var(--lada-bone)}
+  .template-page-lada:has(.lada-gate) .nav__viewall{
+    display:flex;align-items:center;min-height:44px;
+    font-size:var(--fs-micro);letter-spacing:.24em;
+    color:var(--lada-champagne)}
+}
+@media (min-width:1024px){
+  .template-page-lada:has(.lada-gate) .mega{
+    background:var(--lada-panel);border-color:var(--lada-line);box-shadow:none}
+  .template-page-lada:has(.lada-gate) .nav__grp h4,
+  .template-page-lada:has(.lada-gate) .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-page-lada:has(.lada-gate) .nav__grp h4 a:hover{color:var(--lada-bone)}
+  .template-page-lada:has(.lada-gate) .nav__grp ul a{color:var(--lada-muted)}
+  .template-page-lada:has(.lada-gate) .nav__grp ul a:hover{color:var(--lada-champagne)}
+}
+
+
+/* ---------------- collection ---------------- */
+/* ============================================================
+   LADA COLLECTION LISTING
+   sections/main-collection-lada.liquid, on templates/collection.lada.json
+
+   SCOPE, AND WHY EVERY SELECTOR CARRIES IT.
+   theme.liquid emits `template-collection template-collection-lada` on
+   <body> for any collection put on the .lada suffix. Both Lada
+   collections, Alamghir and Ready to Wear, share that one class, so one
+   block dresses both and nothing here can reach /collections/men-shawls
+   or any of the other twelve listings. The rail, the chips and the
+   price inputs below are the SHARED classes from site.css restyled
+   under that scope, not forks of them, which is what keeps the two
+   listings behaving the same when someone edits one of them. The rail
+   markup matches main-collection.liquid's except for three fixes the
+   section file lists at the top, none of which change a class name.
+
+   TOKENS. Only the Lada tokens already declared at the top of
+   kj-v2.css. Nothing new is defined and nothing existing is redefined.
+
+   TYPE. Two tracking values and no third: .24em on 11px micro caps,
+   0 on everything else. Nothing over 40px. Body copy 15px/300.
+
+   CONTRAST, computed from the token hexes, all at or above the 4.5:1
+   floor. Earlier drafts of this header rounded three of these upward;
+   the figures below are the arithmetic:
+     champagne #C6A15B on ground #0E0E0F .... 7.95:1  labels, current page
+     champagne on panel #17171A ............. 7.37:1  picked chip text
+     bone      #EDE8DE on ground ........... 15.80:1  chip text, headings
+     bone      on panel ................... 14.65:1  price inputs
+     muted     #8B8579 on ground ............ 5.26:1  counts, pagination
+     muted     on panel ..................... 4.88:1  input placeholders
+     ground    on champagne ................. 7.95:1  filled button text
+   brass #8F7038 measures 4.17:1 on ground and 3.87:1 on panel. Both are
+   under the floor, so it carries no text anywhere in this file.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. PAGE CHROME.
+
+   The listing is dark end to end, so the header and the footer have to
+   come with it or the grid sits in a white sandwich. This group is only
+   the recolour: no layout, no type, no new elements. It is the non-hero
+   twin of the block kj-v2.css already carries for
+   `.template-page-lada:has(.lada__hero)`, minus the fixed/transparent
+   header, which is a hero trick and there is no hero on a listing. The
+   bar stays sticky and solid exactly as it is on the rest of the site.
+
+   MERGE NOTE: if a journey-wide chrome skin lands that already covers
+   .template-collection-lada, delete this group. It is safe to remove on
+   its own; nothing below depends on it.
+   ------------------------------------------------------------ */
+.template-collection-lada{background:var(--lada-ground);color:var(--lada-bone)}
+.template-collection-lada ::selection{background:var(--lada-champagne);color:var(--lada-ground)}
+
+/* No backdrop-filter. The bar is fully opaque against a ground that is
+   already this exact colour, so the blur is a full-width GPU pass every
+   frame of every scroll for an effect nothing can see. */
+.template-collection-lada .hdr{background:var(--lada-ground);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  border-bottom-color:var(--lada-line)}
+.template-collection-lada .hdr__brand{color:var(--lada-champagne)}
+.template-collection-lada .hdr__brand b{color:var(--lada-bone)}
+.template-collection-lada .iconbtn{color:var(--lada-bone)}
+.template-collection-lada .iconbtn:hover{color:var(--lada-champagne)}
+.template-collection-lada .iconbtn:focus-visible{outline-color:var(--lada-champagne)}
+.template-collection-lada .nav__link,
+.template-collection-lada .nav__link--lada{color:var(--lada-bone)}
+.template-collection-lada .nav__link:hover,
+.template-collection-lada .nav__link[aria-current="page"]{color:var(--lada-champagne)}
+.template-collection-lada .nav__link--lada{color:var(--lada-champagne)}
+
+@media (max-width:1023px){
+  /* The drawer panel, which on this breakpoint is an absolutely
+     positioned sheet under the bar painted var(--bg). */
+  .template-collection-lada .nav{background:var(--lada-ground);
+    border-bottom-color:var(--lada-line)}
+  .template-collection-lada .nav__sec{border-top-color:var(--lada-line)}
+  .template-collection-lada .nav__grp h4,
+  .template-collection-lada .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-collection-lada .nav__grp ul a{color:var(--lada-muted)}
+  .template-collection-lada .nav__grp ul a:hover{color:var(--lada-bone)}
+  /* var(--accent) is the shop's maroon. On this ground it measures about
+     1.6:1, which is not a colour, it is a dark patch where a link is. */
+  .template-collection-lada .nav__viewall{color:var(--lada-champagne);letter-spacing:.24em;
+    font-size:var(--fs-micro)}
+}
+@media (min-width:1024px){
+  /* Panel rather than ground, so the mega reads as a pane in front of
+     the page instead of a hole cut in it. Shadow dropped: a soft black
+     shadow on a near-black ground is invisible, and the hairline is
+     what actually describes the edge. */
+  .template-collection-lada .mega{background:var(--lada-panel);
+    border-color:var(--lada-line);box-shadow:none}
+  .template-collection-lada .nav__grp h4,
+  .template-collection-lada .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-collection-lada .nav__grp ul a{color:var(--lada-muted)}
+  .template-collection-lada .nav__grp ul a:hover{color:var(--lada-champagne)}
+}
+
+.template-collection-lada .foot{background:var(--lada-ground);border-top-color:var(--lada-line)}
+.template-collection-lada .foot__mark{color:var(--lada-champagne)}
+.template-collection-lada .foot h4{color:var(--lada-champagne)}
+.template-collection-lada .foot li a{color:var(--lada-muted)}
+.template-collection-lada .foot li a:hover{color:var(--lada-bone)}
+.template-collection-lada .foot__about,
+.template-collection-lada .foot__legal{color:var(--lada-muted)}
+.template-collection-lada .foot__legal{border-top-color:var(--lada-line)}
+.template-collection-lada .foot__tag{color:var(--lada-champagne)}
+.template-collection-lada .foot__trust{border-top-color:var(--lada-line);
+  border-bottom-color:var(--lada-line)}
+/* .2em elsewhere. The Lada pages run exactly two tracking values and
+   this is an 11px cap row, so it takes the micro one. */
+.template-collection-lada .foot__trust span{color:var(--lada-muted);letter-spacing:.24em}
+
+/* ------------------------------------------------------------
+   2. THE ONE THING ABOVE THE GRID.
+
+   No hairline under it. main-collection.liquid rules off its .phead
+   because it has a description and a count to separate from the grid;
+   there is nothing here to separate, and a rule under a single word
+   turns it into a table header. The space does the work.
+
+   2.5rem is 40px, the ceiling for this whole journey, and it is a
+   clamp ceiling rather than a fixed size so the word does not wrap on
+   a 360px phone. letter-spacing:0, because the only tracked type on
+   this page is 11px caps.
+   ------------------------------------------------------------ */
+.template-collection-lada .lcoll__head{padding-block:var(--s7) var(--s6)}
+.template-collection-lada .lcoll__h1{margin:0;
+  font-family:var(--font-display);font-weight:var(--font-weight-heading);
+  font-size:clamp(1.9rem,4.4vw,2.5rem);line-height:1.05;letter-spacing:0;
+  color:var(--lada-bone)}
+
+/* ------------------------------------------------------------
+   3. THE TWO COLUMN LISTING.
+
+   .listing from site.css already gives 1fr on a phone and 248px 1fr
+   from 1000px, which is the shared listing geometry and is left alone.
+
+   --wide is the no-facet case. The section drops the <aside> entirely
+   when collection.filters is empty, and without this override the one
+   remaining child inherits the 248px track and the grid renders inside
+   a quarter of the page. Both Lada collections are empty today, so this
+   is not an edge case, it is the state the page ships in.
+
+   min-width:0 on the content column: a grid item's default min-width is
+   auto, so a long unbroken product title or a wide table inside a card
+   can push the track past its share and shove the rail off screen.
+   ------------------------------------------------------------ */
+.template-collection-lada .lcoll__listing{padding-bottom:var(--s9)}
+.template-collection-lada .lcoll__main{min-width:0}
+@media (min-width:1000px){
+  .template-collection-lada .lcoll__listing--wide{grid-template-columns:1fr}
+}
+
+/* Phone only: the button that opens the rail. Hidden from 1000px up,
+   where the rail is a column on the page and there is nothing between
+   the name and the photographs. This replaces the shared .toolbar,
+   which also printed the result count the client struck out. */
+.template-collection-lada .lcoll__bar{display:flex;justify-content:flex-start;
+  padding-block:var(--s2) var(--s5)}
+.template-collection-lada .lcoll__bar .btn-lada{min-height:44px;padding-inline:1.6rem}
+
+/* kj-v2.css gives .btn-lada a hover and no focus ring at all, so the
+   three on this page (open filters, view results, and the WhatsApp
+   button that is the only control on the page in its shipping state)
+   fall back to whatever the browser draws. Bone rather than champagne:
+   the offset puts the ring on the ground, where bone measures 15.8:1,
+   and a champagne ring around the champagne fill would be a ring the
+   same colour as the button. */
+.template-collection-lada .btn-lada:focus-visible{outline:2px solid var(--lada-bone);
+  outline-offset:3px}
+@media (min-width:1000px){
+  .template-collection-lada .lcoll__bar{display:none}
+}
+
+/* ------------------------------------------------------------
+   4. THE FILTER RAIL, DARK.
+
+   Same markup as main-collection.liquid's rail, recoloured. Every
+   control stays a real control: the checkbox is a real checkbox parked
+   off-screen with .vh so it keeps its tab stop and its checked state,
+   the label is the 44px target wrapped around it, and the price fields
+   are real number inputs.
+   ------------------------------------------------------------ */
+.template-collection-lada .filters__bar{display:flex;align-items:center;
+  justify-content:space-between;gap:var(--s4)}
+
+/* .22em in kj-v2.css. Two tracking values on this journey, and this is
+   the 11px cap one. */
+.template-collection-lada .filters__h{font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne)}
+.template-collection-lada .filters__close{color:var(--lada-bone);font-size:1.4rem;line-height:1}
+.template-collection-lada .filters__close:hover{color:var(--lada-champagne)}
+
+/* A hairline above the first group as well as below each one, so the
+   rail reads as a set of ruled bands rather than a list that starts in
+   mid air under the heading. */
+.template-collection-lada .filters__grp{border-bottom-color:var(--lada-line);
+  padding-block:var(--s5)}
+.template-collection-lada .filters__grp:first-child{border-top:1px solid var(--lada-line)}
+.template-collection-lada .filters__grp h3{font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-champagne);
+  margin-bottom:var(--s4)}
+
+/* Square, hairline, filling to --lada-panel when picked. No radius:
+   nothing in the Lada register is rounded. letter-spacing:0 because the
+   value inside is a plain word like Blue or Medium, not a label. */
+.template-collection-lada .chip{min-height:44px;border-radius:0;
+  border-color:var(--lada-line);background:transparent;color:var(--lada-bone);
+  font-size:.8125rem;letter-spacing:0}
+.template-collection-lada .chip:hover{border-color:var(--lada-champagne);
+  background:var(--lada-panel)}
+.template-collection-lada .chip[aria-pressed="true"]{border-color:var(--lada-champagne);
+  background:var(--lada-panel);color:var(--lada-champagne)}
+.template-collection-lada .chip__n{color:var(--lada-muted)}
+
+/* FOCUS-WITHIN, NOT FOCUS-VISIBLE. The thing that actually takes focus
+   is the checkbox inside this label, and it is off-screen, so
+   `.chip:focus-visible` never fires and a keyboard user tabbing the
+   rail sees nothing move. The ring has to be drawn by the label on
+   behalf of its input. Same bug exists on the shared rail; fixing it
+   there is not this task's file. */
+.template-collection-lada .chip:focus-within{outline:2px solid var(--lada-champagne);
+  outline-offset:2px}
+
+.template-collection-lada .filters__price{width:100%}
+.template-collection-lada .filters__price span{color:var(--lada-muted)}
+/* color-scheme:dark is what makes the number spinners render light
+   instead of as two dark arrows on a dark field. */
+.template-collection-lada .filters__price input{color-scheme:dark;
+  min-height:44px;border-radius:0;border-color:var(--lada-line);
+  background:var(--lada-panel);color:var(--lada-bone);font-size:.8125rem}
+/* opacity:1 on the placeholder is not cosmetic. Firefox dims
+   placeholder text to ~54% by default, which would drop --lada-muted
+   from 4.9:1 to roughly 2.5:1 on this field and put the only label the
+   empty input has below the floor. */
+.template-collection-lada .filters__price input::placeholder{color:var(--lada-muted);opacity:1}
+.template-collection-lada .filters__price input:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:-1px}
+
+/* The phone drawer. site.css slides .filters up from the bottom on
+   var(--bg); it needs the ground, a hairline lip and a shadow dark
+   enough to read against a dark page, which the shared
+   var(--shadow-raised) is not. */
+@media (max-width:999px){
+  .template-collection-lada .filters{background:var(--lada-ground);
+    border-top:1px solid var(--lada-line);
+    box-shadow:0 -20px 60px rgba(0,0,0,.72)}
+
+  /* THE SHUT DRAWER LEAVES THE TAB ORDER.
+
+     site.css parks it with transform:translateY(100%) and nothing else,
+     so on a phone every facet checkbox in it is still focusable while
+     the rail is closed: tab past the grid and the ring vanishes off the
+     bottom of the screen, into a fixed element that cannot be scrolled
+     to. visibility:hidden takes the whole subtree out of the tab order
+     and out of the accessibility tree, which is also what
+     aria-expanded="false" on the button has been claiming all along.
+
+     The delay is what keeps the slide-out visible: visibility flips
+     only after the 380ms transform site.css declares. Opening is
+     immediate, so the first frame of the slide-in is already painted.
+     Same defect on the shared rail; that file is not this task's. */
+  .template-collection-lada .filters{visibility:hidden;
+    transition:transform .38s var(--ease),visibility 0s linear .38s}
+  .template-collection-lada .filters[data-open="true"]{visibility:visible;
+    transition:transform .38s var(--ease),visibility 0s}
+  .template-collection-lada .filters__done{background:var(--lada-ground);
+    border-top:1px solid var(--lada-line)}
+  .template-collection-lada .filters__done .btn-lada{width:100%}
+  .template-collection-lada .scrim{background:rgba(0,0,0,.66)}
+}
+
+/* ------------------------------------------------------------
+   5. THE GRID.
+
+   One declaration, and that is the point. The columns, the gaps and
+   the breakpoints all come from the shared .pgrid, so a Lada card lands
+   on the same measure and the same 4:5 plate as a card on any other
+   listing. The client asked for the listings to match; this is the line
+   that keeps them matching, and a bespoke Lada grid here is what would
+   quietly break it.
+   ------------------------------------------------------------ */
+.template-collection-lada .lcoll__grid{margin-top:var(--s5)}
+
+/* ------------------------------------------------------------
+   6. EMPTY.
+
+   The shipping state for both collections. A hairline panel, one line
+   and one route out. No heading, because the collection name is the h1
+   directly above it; no plate, because there is no photograph to put in
+   it and a grey rectangle standing in for one is worse than the space.
+   Left aligned to the grid it replaces rather than centred, so the page
+   does not change its mind about where things start the moment the
+   client uploads his first product.
+   ------------------------------------------------------------ */
+.template-collection-lada .lcoll__empty{display:flex;flex-direction:column;
+  align-items:flex-start;gap:var(--s5);margin-top:var(--s5);
+  padding:var(--s8) var(--s5);
+  border:1px solid var(--lada-line);background:var(--lada-panel)}
+.template-collection-lada .lcoll__empty-p{margin:0;max-width:44ch;
+  font-family:var(--font-ui);font-size:.9375rem;font-weight:300;line-height:1.75;
+  letter-spacing:0;color:var(--lada-bone)}
+
+/* ------------------------------------------------------------
+   7. PAGINATION.
+
+   {{ paginate | default_pagination }} emits spans and bare links with no
+   classes of its own beyond .page, .current and .deco, and the theme has
+   never styled them, so on a dark ground they would render as unsized
+   text. Sized here to a 44px target each, which is the reason the rules
+   exist at all rather than a nicety: these are the smallest tap targets
+   on the page.
+   ------------------------------------------------------------ */
+.template-collection-lada .lcoll__pages{display:flex;flex-wrap:wrap;
+  align-items:center;justify-content:center;gap:var(--s1);
+  margin-top:var(--s8);padding-top:var(--s5);
+  border-top:1px solid var(--lada-line);
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;font-variant-numeric:tabular-nums}
+.template-collection-lada .lcoll__pages span{display:inline-flex;
+  align-items:center;justify-content:center;min-width:44px;min-height:44px;
+  color:var(--lada-muted)}
+.template-collection-lada .lcoll__pages a{display:inline-flex;
+  align-items:center;justify-content:center;min-width:44px;min-height:44px;
+  padding-inline:var(--s3);color:var(--lada-bone);
+  border:1px solid transparent;
+  transition:color .25s var(--ease),border-color .25s var(--ease)}
+.template-collection-lada .lcoll__pages a:hover{color:var(--lada-champagne);
+  border-color:var(--lada-line)}
+.template-collection-lada .lcoll__pages a:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:2px}
+.template-collection-lada .lcoll__pages .current{color:var(--lada-champagne);
+  border-bottom:1px solid var(--lada-champagne)}
+
+@media (prefers-reduced-motion:reduce){
+  .template-collection-lada .lcoll__pages a{transition:none}
+}
+
+
+/* ---------------- card ---------------- */
+/* ============================================================
+   LADA PRODUCT CARD
+   snippets/lada-product-card.liquid
+
+   Uses only the Lada tokens already declared on :root at the top of
+   kj-v2.css. Declares no new custom property, redefines none of them,
+   and touches no .pcard rule: the shared card keeps every one of its
+   own.
+
+   SCOPING. Every rule below is prefixed with
+
+     :is(.template-page-lada,.template-collection-lada,.template-product-lada)
+
+   which is the class trio theme/layout/theme.liquid stamps on <body>
+   for page.lada.json, collection.lada.json and product.lada.json. The
+   dark register is the Lada journey and nothing else: gateway, both
+   listings, the product page, and back to the normal light site the
+   moment the customer leaves. .lcard happens to exist only inside Lada
+   today, so the prefix is belt and braces, but it is the braces that
+   matter: the day someone renders this snippet from a light template by
+   mistake, the card degrades to unstyled markup instead of painting a
+   black plate into the middle of a white page. :is() takes the
+   specificity of its heaviest argument, so the prefix costs exactly one
+   class and the cascade behaves the way a bare .lcard rule would.
+
+   WHAT THIS BLOCK REPLACES. It supersedes the .lcard section currently
+   living in kj-v2.css (around line 1353) and in _lab/build/collection.css
+   (around line 84). Three rules from that version have no markup left to
+   match and must be deleted rather than left to rot:
+     .lcard__eyebrow                     the eyebrow line is gone
+     .lcard__price a / .lcard__price a:hover   the made-to-measure link is gone
+     .lcard__media + .lcard__title       reserved the eyebrow's block
+   The last one is the dangerous one, because it still matches: it would
+   push a 36.5px gap under every photograph to make room for a line that
+   no longer exists. There is a defensive override for it below in case
+   the merge leaves it behind, but the real fix is to remove it.
+   ============================================================ */
+
+/* ---------- the card ----------
+   Three things: photograph, piece name, price. Nothing is coloured
+   except the champagne a hover or a focus ring earns. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard{
+  position:relative;display:flex;flex-direction:column}
+
+/* 4:5, the same ratio as .pcard__media site-wide. The client asked for
+   that uniformity explicitly, so this is one of the few numbers in the
+   Lada build that is not a Lada decision.
+
+   --lada-panel is the ground, not a transparent box. The client loads
+   every photograph himself after handover, so the grid's first state is
+   a wall of unshot pieces, and an empty plate at #17171A against the
+   #0E0E0F page reads as a frame waiting for a picture. A transparent one
+   reads as a rendering failure. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__media{
+  position:relative;display:block;aspect-ratio:4/5;overflow:hidden;
+  background:var(--lada-panel)}
+
+/* The plate is a target in its own right; the name below is the one
+   announced link. The overlay is confined to .lcard__media on purpose:
+   that element is the position:relative box, so inset:0 stops at the
+   photograph. z-index:1 keeps it under the controls, which sit at 3. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__link::after{
+  content:"";position:absolute;inset:0;z-index:1}
+
+/* button as well as a. kj-v2.css has no global :focus-visible rule, only
+   per-component ones, so an `a`-only selector left the two real buttons
+   on this card falling back to whatever ring the browser draws. On
+   pointer devices those buttons rest at opacity:0 and are revealed by
+   :focus-within, so the focus state is the entire reason a keyboard user
+   knows the quick view exists at all. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard a:focus-visible,
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard button:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:3px}
+
+/* ---------- the cross-fade ----------
+   The overshoot curve. The fade finishes in .5s but the incoming frame
+   keeps travelling for a full 2s, and the 1.18 on the y2 carries it past
+   1.05 before it settles, so the card is still breathing long after the
+   swap is done. The old .pcard ran 1.3s on a near-linear ease to 1.045,
+   which reads as a UI transition rather than as a photograph settling.
+   Only the incoming frame moves; the outgoing one just goes. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:opacity .5s var(--ease),transform 2s cubic-bezier(0,0,.44,1.18)}
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__img--alt{
+  opacity:0}
+
+/* Gated on BOTH hover support and .lcard--pair, which the snippet adds
+   only when a real second frame exists. A one-image piece therefore has
+   no hover rule at all, rather than a hover that fades the photograph
+   into itself and leaves a scaled frame parked behind the first one.
+   That phantom state is worse than no hover, because it promises a
+   second view and then shows the first one again. */
+@media (hover:hover) and (pointer:fine){
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard--pair:hover .lcard__img--main,
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard--pair:focus-within .lcard__img--main{
+    opacity:0}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard--pair:hover .lcard__img--alt,
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard--pair:focus-within .lcard__img--alt{
+    opacity:1;transform:scale(1.05)}
+}
+
+/* ---------- the name ----------
+   15px/500 sentence case, tracking 0. Uppercase is typed nowhere on this
+   card: it belongs to the two 11px control labels and to their
+   text-transform, and to nothing else. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__title{
+  margin:var(--s3) 0 0;font-family:var(--font-ui);font-size:.9375rem;
+  font-weight:500;letter-spacing:0;line-height:1.4;color:var(--lada-bone)}
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__title a{
+  color:inherit;text-decoration:none;position:relative;z-index:2}
+
+/* The quiet hover: the rule appears, the colour does not move, nothing
+   shifts. A colour change here would put a second accent on a card whose
+   only accent is the control that a hover reveals a few pixels above it.
+
+   Drawn in --lada-muted, not --lada-line. --lada-line is
+   rgba(198,161,91,.22), which over --lada-ground composites to #362E20
+   and measures 1.44:1. An underline nobody can see is not a quiet
+   response, it is no response, and it wastes the one bit of feedback
+   this hover has to give. --lada-muted is 5.26:1 on the ground and still
+   recessive under a bone title. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard:hover .lcard__title a,
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__title a:hover{
+  text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:.3rem;text-decoration-color:var(--lada-muted)}
+
+/* DEFENSIVE. The previous card reserved the eyebrow's whole block here,
+   because a card with no cloth metafield set put its title 8px under the
+   photograph while the card beside it sat at 36.5px. There is no eyebrow
+   any more, so that compensation is a 28px hole under every single
+   photograph in the grid. This puts the margin back to --s3 at one class
+   more specificity, so the card is correct even if the merge leaves the
+   old rule in place. Delete the old rule and this can go with it. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__media + .lcard__title{
+  margin-top:var(--s3)}
+
+/* ---------- the price ----------
+   Same size as the name, never larger, never coloured, never a
+   compare-at, never a percentage. tabular-nums so a column of prices
+   lines up on the decimal down the grid instead of shimmering. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__price{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2);
+  margin:var(--s2) 0 0;font-family:var(--font-ui);font-size:.9375rem;
+  font-weight:500;letter-spacing:0;line-height:1.4;color:var(--lada-bone);
+  font-variant-numeric:tabular-nums}
+
+/* Sold out. 11px caps at .24em, the card's one tracked value, and muted
+   rather than bone so it reads as a footnote to the price and not as a
+   second price. Not a chip over the photograph: a chip is the first
+   thing that turns a wall of garments back into a stock table, and on a
+   touch device a hover-revealed one would never be seen at all. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__state{
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-muted)}
+
+/* ---------- the controls ----------
+   DEFAULT STATE IS THE TOUCH STATE: permanent 44px targets, last in the
+   card's flex column, in the card's own flow. Sana Safinaz gates its
+   reveal at min-width:1025px and so parks a black bar across every
+   tablet photograph permanently. This inverts that, and the pointer
+   layout at the bottom of the file is the special case.
+
+   Two controls at most, and on Lada usually one. Alamghir carries colour
+   options and Ready to Wear carries S, M and L, so the add to bag form
+   renders only for a genuinely single-variant piece and every other card
+   in the grid shows the quick view trigger alone. When both are present
+   they stack, quick view first, because quick view is where the colour
+   or the size is actually chosen. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__act{
+  position:relative;z-index:3;display:flex;flex-direction:column;gap:var(--s2);
+  margin-top:var(--s3)}
+
+/* Both controls take the same treatment. They are distinguished by their
+   words, not by a hierarchy of fills: two different-looking buttons a
+   centimetre apart is the "too many options" the client rejected, and
+   the card has no third thing for a primary style to outrank.
+
+   The opaque --lada-ground fill is not decoration. In the pointer layout
+   this button sits on top of a photograph of unknown brightness, and
+   bone on ground is 15.4:1 no matter what is underneath it. A translucent
+   scrim would make the contrast a property of the picture.
+
+   The .24em of tracking leaves a trailing space after the last letter,
+   so a centred label sits about 1.3px left of true. The extra .24em on
+   the leading padding cancels it, the same correction the pills take. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__quick{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:100%;min-height:44px;padding-block:.72rem;
+  padding-inline:calc(var(--s4) + .24em) var(--s4);
+  border:1px solid var(--lada-line);border-radius:0;background:var(--lada-ground);
+  color:var(--lada-bone);font-family:var(--font-ui);font-size:var(--fs-micro);
+  font-weight:600;letter-spacing:.24em;text-transform:uppercase;text-align:center;
+  text-decoration:none;cursor:pointer;
+  transition:background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__quick:hover{
+  background:var(--lada-panel);border-color:var(--lada-champagne);color:var(--lada-champagne)}
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__quick:disabled{
+  cursor:progress}
+
+/* kj-cart.js sets data-loading on the submit button and disables it for
+   the length of the round trip. The label dims rather than disappears so
+   the button does not change width under the cursor mid-add. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__quick[data-loading] .lcard__quick-t{
+  opacity:.45}
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__spin{
+  display:none;width:13px;height:13px;border:2px solid currentColor;
+  border-top-color:transparent;border-radius:50%;animation:kjSpin .6s linear infinite}
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__quick[data-loading] .lcard__spin{
+  display:block}
+
+/* kj-cart.js writes Shopify's own reason string in here, for example
+   "Only 2 left in stock", and that is a full sentence, so 13px is the
+   floor. --error is about #A32020 and measures roughly 2.5:1 on this
+   ground, well under the 4.5:1 floor, so the dark register gets a
+   lighter red of its own. The opaque ground is because in the pointer
+   layout this paragraph sits over the photograph.
+
+   The form itself is left as a plain block child of .lcard__act rather
+   than display:contents, so this paragraph carries its own top margin.
+   display:contents on a <form> is a box the flex gap would have handled
+   for free, but it has a history of dropping the element from the
+   accessibility tree in older engines, and the one element on this card
+   that must never quietly stop existing is the one that submits. */
+:is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__err{
+  margin:var(--s2) 0 0;padding:.4rem .55rem;background:var(--lada-ground);
+  font-family:var(--font-ui);font-size:.8125rem;font-weight:300;line-height:1.7;
+  color:#E2857A}
+
+/* ---------- the pointer layout ----------
+   The controls move into the photograph's grid cell rather than being
+   absolutely positioned, which is what lets the name and the price stay
+   ABOVE them in source order. The shared .pcard had to wrap its image in
+   a .pcard__top for `bottom` to resolve against, and that wrapper is
+   exactly what forces its button in front of the name and the price for
+   a screen reader. Same overlay, honest reading order.
+
+   Rows are named explicitly so a piece with no price rendered, which is
+   the state an unpriced import lands in, leaves row 3 at zero height
+   instead of reflowing the grid up a row. */
+@media (hover:hover) and (pointer:fine){
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard{
+    display:grid;grid-template-columns:1fr;grid-template-rows:auto auto auto}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__media{
+    grid-area:1/1}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__title{
+    grid-area:2/1}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__price{
+    grid-area:3/1}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__act{
+    grid-area:1/1;align-self:end;margin:var(--s3)}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__quick{
+    opacity:0;transform:translateY(8px);
+    transition:opacity .3s var(--ease),transform .3s var(--ease),
+               background .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease)}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard:hover .lcard__quick,
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard:focus-within .lcard__quick{
+    opacity:1;transform:none}
+  /* An add that failed has to stay readable after the pointer leaves,
+     and so does the button the customer would press to try again. */
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__act:has(.lcard__err:not([hidden])) .lcard__quick{
+    opacity:1;transform:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__img,
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__quick{
+    transition:none!important}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard--pair:hover .lcard__img--alt,
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard--pair:focus-within .lcard__img--alt{
+    transform:none}
+  :is(.template-page-lada,.template-collection-lada,.template-product-lada) .lcard__spin{
+    animation:none}
+}
+
+
+/* ---------------- quickview ---------------- */
+/* ============================================================
+   LADA QUICK VIEW — styling for snippets/lada-quick-view.liquid
+   Merge target: assets/kj-v2.css, LAST of the build2 Lada blocks and
+   after the bag drawer block. Section 8 overrides .pdp__* rules that
+   kj-v2.css ships for the shared product page, and section 9 overrides
+   two .lpdp__* rules from the Lada product page's own block, so this
+   file has to come after both. The two that would break if it did
+   not are written with an extra class so they win on specificity
+   whatever order the merge lands in; the rest only need the order.
+
+   Tokens only. Nothing here defines or redefines a custom property.
+
+   SCOPING, AND WHY IT IS NOT DONE BY TEMPLATE. The brief's rule is
+   that no other page on the site may change. Every selector below
+   starts with .lada-qv, which is a class name invented by this one
+   snippet and matched by nothing else in the theme, and the two
+   exceptions prove the rule:
+
+     - html.lada-qv-lock, a class only this panel's JavaScript adds
+     - .lada-qv__info .pdp__*, which restyle the markup the panel
+       FETCHES from the product page. Those are the rules that would
+       do real damage unscoped, because .pdp__atc and .pdp__opt-s
+       exist on the live product page — so every one of them is
+       scoped inside the panel and the product page keeps its own.
+
+   That is tighter than .template-collection-lada would be: a template
+   class would still let these rules reach a .pdp__atc that happened
+   to render on a Lada template, and this cannot.
+
+   TYPE. Two tracking values on the page and no more: .24em on the
+   11px micro caps, 0 on everything else. kj-v2.css ships .22em on
+   .pdp__atc and .18em on .pdp__opt-l, so both are normalised below
+   inside the panel. Nothing here is over 22px. Body is 15px/300.
+
+   RADIUS. 0 everywhere, including on the four .pdp__* controls that
+   arrive carrying var(--radius) from the shared product page.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. BACKGROUND SCROLL LOCK, UNDER ITS OWN NAME
+
+   Not .kj-noscroll. That class belongs to the bag drawer, and adding
+   to the bag from inside this panel opens the bag: two panels would
+   then be setting and clearing one class, and whichever closed first
+   would unlock the page behind the one still open. Two names, two
+   independent locks, neither able to release the other's.
+
+   Needed at all because showModal() does not stop the document behind
+   the top layer from scrolling.
+   ------------------------------------------------------------ */
+html.lada-qv-lock{overflow:hidden}
+
+/* ------------------------------------------------------------
+   2. THE DIALOG ELEMENT ITSELF
+
+   A <dialog> arrives with a UA border, padding, a fit-content width
+   and auto margins that centre it — all of which have to go before it
+   can be a sheet. The explicit display:none on :not([open]) is not
+   belt and braces: a browser with no <dialog> support at all applies
+   no UA stylesheet to it, and without this line the closed panel's
+   contents would print down the page as ordinary markup.
+   ------------------------------------------------------------ */
+.lada-qv{position:fixed;inset:0;z-index:130;margin:0;padding:0;border:0;
+  width:100%;max-width:none;height:100%;max-height:none;overflow:hidden;
+  background:transparent;color:var(--lada-bone);color-scheme:dark;
+  font-family:var(--font-ui);font-size:.9375rem;font-weight:300;line-height:1.6;
+  align-items:center;justify-content:center}
+.lada-qv:not([open]){display:none}
+.lada-qv[open]{display:flex}
+
+/* --lada-ground at 82%. A literal rather than a fifth colour token:
+   the panel needs one translucent value and inventing --lada-scrim
+   for it would be redefining the palette from a scratch file. */
+.lada-qv::backdrop{background:rgba(14,14,15,.82)}
+
+/* The no-showModal scrim. Written as "hide it when the dialog is
+   really modal" rather than "show it when it is not", so a browser
+   that does not understand :modal drops the rule and keeps the scrim
+   visible, which is the safe direction to fail. */
+.lada-qv__scrim{position:absolute;inset:0;background:rgba(14,14,15,.82)}
+.lada-qv:modal .lada-qv__scrim{display:none}
+
+/* ------------------------------------------------------------
+   3. THE PANEL
+
+   Desktop: a centred plate, wide enough for a photograph beside the
+   buying column and no wider. Phone: a full-height sheet, because a
+   small centred box with a 4:5 photograph in it leaves a garment
+   about four centimetres tall, which is the opposite of a page whose
+   whole design is the photographs.
+   ------------------------------------------------------------ */
+.lada-qv__panel{position:relative;display:flex;flex-direction:column;
+  width:min(100%,940px);max-height:min(88dvh,820px);
+  background:var(--lada-panel);color:var(--lada-bone);
+  border:1px solid var(--lada-line);border-radius:0;
+  animation:ladaQvIn .3s var(--ease) both}
+.lada-qv__panel:focus{outline:none}
+
+@keyframes ladaQvIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes ladaQvUp{from{transform:translateY(100%)}to{transform:none}}
+
+@media (max-width:759px){
+  .lada-qv{align-items:flex-end}
+  /* 100vh first so a browser without dvh still gets a full sheet
+     rather than a collapsed one. */
+  .lada-qv__panel{width:100%;max-width:none;height:100vh;height:100dvh;
+    max-height:none;border:0;animation-name:ladaQvUp}
+
+  /* The ratio is kept and the HEIGHT is what gives way. A 4:5 plate at
+     the full width of a phone is most of the screen, and the price and
+     the colour a customer opened this panel to choose would both start
+     below the fold. Capping the height and letting the width follow
+     keeps the frame honest at 4:5, centred, with the buying column
+     under it and in reach. The full photograph is one tap away on the
+     product page, which is what the pinned link at the foot is for.
+     Driven from the HEIGHT, not from a max-height. An auto inline
+     margin stops a grid item stretching, and an empty box that is not
+     stretched shrinks to nothing — which is exactly what happened to
+     the loading plate the first time this was written as max-height. A
+     definite height with aspect-ratio computes the width instead, so
+     the plate holds its 4:5 whether or not there is an image in it. */
+  .lada-qv__media,.lada-qv__load-plate{height:40dvh;width:auto;max-width:100%;
+    margin-inline:auto}
+}
+
+/* ------------------------------------------------------------
+   4. HEAD
+   ------------------------------------------------------------ */
+.lada-qv__head{flex:none;display:flex;align-items:center;justify-content:space-between;
+  gap:var(--s4);padding:var(--s4) var(--s5);
+  padding-top:calc(var(--s4) + env(safe-area-inset-top,0px));
+  border-bottom:1px solid var(--lada-line)}
+
+/* The piece's name, and the only heading in here. Capped at 22px:
+   nothing on this journey goes over 40px and a dialog title is not
+   the place to spend it. */
+.lada-qv__title{margin:0;min-width:0;font-family:var(--font-display);
+  font-weight:var(--font-weight-heading);font-size:clamp(1.05rem,2.4vw,1.375rem);
+  line-height:1.2;letter-spacing:0;color:var(--lada-bone);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 44px, and given an edge so it reads as a control on a dark panel
+   rather than a glyph floating in the corner. */
+.lada-qv__x{flex:none;width:44px;height:44px;display:grid;place-items:center;
+  margin-inline-end:-6px;background:none;border:1px solid var(--lada-line);
+  border-radius:0;color:var(--lada-bone);cursor:pointer;
+  transition:color .25s var(--ease),border-color .25s var(--ease)}
+.lada-qv__x:hover{color:var(--lada-champagne);border-color:var(--lada-champagne)}
+
+/* ------------------------------------------------------------
+   5. BODY AND THE TWO-COLUMN SLOT
+
+   overscroll-behavior:contain stops a flick at the end of the panel's
+   scroll from carrying on into the listing behind it, which on a phone
+   sheet is the difference between closing the panel where you were and
+   coming back to a grid that has moved.
+   ------------------------------------------------------------ */
+.lada-qv__body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;padding:var(--s5)}
+
+.lada-qv__slot{display:grid;gap:var(--s5);align-items:start}
+@media (min-width:760px){
+  .lada-qv__body{padding:var(--s6)}
+  .lada-qv__slot{grid-template-columns:minmax(0,42%) minmax(0,1fr);gap:var(--s6)}
+}
+
+/* [hidden] is an attribute, not a display value, so the UA's
+   display:none for it loses to any display declaration written
+   afterwards. kj-v2.css already had to write this out by hand once
+   (.lada__units[hidden]); the three panels below are grids, so they
+   need the same line or a hidden loading state stays on screen
+   underneath the content that replaced it. */
+.lada-qv__load[hidden],.lada-qv__fail[hidden],.lada-qv__foot[hidden]{display:none}
+
+/* 4:5, the same ratio as .pcard__media everywhere else on the site.
+   The plate paints --lada-ground whether or not an image lands in it,
+   so a piece with no photograph yet reads as a reserved frame rather
+   than a collapsed row. Every Lada product ships that way until the
+   client loads his shoot. */
+.lada-qv__media{position:relative;aspect-ratio:4/5;overflow:hidden;
+  background:var(--lada-ground);border-radius:0}
+.lada-qv__img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* ------------------------------------------------------------
+   6. THE QUIET LOADING STATE
+
+   The shape of what is coming, not a spinner: a 4:5 plate where the
+   photograph will be and three lines where the name, the price and
+   the button will be. Nothing jumps when the content lands because
+   nothing was the wrong size while it was on its way.
+   ------------------------------------------------------------ */
+.lada-qv__load{display:grid;gap:var(--s5);align-items:start}
+@media (min-width:760px){
+  .lada-qv__load{grid-template-columns:minmax(0,42%) minmax(0,1fr);gap:var(--s6)}
+}
+.lada-qv__load-plate{aspect-ratio:4/5;background:var(--lada-ground)}
+.lada-qv__load-lines{display:grid;gap:var(--s4);align-content:start}
+.lada-qv__load-lines span{display:block;height:14px;background:var(--lada-ground)}
+.lada-qv__load-lines span:nth-child(1){width:70%}
+.lada-qv__load-lines span:nth-child(2){width:38%}
+.lada-qv__load-lines span:nth-child(3){height:48px;width:100%}
+
+.lada-qv__load-plate,.lada-qv__load-lines span{
+  background-image:linear-gradient(90deg,transparent 0%,rgba(198,161,91,.07) 50%,transparent 100%);
+  background-size:220% 100%;background-repeat:no-repeat;
+  animation:ladaQvShim 1.5s linear infinite}
+@keyframes ladaQvShim{from{background-position:120% 0}to{background-position:-120% 0}}
+
+/* ------------------------------------------------------------
+   7. FAILURE
+
+   Said plainly, and never a spinner that keeps turning. The way out
+   is the product page, which is the thing the panel was standing in
+   for, so the link is the same one the footer carries.
+   ------------------------------------------------------------ */
+.lada-qv__fail{display:grid;gap:var(--s4);justify-items:start;padding-block:var(--s5)}
+.lada-qv__fail-t{margin:0;color:var(--lada-bone);font-size:.9375rem;font-weight:300}
+.lada-qv__fail-a,.lada-qv__full{display:inline-flex;align-items:center;min-height:44px;
+  color:var(--lada-champagne);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;text-decoration:none;
+  border-bottom:1px solid var(--lada-line);transition:border-color .25s var(--ease)}
+.lada-qv__fail-a:hover,.lada-qv__full:hover{border-bottom-color:var(--lada-champagne)}
+
+.lada-qv__foot{flex:none;padding:var(--s3) var(--s5);
+  padding-bottom:calc(var(--s3) + env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--lada-line)}
+
+/* ------------------------------------------------------------
+   8. THE FETCHED MARKUP
+
+   Everything from here down is scoped inside .lada-qv__info and
+   restyles markup this panel did not write. The product page keeps
+   every one of these rules as kj-v2.css ships them.
+
+   WHAT IS HIDDEN, AND WHY IT IS HIDDEN HERE RATHER THAN CUT IN JS.
+   The panel shows a photograph, a name, a price and a way to buy. The
+   product page's buying column also carries a spec table, a
+   description, a three-line trust list, a SKU and a WhatsApp line —
+   the "too much writing" the whole rebuild exists to remove. Removing
+   them in CSS keeps the list in ONE place; the JavaScript that builds
+   the panel then has no opinion about the section's internals beyond
+   finding it, which is what lets the Lada product section nominate its
+   own content later and not be edited around.
+
+   The class is ADDED to the fetched element, never swapped for its
+   own, so a future Lada product section keeps whatever classes its
+   internal layout depends on. That is why the first rule below has to
+   restate display, direction and position: .pdp__info ships all three
+   and is still on the element.
+   ------------------------------------------------------------ */
+.lada-qv__info{display:flex;flex-direction:column;align-items:stretch;
+  position:static;gap:var(--s4);min-width:0}
+
+.lada-qv__info .pdp__crumbs,
+.lada-qv__info .pdp__spec,
+.lada-qv__info .pdp__desc,
+.lada-qv__info .pdp__trust,
+.lada-qv__info .pdp__rel,
+.lada-qv__info .pdp__wa,
+.lada-qv__info .pdp__sku,
+.lada-qv__info .pdp__house{display:none}
+
+/* Nothing in Lada is discounted, so a compare-at and a percentage
+   chip cannot reach this panel even if a product carries them. */
+.lada-qv__info .pdp__price s,
+.lada-qv__info .pdp__off{display:none}
+
+.lada-qv__info .pdp__price{margin:0;gap:.6rem}
+.lada-qv__info .pdp__price .now{font-family:var(--font-display);
+  font-weight:var(--font-weight-heading);font-size:1.125rem;letter-spacing:0;
+  color:var(--lada-bone);font-variant-numeric:tabular-nums}
+
+.lada-qv__info .pdp__oos{margin:0;color:var(--lada-muted);font-size:.9375rem;font-weight:300}
+.lada-qv__info .pdp__oos a{color:var(--lada-champagne)}
+
+.lada-qv__info .pdp__form{width:100%;margin:0}
+.lada-qv__info .pdp__opts{gap:var(--s4);margin-bottom:var(--s5)}
+.lada-qv__info .pdp__opt-l{font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-muted)}
+.lada-qv__info .pdp__opt-s{border-radius:0;min-height:48px;padding:0 .8rem;
+  background:var(--lada-ground);border:1px solid var(--lada-line);
+  color:var(--lada-bone);font-family:var(--font-ui);font-size:.9375rem;font-weight:300;
+  transition:border-color .25s var(--ease)}
+.lada-qv__info .pdp__opt-s:hover{border-color:var(--lada-champagne)}
+
+.lada-qv__info .qty{border-radius:0;border-color:var(--lada-line);background:transparent}
+.lada-qv__info .qty__b{color:var(--lada-bone)}
+.lada-qv__info .qty__b:hover{background:transparent;color:var(--lada-champagne)}
+.lada-qv__info .qty__i{background:transparent;color:var(--lada-bone);
+  border-inline-color:var(--lada-line)}
+
+/* min-width:0 against the shared rule's 180px. On a 375px phone that
+   180 plus the quantity stepper plus the gap is one pixel too wide, so
+   the button wrapped to its own line and landed under the pinned foot,
+   which is the one control in the panel that must never need a scroll
+   to reach. Letting it take whatever is left keeps the buy row on one
+   line at every width. */
+.lada-qv__info .pdp__atc{border-radius:0;min-width:0;min-height:52px;
+  background:var(--lada-champagne);color:var(--lada-ground);border:0;
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em}
+.lada-qv__info .pdp__atc:hover:not(:disabled){background:var(--lada-bone)}
+.lada-qv__info .pdp__atc:disabled{background:transparent;color:var(--lada-muted);
+  border:1px solid var(--lada-line)}
+
+/* --error is #A32020, tuned for the light page. On --lada-panel it
+   comes out at 1.8:1 and is unreadable, so the one red on this panel
+   is a clay light enough to clear the floor. Not a new token: it is
+   used once, here, for a message that only appears when an add fails. */
+.lada-qv__info .pdp__err{margin:0;color:#E8AFA3;font-size:.8125rem;font-weight:300}
+
+/* ------------------------------------------------------------
+   9. THE LADA PRODUCT PAGE'S OWN MARKUP
+
+   sections/main-product-lada.liquid uses lpdp__ names, not pdp__ ones,
+   and its stylesheet is scoped `.template-product-lada .lpdp__x`. The
+   panel opens on the listing, where the body class is
+   .template-collection-lada, so none of that would match. The
+   JavaScript puts `template-product-lada` on the injected wrapper to
+   switch that stylesheet back on for the fetched column and for
+   nothing else, which is why almost nothing about that markup is
+   restated here: the product page owns its own look and the panel
+   borrows it rather than keeping a second copy.
+
+   What is left is the two places where a full page and a panel
+   genuinely disagree. Each carries .lada-qv as well as .lada-qv__info
+   so it outranks the product block on specificity rather than on merge
+   order.
+   ------------------------------------------------------------ */
+
+/* Sticky is right in a two column page, where the buying column has to
+   stay put past a tall sheet of photographs. In a panel that scrolls
+   its own body there is nothing to stay put against, and it only
+   detaches the column from the picture above it. */
+.lada-qv .lada-qv__info .lpdp__stick{position:static;top:auto}
+
+/* The description is the writing the client asked to be taken out.
+   It belongs on the product page, which the foot of this panel links
+   to, and it is the one thing in that column that can be any length
+   at all. */
+.lada-qv .lada-qv__info .lpdp__desc{display:none}
+
+/* ------------------------------------------------------------
+   10. FOCUS, MOTION, FORCED COLOURS
+   ------------------------------------------------------------ */
+.lada-qv :focus-visible{outline:2px solid var(--lada-champagne);outline-offset:2px}
+
+@media (prefers-reduced-motion:reduce){
+  .lada-qv__panel{animation:none}
+  .lada-qv__load-plate,.lada-qv__load-lines span{animation:none;background-image:none}
+  .lada-qv__x,.lada-qv__info .pdp__opt-s,.lada-qv__fail-a,.lada-qv__full{transition:none}
+}
+
+@media (forced-colors:active){
+  /* The panel is carried by a surface tint and a hairline, and both
+     are gone under forced colours. */
+  .lada-qv__panel{border:1px solid CanvasText;background:Canvas}
+  .lada-qv__x,.lada-qv__info .pdp__atc{border:2px solid ButtonBorder}
+  /* The skeleton is a set of empty boxes with no text in them; under
+     forced colours they read as broken content rather than as a
+     loading state. */
+  .lada-qv__load-plate,.lada-qv__load-lines span{border:1px solid GrayText;background:Canvas}
+  .lada-qv::backdrop{background:Canvas}
+}
+
+@media (prefers-contrast:more){
+  .lada-qv__panel{border-width:2px}
+  .lada-qv :focus-visible{outline-width:3px}
+}
+
+
+/* ---------------- product ---------------- */
+/* ============================================================
+   LADA PRODUCT PAGE
+   sections/main-product-lada.liquid, rendered by product.lada.json.
+
+   Uses only the Lada tokens already declared on :root at the top of
+   kj-v2.css. Declares no new custom property, redefines none of them,
+   and touches no .pdp rule: the shared product page keeps every one of
+   its own, because it still sells every other brand in the shop.
+
+   SCOPING. Every rule below is prefixed with .template-product-lada,
+   which is what theme/layout/theme.liquid stamps on <body> for
+   product.lada.json. The dark register is the Lada journey and nothing
+   else, and it has to end the moment the customer opens an Alkaram
+   lawn suit. The lpdp__ names exist nowhere but this template today, so
+   the prefix is belt and braces, but it is the braces that matter.
+
+   TYPE. Two tracking values and no more: .24em on 11px micro caps,
+   0 on everything else. Nothing over 40px, and 22px is the largest
+   thing here. Body copy is 15px/300, which is what the Lada steps and
+   lede already run at. Uppercase is never typed, it is text-transform.
+
+   CONTRAST, recomputed rather than carried over. The figures that used
+   to sit here were the brief's and two of them were a little generous:
+
+     bone on ground        15.80:1   title, chip text, quantity, body
+     bone on panel         14.65:1   the size chart's own size column
+     muted on ground        5.26:1   price strikethrough, measure line,
+                                     sold-out chip, size guide link
+     muted on panel         4.88:1   the chart's numbers, its caption
+     champagne on ground    7.95:1   option labels, links
+     champagne on panel     7.37:1   the chart's column heads
+     ground on champagne    7.95:1   Add to bag
+     #E2857A on ground      7.23:1   the error line
+
+   Floor is 4.5:1 and the lowest of those is 4.88:1. The error red is
+   spelled out rather than taken from --error because #A32020 measures
+   2.5:1 on this ground and cannot be used.
+
+   KNOWN AND LEFT: --lada-line composites to #362E20, which is 1.44:1
+   against the ground, so the hairline round an unselected chip is under
+   the 3:1 that WCAG asks of a control's boundary. The token is fixed by
+   the brief and carries 47 other rules in kj-v2.css, so it is not
+   changed here. What identifies a chosen chip is the champagne fill at
+   7.95:1, not the hairline, and the chip's own text is 15.8:1.
+
+   ONE OVERLAP TO WATCH AT MERGE TIME. The header block at the bottom of
+   this file darkens .hdr for .template-product-lada. The collection
+   template needs the identical treatment for .template-collection-lada,
+   and the gateway already has its own version around line 2319 of
+   kj-v2.css. If the collection block lands with the same declarations,
+   fold the two selector lists into one :is() rather than shipping the
+   rules twice.
+   ============================================================ */
+
+/* ---------- the page ground ----------
+   Painted on <body> as well as on the section, so the strip under a
+   short page, the overscroll rubber band on iOS and any gap between
+   sections are all --lada-ground rather than white. The section itself
+   carries the shared .lada class, which is where its own background
+   and the champagne selection colour come from. */
+body.template-product-lada{background:var(--lada-ground);color:var(--lada-bone)}
+
+/* --s7 top, not the --lada-sec clamp. The gateway's sections open with
+   90px of air because each one is a fresh plate; this page opens with
+   a photograph the customer has already clicked to see, and 90px of
+   black above it just pushes it under the fold. */
+.template-product-lada .lpdp__wrap{padding-block:var(--s5) var(--s9)}
+
+/* ---------- the way back ----------
+   Eleven pixel caps, and the only uppercase on the page besides the
+   option labels and the button. It is the collection title, so it says
+   "Alamghir" or "Ready to wear" rather than a generic "Back".
+
+   It is a flex box with a 44px floor rather than inline-block, because
+   11px of text is an 18px tall tap target and this is a standalone
+   navigation link, not a link inside a sentence, so it gets no
+   exemption from the 44px rule the rest of this page keeps. The bottom
+   margin comes down to --s4 to pay for the extra height the floor adds
+   under the word. */
+.template-product-lada .lpdp__back{display:inline-flex;align-items:center;
+  min-height:44px;margin-bottom:var(--s4);
+  font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;text-decoration:none;
+  color:var(--lada-muted);transition:color .25s var(--ease)}
+.template-product-lada .lpdp__back:hover{color:var(--lada-champagne)}
+/* Nothing in site.css or kj-v2.css declares a global :focus-visible, so
+   a link with no rule of its own falls back to whatever ring the
+   browser happens to draw on a near-black ground. Every other control
+   on this page states its own; these two were the ones left out. */
+.template-product-lada .lpdp__back:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:3px}
+
+/* ---------- the two columns ----------
+   Photographs take the room, details take a fixed measure. The details
+   column is capped at 380px because the description is the only prose
+   on the page and 380px at 15px is about 52 characters, inside the
+   45 to 75 the rest of this theme reads at. */
+.template-product-lada .lpdp__grid{display:grid;gap:var(--s6)}
+.template-product-lada .lpdp__grid > *{min-width:0}
+
+@media (min-width:1000px){
+  .template-product-lada .lpdp__grid{
+    grid-template-columns:minmax(0,1fr) minmax(300px,380px);
+    column-gap:var(--s8);align-items:stretch}
+
+  /* The sticky element is the inner wrapper, not the grid item: the item
+     has to stay full height for sticky to have anything to travel
+     against. --lada-hdr-h is measured and published by the Lada
+     interaction script; 61px is the bar plus its hairline, which is what
+     it measures at every width where the bar does not wrap.
+
+     NO max-height AND NO overflow ON THIS ELEMENT. An earlier pass put
+     max-height + overflow-y:auto here as a guard against a details
+     column taller than the viewport, and it silently broke the size
+     guide: overflow on an ancestor clips an absolutely positioned
+     descendant no matter what its containing block is, so the popover
+     opened and was sliced off two lines in. The two cannot both be had,
+     and the popover is a designed interaction while the tall column is a
+     hypothetical one. This column is six things and one short paragraph,
+     which is the entire point of the page.
+
+     The min-height gate is the part of that guard worth keeping: below a
+     640px viewport there is nothing to stick to and the column simply
+     scrolls with the photographs. */
+  .template-product-lada .lpdp__stick{
+    position:sticky;top:calc(var(--lada-hdr-h,61px) + var(--s5))}
+}
+
+@media (min-width:1000px) and (max-height:639px){
+  .template-product-lada .lpdp__stick{position:static}
+}
+
+/* ---------- the contact sheet ----------
+   Every frame at once, two up, eight pixels apart, 4:5. 4:5 is
+   .pcard__media's ratio site-wide and the client asked for that
+   uniformity explicitly, so it is one of the few numbers here that is
+   not a Lada decision.
+
+   One column below 700px. A 4:5 frame at half of a 375px screen is
+   170px wide, which is a thumbnail, and thumbnails are the thing this
+   layout exists to replace. */
+.template-product-lada .lpdp__sheet{display:grid;grid-template-columns:1fr;gap:8px}
+@media (min-width:700px){
+  .template-product-lada .lpdp__sheet{grid-template-columns:repeat(2,1fr)}
+  /* A lone photograph takes the full width rather than sitting at half
+     width beside a hole. Same for the reserved plate on a piece that has
+     not been shot yet. */
+  .template-product-lada .lpdp__sheet--one .lpdp__frame,
+  .template-product-lada .lpdp__frame--empty{grid-column:1/-1}
+}
+
+/* --lada-panel, not transparent. The client loads every photograph
+   himself after handover, so an unshot piece is a state this page will
+   really ship in, and an empty plate at #17171A against the #0E0E0F page
+   reads as a frame waiting for a picture. A transparent one reads as a
+   rendering failure. */
+.template-product-lada .lpdp__frame{position:relative;margin:0;overflow:hidden;
+  aspect-ratio:4/5;background:var(--lada-panel)}
+.template-product-lada .lpdp__img{display:block;width:100%;height:100%;
+  object-fit:cover}
+
+/* ---------- title and price ---------- */
+/* 22px/500, tracking 0, and the only h1 on the page. Sentence case: the
+   piece has a proper name and the name is printed as the client typed
+   it, punctuation and all. */
+.template-product-lada .lpdp__title{margin:0;font-family:var(--font-ui);
+  font-size:1.375rem;font-weight:500;letter-spacing:0;line-height:1.25;
+  color:var(--lada-bone)}
+
+/* 15px/500, the same size as the name on the card, tabular so a column
+   of variant prices does not jitter as the customer flicks between
+   them. Never coloured, never larger than the title, and no percent
+   chip: a coloured chip is the first thing that turns a house label
+   back into a sale rack. */
+.template-product-lada .lpdp__price{display:flex;flex-wrap:wrap;
+  align-items:baseline;gap:var(--s2);margin:var(--s3) 0 0;
+  font-family:var(--font-ui);font-size:.9375rem;font-weight:500;
+  letter-spacing:0;line-height:1.4;color:var(--lada-bone);
+  font-variant-numeric:tabular-nums}
+.template-product-lada .lpdp__price-set{display:inline-flex;
+  align-items:baseline;gap:var(--s2)}
+.template-product-lada .lpdp__price s{color:var(--lada-muted);
+  text-decoration-thickness:1px}
+.template-product-lada .lpdp__price [hidden]{display:none}
+
+/* ---------- the form ---------- */
+.template-product-lada .lpdp__form{margin-top:var(--s6)}
+.template-product-lada .lpdp__opt + .lpdp__opt{margin-top:var(--s5)}
+
+/* The whole option block is the positioning context, NOT the label row.
+   Anchored to the label row the popover opens straight over the size
+   buttons, which is the one thing it must not cover: the customer opens
+   a size guide in order to pick a size, and a panel that hides the sizes
+   while he reads it makes him close it again to act on what he just
+   read. Anchored here it opens under the buttons instead, with the
+   selector still in view. */
+.template-product-lada .lpdp__opt{position:relative}
+.template-product-lada .lpdp__opt-head{display:flex;
+  flex-wrap:wrap;align-items:baseline;justify-content:space-between;
+  gap:var(--s3);margin-bottom:var(--s3)}
+.template-product-lada .lpdp__opt-l{font-family:var(--font-ui);
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--lada-champagne)}
+
+/* ---------- the values ----------
+   Buttons, not a select. A colour has to read as a colour and a size
+   has to be one tap, and a native select on a phone hides five colours
+   behind an operating system sheet. */
+.template-product-lada .lpdp__values{display:flex;flex-wrap:wrap;gap:var(--s2)}
+
+/* min-width as well as min-height, and it is the S / M / L row that
+   needs it: "S" at 14px inside two 16px paddings measures 43px wide, one
+   pixel under the floor, so the shortest size on the site was the only
+   control on the page that missed it. Every longer value already
+   exceeds 44px, so nothing else moves. */
+.template-product-lada .lpdp__chip{position:relative;display:inline-flex;align-items:center;
+  justify-content:center;gap:.5rem;min-height:44px;min-width:44px;
+  padding-inline:var(--s4);
+  border:1px solid var(--lada-line);background:transparent;
+  color:var(--lada-bone);font-family:var(--font-ui);font-size:.875rem;
+  font-weight:400;letter-spacing:0;line-height:1.3;cursor:pointer;
+  transition:border-color .25s var(--ease),background .25s var(--ease),
+    color .25s var(--ease)}
+.template-product-lada .lpdp__chip:hover{border-color:var(--lada-champagne)}
+
+/* Selected is a fill, not a ring. A 1px champagne ring at .22 alpha is
+   the same weight as the unselected border and the two are impossible
+   to tell apart at arm's length on a phone in daylight, which is where
+   this shop's customers are. */
+.template-product-lada .lpdp__chip:has(input:checked){
+  background:var(--lada-champagne);border-color:var(--lada-champagne);
+  color:var(--lada-ground)}
+
+/* The input is .vh rather than display:none so it keeps focus, and the
+   ring is drawn on the label because that is what the customer sees.
+   :focus-visible on the input, so a mouse click does not leave a ring
+   behind on a control that is already obviously chosen. */
+.template-product-lada .lpdp__chip:has(input:focus-visible){
+  outline:2px solid var(--lada-champagne);outline-offset:3px}
+
+/* Sold out. Struck through and dimmed rather than hidden: a customer
+   who wants the cream one needs to see that the cream one exists and is
+   gone, otherwise he assumes the shop never made it. The chip sits on
+   the ground, not the panel, so --lada-muted is 5.26:1 here and the
+   word stays readable. */
+.template-product-lada .lpdp__chip.is-out{color:var(--lada-muted);
+  border-color:rgba(198,161,91,.12);cursor:not-allowed}
+.template-product-lada .lpdp__chip.is-out .lpdp__chip-t{
+  text-decoration:line-through;text-decoration-thickness:1px}
+.template-product-lada .lpdp__chip.is-out:hover{border-color:rgba(198,161,91,.12)}
+
+/* The swatch dot. Only drawn when the client has actually set a swatch
+   value in Shopify; the fallback with no value set is a plain named
+   button, because a row of identical grey discs is a worse colour
+   picker than a row of words. The hairline is what keeps a white or a
+   near-black cotton visible against this ground. */
+.template-product-lada .lpdp__dot{flex:0 0 auto;width:18px;height:18px;
+  border-radius:50%;background:var(--dot,var(--lada-panel));
+  background-size:cover;background-position:center;
+  box-shadow:inset 0 0 0 1px rgba(237,232,222,.35)}
+
+/* ---------- the size guide ----------
+   A <details>, so it opens with the script blocked. On a phone it
+   expands in place, which is the right shape there. From 1000px it is
+   lifted out of the flow onto --lada-panel and behaves as a popover, so
+   opening it does not shove the Add to bag button down the page. */
+/* 44px, not the 32px it carried. It is a real control, it is the only
+   way into the chart, and it sits on the same row as an 11px label, so
+   32px was the one target on the page that the eye does not flag and
+   the thumb does. align-items:baseline on the row keeps the two words
+   level; the summary simply gets taller around its own text. */
+.template-product-lada .lpdp__guide-t{display:inline-flex;align-items:center;
+  min-height:44px;list-style:none;cursor:pointer;
+  font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--lada-muted);
+  text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:.3rem;text-decoration-color:var(--lada-muted);
+  transition:color .25s var(--ease),text-decoration-color .25s var(--ease)}
+.template-product-lada .lpdp__guide-t::-webkit-details-marker{display:none}
+.template-product-lada .lpdp__guide-t:hover{color:var(--lada-champagne);
+  text-decoration-color:var(--lada-champagne)}
+.template-product-lada .lpdp__guide-t:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:3px}
+/* OUT OF THE FLOW AT EVERY WIDTH, and this is not a style preference.
+   The panel used to expand in place below 1000px, and the size chart is
+   500px of white-space:nowrap table: as a child of the flex label row it
+   set that row's automatic minimum size to 500px and blew a 390px phone
+   into a 520px sideways scroll. The snippet's own .lada__sizescroll
+   cannot prevent that, because the inflation happens on the flex item
+   above it. Taking the panel out of the flow takes it out of the
+   intrinsic size calculation entirely, which is the fix, and it makes
+   the guide behave the same way on a phone as on a desktop, which is
+   one behaviour to reason about rather than two.
+
+   It is anchored to .lpdp__opt rather than to the label row, so it opens
+   BELOW the size buttons and never covers the control it explains.
+   z-index sits above the form and under the header's 60. */
+.template-product-lada .lpdp__guide-p{position:absolute;z-index:5;
+  inset-inline:0;top:calc(100% + var(--s3));
+  max-height:60vh;overflow:auto;overscroll-behavior:contain;
+  padding:var(--s5);background:var(--lada-panel);
+  border:1px solid var(--lada-line);
+  box-shadow:0 18px 44px rgba(0,0,0,.55)}
+/* Belt and braces on the flex item itself. Nothing in the summary is
+   wide enough to need it today, but a longer label in another language
+   would inflate the same row the panel used to. */
+.template-product-lada .lpdp__guide{min-width:0}
+
+@media (min-width:1000px){
+  /* 492px is the six column chart at 13px plus this panel's own padding.
+     Narrower and the last column disappears behind the snippet's
+     horizontal scroller, which is the right answer on a phone and the
+     wrong one in a popover the customer opened precisely to read the
+     whole row. Pulled to the trailing edge, so it overhangs the details
+     column into the --s8 gutter, which is what a popover may do. */
+  .template-product-lada .lpdp__guide-p{
+    inset-inline-start:auto;inset-inline-end:0;width:min(492px,84vw)}
+}
+
+/* ---------- measured in the shop ----------
+   One line and one button, on one row when there is room. It is not a
+   panel, not a bordered box and not a heading: the client rejected the
+   version of this page that turned every fact into a section. */
+.template-product-lada .lpdp__measure{display:flex;flex-wrap:wrap;
+  align-items:center;gap:var(--s2) var(--s4);margin:var(--s4) 0 0}
+.template-product-lada .lpdp__measure-t{font-family:var(--font-ui);
+  font-size:.875rem;font-weight:300;letter-spacing:0;line-height:1.6;
+  color:var(--lada-muted)}
+.template-product-lada .lpdp__wa{display:inline-flex;align-items:center;
+  gap:.5rem;min-height:44px;padding-inline:var(--s4);
+  border:1px solid var(--lada-line);background:transparent;
+  color:var(--lada-bone);font-family:var(--font-ui);
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;text-decoration:none;
+  transition:border-color .25s var(--ease),color .25s var(--ease)}
+.template-product-lada .lpdp__wa:hover{border-color:var(--lada-champagne);
+  color:var(--lada-champagne)}
+.template-product-lada .lpdp__wa:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:3px}
+.template-product-lada .lpdp__wa svg{flex:0 0 auto}
+
+/* ---------- quantity and add to bag ----------
+   One row: the stepper is only as wide as it needs to be and the button
+   takes the rest, so Add to bag is still the widest thing in the column
+   on a 360px screen. */
+.template-product-lada .lpdp__buy{display:flex;align-items:stretch;
+  gap:var(--s3);margin-top:var(--s6)}
+
+.template-product-lada .lpdp__qty{display:inline-flex;align-items:stretch;
+  border:1px solid var(--lada-line);background:transparent}
+.template-product-lada .lpdp__qty-b{width:44px;min-height:50px;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:0;background:transparent;color:var(--lada-bone);
+  font-family:var(--font-ui);font-size:1rem;line-height:1;cursor:pointer;
+  transition:color .25s var(--ease)}
+/* THE LINE THAT MAKES `hidden` MEAN ANYTHING ON THESE TWO BUTTONS, and
+   it is not optional. The plus and minus ship with the hidden attribute
+   and the script removes it, which is the whole no-script contract: a
+   customer with the script blocked should get the number field and its
+   native spinners, never two buttons that do nothing.
+
+   `[hidden]{display:none}` is a USER AGENT rule, and any author
+   declaration of `display` beats a user agent one no matter how weak
+   the selector. The `display:inline-flex` directly above therefore
+   un-hid both buttons, and they rendered at 44x50 and dead from first
+   paint. Measured, not guessed: computed display came back `flex` with
+   the attribute present.
+
+   Every other hidden thing in this file is already covered the same
+   way, .lpdp__price [hidden] and .lpdp__err[hidden]; these two were the
+   pair that was missed. Any future rule that gives a `hidden` element a
+   display needs its own line like this one. */
+.template-product-lada .lpdp__qty-b[hidden]{display:none}
+.template-product-lada .lpdp__qty-b:hover:not(:disabled){color:var(--lada-champagne)}
+/* At the cap, and at one. Dimmed rather than removed so the row does
+   not change width as the number changes.
+
+   NO opacity HERE. It used to carry opacity:.45 on top of --lada-muted,
+   which composites to #46443F and measures 1.98:1 on --lada-ground:
+   invisible, and it is the DEFAULT state, because the quantity opens at
+   one and the minus is disabled on every single page load. --lada-muted
+   on its own is 5.26:1 and still reads as obviously dimmer than the
+   live button's --lada-bone at 15.8:1, which is the whole job. */
+.template-product-lada .lpdp__qty-b:disabled{color:var(--lada-muted);
+  cursor:default}
+.template-product-lada .lpdp__qty-b:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:-2px}
+.template-product-lada .lpdp__qty-i{width:3.25rem;min-height:50px;
+  border:0;background:transparent;color:var(--lada-bone);
+  font-family:var(--font-ui);font-size:.9375rem;font-weight:500;
+  text-align:center;font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield}
+.template-product-lada .lpdp__qty-i:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:-2px}
+/* The native spinners are the no-script fallback: with the buttons
+   still hidden they are the only way to change the number, so they are
+   hidden only once the script has revealed the real ones and set
+   data-ready. */
+.template-product-lada .lpdp__qty[data-ready] .lpdp__qty-i::-webkit-outer-spin-button,
+.template-product-lada .lpdp__qty[data-ready] .lpdp__qty-i::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0}
+.template-product-lada .lpdp__qty:not([data-ready]){padding-inline-end:var(--s2)}
+.template-product-lada .lpdp__qty:not([data-ready]) .lpdp__qty-i{width:4.5rem}
+
+/* Champagne fill, the same primary as .btn-lada on the gateway, so the
+   one gold thing on the page is the one thing the customer came to do.
+   Ground on champagne measures 8.8:1. */
+.template-product-lada .lpdp__atc{flex:1 1 auto;display:inline-flex;
+  align-items:center;justify-content:center;gap:.5rem;min-height:50px;
+  padding-inline:calc(var(--s5) + .24em) var(--s5);
+  border:1px solid var(--lada-champagne);border-radius:0;
+  background:var(--lada-champagne);color:var(--lada-ground);
+  font-family:var(--font-ui);font-size:var(--fs-micro);font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;text-align:center;
+  cursor:pointer;transition:background .25s var(--ease),
+    color .25s var(--ease),border-color .25s var(--ease)}
+.template-product-lada .lpdp__atc:hover:not(:disabled){background:transparent;
+  color:var(--lada-champagne)}
+.template-product-lada .lpdp__atc:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:3px}
+/* Sold out and unavailable. The fill goes, so this is --lada-muted on
+   the ground at 5.26:1: the words stay readable while the button stops
+   looking pressable. (--lada-brass, the dimmer gold, is NOT used here;
+   as a fill it measures 4.17:1 against the ground text that would sit
+   on it, which is under the floor.) */
+.template-product-lada .lpdp__atc:disabled{background:transparent;
+  border-color:var(--lada-line);color:var(--lada-muted);cursor:not-allowed}
+/* In flight. The label fades, the ring spins, and the button stays the
+   same size, which is the same contract .lcard__quick has. */
+.template-product-lada .lpdp__atc[data-loading]{cursor:progress}
+.template-product-lada .lpdp__atc[data-loading] .lpdp__atc-t{opacity:.45}
+.template-product-lada .lpdp__spin{display:none;width:13px;height:13px;
+  border:2px solid currentColor;border-top-color:transparent;
+  border-radius:50%;animation:kjSpin .6s linear infinite}
+.template-product-lada .lpdp__atc[data-loading] .lpdp__spin{display:block}
+
+/* Shopify's own reason string lands here ("Only 2 left in stock"), so it
+   is a full sentence and gets 13px, the floor for prose. --error
+   (#A32020) measures 2.5:1 on this ground and cannot be used. */
+.template-product-lada .lpdp__err{margin:var(--s3) 0 0;
+  font-family:var(--font-ui);font-size:.8125rem;font-weight:300;
+  line-height:1.7;color:#E2857A}
+.template-product-lada .lpdp__err[hidden]{display:none}
+
+/* ---------- the description ----------
+   Exactly what the client typed in Shopify, with no heading over it and
+   no sentence written around it. 15px/300 at 1.75, which is what the
+   Lada steps and lede already run at, so the one piece of prose on this
+   page matches the prose on the gateway. */
+.template-product-lada .lpdp__desc{margin-top:var(--s6);
+  padding-top:var(--s5);border-top:1px solid var(--lada-line);
+  font-family:var(--font-ui);font-size:.9375rem;font-weight:300;
+  line-height:1.75;letter-spacing:0;color:var(--lada-bone)}
+.template-product-lada .lpdp__desc > :first-child{margin-top:0}
+.template-product-lada .lpdp__desc > :last-child{margin-bottom:0}
+.template-product-lada .lpdp__desc p,
+.template-product-lada .lpdp__desc ul,
+.template-product-lada .lpdp__desc ol{margin:0 0 var(--s4)}
+.template-product-lada .lpdp__desc li{margin-bottom:var(--s2)}
+/* A heading typed into the Shopify description is the client's, so it is
+   allowed, but it is brought back to this page's scale rather than
+   arriving at the site's h2 size in the middle of a 380px column. */
+.template-product-lada .lpdp__desc h1,
+.template-product-lada .lpdp__desc h2,
+.template-product-lada .lpdp__desc h3,
+.template-product-lada .lpdp__desc h4{margin:var(--s5) 0 var(--s3);
+  font-family:var(--font-ui);font-size:1rem;font-weight:500;
+  letter-spacing:0;line-height:1.35;color:var(--lada-bone)}
+.template-product-lada .lpdp__desc a{color:var(--lada-champagne);
+  text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:.25rem}
+.template-product-lada .lpdp__desc a:focus-visible{
+  outline:2px solid var(--lada-champagne);outline-offset:3px}
+.template-product-lada .lpdp__desc strong{font-weight:500}
+.template-product-lada .lpdp__desc img{max-width:100%;height:auto}
+
+/* ---------- the size table inside the popover ----------
+   snippets/lada-size-table brings its own styling, all of it already
+   token based and none of it dependent on a .lada ancestor, so there is
+   nothing to restate. Two adjustments only, both because the panel is
+   --lada-panel and the section it was designed in is --lada-ground. */
+.template-product-lada .lpdp__guide-p .lada__sizes-cap{padding-bottom:var(--s3)}
+.template-product-lada .lpdp__guide-p .lada__units{margin-bottom:var(--s4)}
+
+/* ---------- the header comes onto the Lada palette ----------
+   The gateway already does this around line 2319 of kj-v2.css, gated on
+   its hero. This page has no hero, so the bar is simply solid ground
+   from the top: it stays sticky and in flow exactly as site.css has it,
+   and only the colours change. Without it the journey runs dark, dark,
+   dark and then puts a white bar over the last page of it.
+
+   The backdrop-filter is switched off rather than left on. Behind a
+   fully opaque background it is a full viewport width GPU pass every
+   frame of every scroll for an effect nothing can see, which is the
+   same note the gateway's version carries. */
+.template-product-lada .hdr{
+  --header-content-color:var(--lada-bone);
+  background:var(--lada-ground);border-bottom-color:var(--lada-line);
+  -webkit-backdrop-filter:none;backdrop-filter:none}
+.template-product-lada .hdr__brand{color:var(--lada-champagne)}
+.template-product-lada .hdr__brand b{color:var(--lada-bone)}
+.template-product-lada .iconbtn{color:var(--lada-bone)}
+.template-product-lada .iconbtn:hover{color:var(--lada-champagne)}
+.template-product-lada .iconbtn:focus-visible{outline-color:var(--lada-champagne)}
+.template-product-lada .nav__link{color:var(--lada-bone)}
+.template-product-lada .nav__link:hover,
+.template-product-lada .nav__link[aria-current="page"]{color:var(--lada-champagne)}
+.template-product-lada .nav__link--lada{color:var(--lada-champagne)}
+
+/* The drawer and the mega panel are the only white surfaces left
+   hanging off a now dark bar, and the site accent (#9A1B2F) measures
+   2.36:1 on --lada-ground. Same treatment as the gateway, same
+   selectors, same reason the link colour is scoped to `.nav__grp ul a`
+   and not `.nav__grp a`: the group heading is an <h4><a>, and the looser
+   selector repaints it muted and collapses the hierarchy. */
+@media (max-width:1023px){
+  .template-product-lada .nav{background:var(--lada-ground);
+    border-bottom-color:var(--lada-line)}
+  .template-product-lada .nav__sec{border-top-color:var(--lada-line)}
+  .template-product-lada .nav__grp h4,
+  .template-product-lada .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-product-lada .nav__grp ul a{color:var(--lada-muted)}
+  .template-product-lada .nav__grp ul a:hover{color:var(--lada-bone)}
+  .template-product-lada .nav__viewall{display:flex;align-items:center;
+    min-height:44px;font-size:var(--fs-micro);letter-spacing:.24em;
+    color:var(--lada-champagne)}
+}
+@media (min-width:1024px){
+  .template-product-lada .mega{background:var(--lada-panel);
+    border-color:var(--lada-line);box-shadow:none}
+  .template-product-lada .nav__grp h4,
+  .template-product-lada .nav__grp h4 a{color:var(--lada-champagne)}
+  .template-product-lada .nav__grp h4 a:hover{color:var(--lada-bone)}
+  .template-product-lada .nav__grp ul a{color:var(--lada-muted)}
+  .template-product-lada .nav__grp ul a:hover{color:var(--lada-champagne)}
+}
+
+/* ---------- reduced motion ----------
+   The spinner stays: it is the only thing telling a customer the shop
+   heard the tap, and a static ring says nothing. Everything else here
+   is a colour transition and a colour transition is exactly what this
+   media query is asking about. */
+@media (prefers-reduced-motion:reduce){
+  .template-product-lada .lpdp__back,
+  .template-product-lada .lpdp__chip,
+  .template-product-lada .lpdp__guide-t,
+  .template-product-lada .lpdp__wa,
+  .template-product-lada .lpdp__qty-b,
+  .template-product-lada .lpdp__atc{transition:none}
+}
+
+/* ---------- no :has(), no broken page ----------
+   :has() is what draws the selected chip, and every browser this shop
+   sees has had it since 2023. An engine without it would leave five
+   colour buttons looking identical, which is the one failure that would
+   actually cost an order, so the fallback is stated rather than
+   assumed: without :has() the checked input's own outline is restored
+   and the customer can still see which colour he picked. */
+@supports not selector(:has(*)){
+  .template-product-lada .lpdp__chip input{position:static;width:auto;
+    height:auto;margin:0 .4rem 0 0;clip:auto;clip-path:none;
+    accent-color:var(--lada-champagne)}
 }

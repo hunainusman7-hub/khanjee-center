@@ -1,0 +1,794 @@
+{%- comment -%}
+  sections/main-product-lada.liquid
+  Rendered by templates/product.lada.json, which puts .template-product-lada
+  on <body>. Every rule in the CSS block that dresses this file is scoped to
+  that class, so the dark register ends the moment the customer leaves Lada.
+
+  WHY THIS EXISTS AND IS NOT A RESTYLE OF main-product.liquid.
+  The shared PDP sells other people's cloth: it carries the white-label
+  vendor rule, a KJC SKU line, a percent-off chip, a five-row metafield
+  spec table, a trust list and a related-products grid. That is nine
+  blocks of text before the description. The client rejected exactly that
+  density on the Lada page. Lada is the house's own label, everything in
+  it is cotton, and the reference the client gave (faizasaqlain.pk) puts
+  one word on a page and lets the photographs do the rest. So this file
+  carries six things and refuses the rest:
+
+      title, price, variant choice, quantity, add to bag, description
+
+  Nothing is invented around the description. It prints exactly as the
+  client typed it in Shopify, with no heading over it and no sentence
+  underneath.
+
+  WHAT IS DELIBERATELY NOT HERE, so nobody adds it back by accident:
+  breadcrumb trail (one back link instead, and only when the customer
+  arrived from a listing), SKU, vendor, spec table, trust list, percent
+  off chip, related products grid. Each of those is a paragraph the page
+  has to earn and none of them earns it.
+
+  COMMERCE IS NOT REBUILT. The form is the same contract kj-cart.js
+  already listens for, document-wide and class-independent:
+      form[data-kj-atc]  +  [data-kj-atc-error]  +  a submit button
+  so add to bag, the error string Shopify sends back, the drawer and the
+  count all behave exactly as they do on the shared PDP.
+
+  WHY THE MARKUP DOES NOT REUSE .pdp__form / .pdp__buy / .pdp__gal.
+  kj-v2.js binds those three classes at parse time. Its option handler
+  reads `.value` off every [data-pdp-option] element, which is correct
+  for a <select> and wrong for a radio (a radio reports its own value
+  whether or not it is checked), and its quantity stepper clamps a
+  minimum and no maximum. This page needs radios, because a colour has
+  to read as a colour, and a cap of three, because Lada is made in small
+  numbers. Borrowing those class names would double-bind and break both.
+  So the markup uses its own lpdp__ names and the small script at the
+  bottom of this file, and kj-v2.js is left untouched.
+
+  TWO KINDS OF PRODUCT SHARE THIS TEMPLATE, detected by option name and
+  never by handle, because /collections/alamghir does not exist yet and a
+  hardcoded handle would be wrong the day it does:
+
+    Alamghir       unstitched cotton. One option, Colour, no size. The
+                   colour values render as swatches when the client has
+                   set swatch values in Shopify, and as plain named
+                   buttons when he has not, which is the state this ships
+                   in. Under the choice sits ONE line and a WhatsApp
+                   button about being measured. Both are settings and
+                   both disappear when cleared.
+
+    Ready to wear  stitched waistcoats. One option, Size, S / M / L.
+                   Plain buttons, with the size guide beside the label.
+
+  A product with neither, or with no options at all, simply gets neither
+  the measure line nor the guide and still buys correctly.
+
+  PROGRESSIVE ENHANCEMENT, the same standard as the rest of this theme.
+  A one-option product (which is both kinds above) posts the variant id
+  straight off the radio, so choosing a colour and buying it works with
+  the script blocked. The script only upgrades: it swaps the price when
+  a shop prices sizes differently, flips the button to Sold out, caps the
+  quantity, and reveals the plus and minus buttons, which ship hidden
+  because a control that does nothing is worse than no control.
+{%- endcomment -%}
+
+{%- liquid
+  assign v = product.selected_or_first_available_variant | default: product.variants.first
+
+  assign add_label   = section.settings.add_label   | default: 'Add to bag'
+  assign sold_label  = section.settings.sold_label  | default: 'Sold out'
+  assign unav_label  = section.settings.unav_label  | default: 'Unavailable'
+  assign guide_label = section.settings.guide_label | default: 'Size guide'
+  assign qty_max     = section.settings.qty_max     | default: 3
+  assign qty_label   = section.settings.qty_label   | default: 'Quantity'
+
+  assign wa      = section.settings.whatsapp
+  assign wa_text = section.settings.whatsapp_text | default: 'I would like to be measured for this cotton.'
+  assign measure_line = section.settings.measure_line
+  assign measure_cta  = section.settings.measure_cta
+
+  comment
+    The button needs BOTH a label and a number. Without this the client
+    clearing only the number leaves the measure line rendering an empty
+    paragraph, which on this page is a stray 16px of nothing under the
+    colours.
+  endcomment
+  assign measure_wa = false
+  if measure_cta != blank and wa != blank
+    assign measure_wa = true
+  endif
+
+  comment
+    Which option is a colour and which is a size, decided by the option's
+    own name against two editable lists. handleize on both sides so
+    "Colour", "colour" and "COLOUR" are one thing, and so the client can
+    add "shade" or "rang" to the list without a developer.
+  endcomment
+  assign colour_keys = section.settings.colour_options | default: 'colour,color' | split: ','
+  assign size_keys   = section.settings.size_options   | default: 'size' | split: ','
+
+  assign has_colour = false
+  assign has_size = false
+  for opt in product.options
+    assign key = opt | handleize
+    for c in colour_keys
+      assign ck = c | handleize
+      if ck == key
+        assign has_colour = true
+      endif
+    endfor
+    for s in size_keys
+      assign sk = s | handleize
+      if sk == key
+        assign has_size = true
+      endif
+    endfor
+  endfor
+
+  comment
+    The measure line belongs to unstitched cloth only. A product that has
+    a size is already cut, so the answer to "will it fit" is the size
+    guide, not the tailor.
+  endcomment
+  assign show_measure = false
+  if has_colour and has_size == false
+    assign show_measure = true
+  endif
+
+  assign has_options = false
+  unless product.has_only_default_variant
+    assign has_options = true
+  endunless
+
+  comment
+    ONE OPTION IS THE NO-SCRIPT PATH. With a single option each value maps
+    to exactly one variant, so the radio can simply BE the variant id and
+    the form posts the right thing with nothing running. product_option_value.variant
+    is nil on a multi-option product and on any shop still serving the old
+    string-array option values, so it is probed rather than assumed; when
+    it comes back empty the page falls through to the combination path
+    below, which is the behaviour the shared PDP already has.
+  endcomment
+  assign direct_ids = false
+  if has_options and product.options.size == 1
+    assign probe = product.options_with_values[0].values | first
+    if probe.variant.id != blank
+      assign direct_ids = true
+    endif
+  endif
+
+  comment
+    Only build the per-variant price spans when prices actually differ.
+    Every price on this page is rendered by Liquid's money filter and
+    swapped by toggling `hidden`; no script here ever formats a currency,
+    which is the same rule kj-cart.js states at the top of its own file.
+  endcomment
+  assign price_varies = product.price_varies
+-%}
+
+{%- capture wa_msg -%}{{ wa_text }} {{ product.title }}{%- endcapture -%}
+
+<div class="lada lpdp" id="lpdp-{{ section.id }}" data-lpdp>
+  <div class="lada__wrap lpdp__wrap">
+
+    {%- comment -%}
+      One back link, not a breadcrumb trail, and only when the customer
+      came in through a listing. It is navigation rather than writing:
+      eleven pixels, one word, and it is the way back to the wall of
+      photographs he was looking at. With no collection in the URL it is
+      not rendered at all rather than falling back to "Home".
+    {%- endcomment -%}
+    {%- if collection -%}
+      <a class="lpdp__back" href="{{ collection.url }}">{{ collection.title }}</a>
+    {%- endif -%}
+
+    <div class="lpdp__grid">
+
+      {%- comment -%}
+        ---------- the contact sheet ----------
+        Every frame at once, 4:5, two up, eight pixels apart. No
+        thumbnail rail and no slideshow: a rail is a second copy of the
+        same pictures that costs a tab stop each, and a slideshow hides
+        the photographs behind a control, which on a page whose entire
+        argument is the photographs is the one thing it must not do.
+
+        4:5 is .pcard__media's ratio site-wide. The client asked for that
+        uniformity explicitly.
+
+        A single photograph spans both columns instead of sitting at half
+        width beside a hole. On a phone the sheet is one column, because
+        a 4:5 frame at 170px wide is a thumbnail, and thumbnails are what
+        this layout exists to avoid.
+      {%- endcomment -%}
+
+      {%- comment -%}
+        WHY `sizes` IS SPELLED OUT IN PIXELS AND NOT IN vw, and why a lone
+        photograph gets its own string. This was measured in a browser,
+        not estimated, because an earlier pass estimated it and was wrong
+        in two places at once.
+
+        .lada__wrap is min(100% - 2.5rem, 1180px), and min(100% - 4rem,
+        1180px) from 900px up. The sheet is the whole wrap below 1000px,
+        and the wrap minus the 380px details column and the --s8 (72px)
+        gutter above it. No vw fraction describes that, and the 30vw /
+        44vw guess that used to sit here missed twice:
+
+          960px  frame renders at 444px, was declared 288px
+          1280px a LONE photograph spans both columns and renders at
+                 728px, was declared 360px
+
+        Both of those fetch an image about half the width they draw at
+        and upscale it. On a page whose entire argument is the
+        photographs that is the one thing it must not do, and a lone
+        photograph is the state most products ship in while the client
+        is still shooting them.
+
+        The breakpoints are the wrap's own, not round numbers: 1244px is
+        where 100vw - 4rem stops being smaller than the 1180px cap, and
+        900px is where the side gutter goes from 2.5rem to 4rem.
+      {%- endcomment -%}
+      {%- liquid
+        if product.media.size == 1
+          assign sheet_sizes = '(min-width:1244px) 728px, (min-width:1000px) calc(100vw - 516px), (min-width:900px) calc(100vw - 64px), calc(100vw - 40px)'
+        else
+          assign sheet_sizes = '(min-width:1244px) 360px, (min-width:1000px) calc((100vw - 524px) / 2), (min-width:900px) calc((100vw - 72px) / 2), (min-width:700px) calc((100vw - 48px) / 2), calc(100vw - 40px)'
+        endif
+      -%}
+
+      <div class="lpdp__sheet{% if product.media.size == 1 %} lpdp__sheet--one{% endif %}">
+        {%- if product.media.size > 0 -%}
+          {%- for media in product.media -%}
+            {%- liquid
+              assign mw = media.width | default: 1400
+              assign src_w = 900
+              if mw < src_w
+                assign src_w = mw
+              endif
+            -%}
+            <figure class="lpdp__frame">
+              {%- comment -%}
+                The 1600w step is here for the lone photograph: it draws
+                at 728px, which a retina screen wants 1456px for, and
+                without it the candidate list jumps from 1100 straight to
+                whatever the client uploaded, so a 4000px camera file is
+                pulled down to fill a 1456px need.
+              {%- endcomment -%}
+              <img class="lpdp__img"
+                   src="{{ media | image_url: width: src_w }}"
+                   srcset="{%- if mw > 400 %}{{ media | image_url: width: 400 }} 400w, {% endif -%}
+                           {%- if mw > 700 %}{{ media | image_url: width: 700 }} 700w, {% endif -%}
+                           {%- if mw > 1100 %}{{ media | image_url: width: 1100 }} 1100w, {% endif -%}
+                           {%- if mw > 1600 %}{{ media | image_url: width: 1600 }} 1600w, {% endif -%}
+                           {{ media | image_url: width: mw }} {{ mw }}w"
+                   sizes="{{ sheet_sizes }}"
+                   width="{{ media.width }}" height="{{ media.height }}"
+                   {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                   decoding="async"
+                   alt="{{ media.alt | default: product.title | escape }}">
+            </figure>
+          {%- endfor -%}
+        {%- else -%}
+          {%- comment -%}
+            The client loads every photograph himself after handover, so
+            an unshot piece is a state this page will really ship in. An
+            empty plate at --lada-panel against the --lada-ground page
+            reads as a frame waiting for a picture; a collapsed column
+            reads as a broken template. Same reasoning as the card.
+          {%- endcomment -%}
+          <div class="lpdp__frame lpdp__frame--empty" aria-hidden="true"></div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} ---------- the details column ---------- {%- endcomment -%}
+      <div class="lpdp__info">
+        <div class="lpdp__stick">
+
+          <h1 class="lpdp__title">{{ product.title }}</h1>
+
+          {%- comment -%}
+            Price. Compare-at is kept, because the shared PDP has it and a
+            template that silently drops a strikethrough would misprice a
+            sale the day the client runs one. The percent-off chip is not
+            kept: a coloured chip is the first thing that turns a house
+            label back into a sale rack, which is the same call the Lada
+            card makes.
+
+            When the variants are priced differently every price is
+            rendered here by Liquid and all but one carries `hidden`; the
+            script swaps which one shows. Nothing below formats money.
+          {%- endcomment -%}
+          <p class="lpdp__price">
+            {%- if price_varies -%}
+              {%- for variant in product.variants -%}
+                <span class="lpdp__price-set" data-lpdp-vprice="{{ variant.id }}"
+                      {% unless variant.id == v.id %}hidden{% endunless %}>
+                  {%- if variant.compare_at_price > variant.price -%}
+                    <s>{{ variant.compare_at_price | money }}</s>
+                  {%- endif -%}
+                  <span class="lpdp__now">{{ variant.price | money }}</span>
+                </span>
+              {%- endfor -%}
+            {%- else -%}
+              {%- if v.compare_at_price > v.price -%}
+                <s>{{ v.compare_at_price | money }}</s>
+              {%- endif -%}
+              <span class="lpdp__now">{{ v.price | money }}</span>
+            {%- endif -%}
+          </p>
+
+          <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data"
+                class="lpdp__form" data-kj-atc>
+
+            {%- if has_options -%}
+              {%- for option in product.options_with_values -%}
+                {%- liquid
+                  assign okey = option.name | handleize
+
+                  assign is_colour = false
+                  for c in colour_keys
+                    assign ck = c | handleize
+                    if ck == okey
+                      assign is_colour = true
+                    endif
+                  endfor
+
+                  assign is_size = false
+                  for s in size_keys
+                    assign sk = s | handleize
+                    if sk == okey
+                      assign is_size = true
+                    endif
+                  endfor
+
+                  comment
+                    Swatches only when there is something to paint. The
+                    client has not set a single swatch value yet, and a
+                    row of identical grey discs is a worse colour picker
+                    than a row of named buttons, so the dot is added per
+                    option only if at least one value in it carries a
+                    colour or an image.
+                  endcomment
+                  assign paint = false
+                  if is_colour
+                    for value in option.values
+                      if value.swatch.color or value.swatch.image
+                        assign paint = true
+                      endif
+                    endfor
+                  endif
+                -%}
+
+                <div class="lpdp__opt{% if paint %} lpdp__opt--sw{% endif %}">
+                  <div class="lpdp__opt-head">
+                    <span class="lpdp__opt-l" id="{{ section.id }}-opt-{{ forloop.index0 }}">{{ option.name }}</span>
+
+                    {%- comment -%}
+                      The size guide sits beside the label it answers,
+                      which is where the doubt actually happens, and it is
+                      a <details> rather than a dialog or a [popover] on
+                      purpose: it opens with no script at all. CSS lifts
+                      the open panel off the flow on a wide screen so it
+                      behaves as a popover; on a phone it expands in place,
+                      which is the better shape there anyway. The script
+                      only adds Escape and click-outside.
+
+                      The table itself is snippets/lada-size-table, the
+                      same component the Lada size section renders, so
+                      there is one chart on this site and not two that
+                      drift. uid keeps the two instances' unit toggles
+                      from driving each other.
+
+                      The chart's inches and centimetres radios therefore
+                      sit inside the buy form and ride along in the POST
+                      as lpdp-size-unit=in. /cart/add ignores every field
+                      it does not know (only id, quantity, selling_plan
+                      and properties[...] mean anything to it), so this is
+                      inert rather than wrong. The alternative is lifting
+                      the guide out of the form, which separates it from
+                      the label it answers, and sitting beside that label
+                      is the entire reason it is here.
+                    {%- endcomment -%}
+                    {%- if is_size -%}
+                      {%- comment -%}
+                        The uid carries the option index. Two size named
+                        options on one product is not a thing anyone would
+                        build, but if it ever happened the two charts would
+                        share a radio name and one toggle would drive the
+                        other, which is the exact failure the snippet's own
+                        header warns about.
+                      {%- endcomment -%}
+                      {%- assign guide_uid = 'lpdp-size-' | append: forloop.index0 -%}
+                      <details class="lpdp__guide" data-lpdp-guide>
+                        <summary class="lpdp__guide-t">{{ guide_label }}</summary>
+                        <div class="lpdp__guide-p">
+                          {%- render 'lada-size-table',
+                              uid: guide_uid,
+                              rows: section.settings.size_rows,
+                              columns: section.settings.size_columns,
+                              note: section.settings.size_note -%}
+                        </div>
+                      </details>
+                    {%- endif -%}
+                  </div>
+
+                  <div class="lpdp__values" role="radiogroup"
+                       aria-labelledby="{{ section.id }}-opt-{{ forloop.index0 }}"
+                       data-lpdp-group>
+                    {%- assign oi = forloop.index0 -%}
+                    {%- for value in option.values -%}
+                      {%- liquid
+                        assign uid = section.id | append: '-o' | append: oi | append: '-v' | append: forloop.index0
+
+                        comment
+                          Direct path: the radio carries the variant id and
+                          an unavailable one is disabled, so a customer
+                          with no script cannot pick a sold-out colour.
+                          The one exception is spelled out below.
+                          Combination path: the radio carries the option
+                          value and availability is a hint only, because
+                          whether a pairing exists is the script's job in
+                          that case.
+                        endcomment
+                        assign r_name = 'id'
+                        assign r_value = value.variant.id
+                        assign r_checked = false
+                        if value.variant.id == v.id
+                          assign r_checked = true
+                        endif
+                        unless direct_ids
+                          assign r_name = 'lpdp-o' | append: oi
+                          assign r_value = value
+                          assign r_checked = false
+                          if option.selected_value == value or value.selected
+                            assign r_checked = true
+                          endif
+                        endunless
+
+                        assign r_avail = true
+                        if value.available == false
+                          assign r_avail = false
+                        endif
+
+                        comment
+                          NEVER DISABLE THE CHECKED RADIO. On the direct
+                          path the radio IS the id field, and a disabled
+                          field is left out of the submission entirely, so
+                          disabling the checked one posts a form with no
+                          id at all and Shopify answers with an error page
+                          rather than "sold out".
+
+                          It happens for real: selected_or_first_available_variant
+                          honours ?variant= in the URL even when that
+                          variant is gone, so a shared link to a colour
+                          that has since sold out lands here with the
+                          sold-out radio checked while the product is
+                          still available in other colours, which leaves
+                          the button live. With the script running it
+                          flips to Sold out a moment later; with the
+                          script blocked the customer posts the sold-out
+                          id and reads Shopify's own sold-out message,
+                          which is the truth rather than a broken form.
+                          It is still struck through and still says
+                          is-out, so nothing about it looks buyable.
+                        endcomment
+                        assign r_disabled = false
+                        if direct_ids and r_avail == false and r_checked == false
+                          assign r_disabled = true
+                        endif
+                      -%}
+                      <label class="lpdp__chip{% unless r_avail %} is-out{% endunless %}" for="{{ uid }}">
+                        <input class="vh" type="radio" id="{{ uid }}"
+                               name="{{ r_name }}" value="{{ r_value | escape }}"
+                               {% if direct_ids %}data-lpdp-variant-radio{% endif %}
+                               {% if r_checked %}checked{% endif %}
+                               {% if r_disabled %}disabled{% endif %}>
+                        {%- if paint -%}
+                          {%- liquid
+                            assign dot = ''
+                            if value.swatch.image
+                              assign dot_url = value.swatch.image | image_url: width: 80
+                              assign dot = 'url(' | append: dot_url | append: ')'
+                            elsif value.swatch.color
+                              assign dot = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+                            endif
+                          -%}
+                          <span class="lpdp__dot" aria-hidden="true"
+                                {% if dot != blank %}style="--dot:{{ dot | escape }}"{% endif %}></span>
+                        {%- endif -%}
+                        <span class="lpdp__chip-t">{{ value }}</span>
+                      </label>
+                    {%- endfor -%}
+                  </div>
+                </div>
+
+                {%- comment -%}
+                  ONE LINE, not a section. It is rendered under the colour
+                  choice because that is the moment the question "but will
+                  it fit me" arrives, and it is two settings so the client
+                  owns both the sentence and the button. Clear either one
+                  in the editor and that half stops rendering.
+                {%- endcomment -%}
+                {%- if show_measure and is_colour -%}
+                  {%- if measure_line != blank or measure_wa -%}
+                    <p class="lpdp__measure">
+                      {%- if measure_line != blank -%}
+                        <span class="lpdp__measure-t">{{ measure_line }}</span>
+                      {%- endif -%}
+                      {%- if measure_wa -%}
+                        <a class="lpdp__wa" target="_blank" rel="noopener"
+                           href="https://wa.me/{{ wa }}?text={{ wa_msg | strip | url_encode }}">
+                          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true" focusable="false">
+                            <path d="M12 2a10 10 0 0 0-8.7 15L2 22l5.2-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5 0-1.1 0-1.9-.3a11 11 0 0 1-5.6-4.9c-.4-.7-.6-1.4-.6-2 0-.6.3-1.2.7-1.6.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .5.4l.7 1.7c0 .2 0 .3-.1.5l-.4.5c-.1.2-.2.3 0 .5a7.8 7.8 0 0 0 3.4 2.9c.2.1.4 0 .5 0l.7-.8c.2-.2.3-.1.5 0l1.6.8c.2.1.3.2.3.3v.8Z"/>
+                          </svg>
+                          {{ measure_cta }}
+                        </a>
+                      {%- endif -%}
+                    </p>
+                  {%- endif -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- comment -%}
+                The combination path needs a hidden id and the variant map.
+                The direct path needs neither: the checked radio IS the id
+                field. The map is still emitted for it, because the script
+                reads a variant's availability and price out of it.
+              {%- endcomment -%}
+              {%- unless direct_ids -%}
+                <input type="hidden" name="id" value="{{ v.id }}" data-lpdp-variant-id>
+              {%- endunless -%}
+
+              <script type="application/json" data-lpdp-variants>
+                [
+                  {%- for variant in product.variants -%}
+                    {"id":{{ variant.id }},
+                     "options":{{ variant.options | json }},
+                     "available":{{ variant.available }}}{% unless forloop.last %},{% endunless %}
+                  {%- endfor -%}
+                ]
+              </script>
+            {%- else -%}
+              <input type="hidden" name="id" value="{{ v.id }}" data-lpdp-variant-id>
+            {%- endif -%}
+
+            <div class="lpdp__buy">
+              {%- comment -%}
+                Capped at three, not a 1 to 50 dropdown. Lada is cut in
+                small numbers and a fifty-deep select on a made-to-measure
+                cotton is a promise the workshop cannot keep.
+
+                The plus and minus ship `hidden` and the script reveals
+                them, so with the script blocked the customer gets a plain
+                number field whose own min and max the browser enforces,
+                rather than two buttons that do nothing. That is the same
+                rule the size table's unit toggle follows.
+              {%- endcomment -%}
+              <div class="lpdp__qty" data-lpdp-qty>
+                <button class="lpdp__qty-b" type="button" data-lpdp-step="-1"
+                        aria-label="One fewer" hidden>&minus;</button>
+                <input class="lpdp__qty-i" type="number" inputmode="numeric"
+                       name="quantity" value="1" min="1" max="{{ qty_max }}" step="1"
+                       aria-label="{{ qty_label | escape }}">
+                <button class="lpdp__qty-b" type="button" data-lpdp-step="1"
+                        aria-label="One more" hidden>+</button>
+              </div>
+
+              <button class="lpdp__atc" type="submit" data-lpdp-atc
+                      {% unless product.available %}disabled{% endunless %}>
+                <span class="lpdp__atc-t" data-lpdp-atc-t>
+                  {%- if product.available -%}{{ add_label }}{%- else -%}{{ sold_label }}{%- endif -%}
+                </span>
+                <span class="lpdp__spin" aria-hidden="true"></span>
+              </button>
+            </div>
+
+            <p class="lpdp__err" data-kj-atc-error role="alert" hidden></p>
+          </form>
+
+          {%- comment -%}
+            The description, exactly as the client typed it in Shopify. No
+            heading over it, no accordion, nothing written around it. If it
+            is empty the column simply ends at the button.
+          {%- endcomment -%}
+          {%- if product.description != blank -%}
+            <div class="lpdp__desc rte">{{ product.description }}</div>
+          {%- endif -%}
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- comment -%}
+  Behaviour for this section and nothing else. It lives here rather than
+  in kj-v2.js because that file's PDP handlers bind .pdp__form and
+  .pdp__buy and would fight this markup (see the note at the top), and
+  because the section is the only thing on the site that needs it. It is
+  scoped to this section's own id so the theme editor can re-render the
+  section without two copies driving each other, and it is written to
+  no-op on every branch it does not find.
+{%- endcomment -%}
+<script>
+  (function () {
+    'use strict';
+
+    var root = document.getElementById('lpdp-{{ section.id }}');
+    if (!root || root.getAttribute('data-lpdp-ready')) return;
+    root.setAttribute('data-lpdp-ready', 'true');
+
+    var ADD   = {{ add_label  | json }};
+    var SOLD  = {{ sold_label | json }};
+    var UNAV  = {{ unav_label | json }};
+
+    var atc    = root.querySelector('[data-lpdp-atc]');
+    var label  = root.querySelector('[data-lpdp-atc-t]');
+    var idField = root.querySelector('[data-lpdp-variant-id]');
+    var prices = root.querySelectorAll('[data-lpdp-vprice]');
+
+    var map = [];
+    var json = root.querySelector('[data-lpdp-variants]');
+    if (json) { try { map = JSON.parse(json.textContent) || []; } catch (e) { map = []; } }
+
+    function byId(id) {
+      for (var i = 0; i < map.length; i++) {
+        if (String(map[i].id) === String(id)) return map[i];
+      }
+      return null;
+    }
+
+    /* Everything a chosen variant changes, in one place. The price is
+       never computed: the server rendered every variant's price into the
+       markup and this only picks which one is not hidden. */
+    function paint(variant) {
+      if (!variant) {
+        if (atc) atc.disabled = true;
+        if (label) label.textContent = UNAV;
+        return;
+      }
+      if (idField) idField.value = variant.id;
+      if (atc) atc.disabled = !variant.available;
+      if (label) label.textContent = variant.available ? ADD : SOLD;
+      for (var i = 0; i < prices.length; i++) {
+        prices[i].hidden = prices[i].getAttribute('data-lpdp-vprice') !== String(variant.id);
+      }
+    }
+
+    /* --- one option: the radio already is the variant id --- */
+    var direct = root.querySelectorAll('[data-lpdp-variant-radio]');
+    if (direct.length) {
+      root.addEventListener('change', function (e) {
+        var r = e.target.closest ? e.target.closest('[data-lpdp-variant-radio]') : null;
+        if (r && r.checked) paint(byId(r.value));
+      });
+      var onNow = root.querySelector('[data-lpdp-variant-radio]:checked');
+      if (onNow) paint(byId(onNow.value));
+    } else {
+      /* --- several options: match the chosen combination --- */
+      var groups = root.querySelectorAll('[data-lpdp-group]');
+      if (groups.length && idField) {
+        var sync = function () {
+          var chosen = [];
+          for (var g = 0; g < groups.length; g++) {
+            var on = groups[g].querySelector('input:checked');
+            chosen.push(on ? on.value : null);
+          }
+          var match = null;
+          for (var i = 0; i < map.length && !match; i++) {
+            var ok = true;
+            for (var k = 0; k < chosen.length; k++) {
+              if (map[i].options[k] !== chosen[k]) ok = false;
+            }
+            if (ok) match = map[i];
+          }
+          paint(match);
+        };
+        root.addEventListener('change', function (e) {
+          if (e.target.closest && e.target.closest('[data-lpdp-group]')) sync();
+        });
+        sync();
+      }
+    }
+
+    /* --- quantity, capped --- */
+    var qwrap = root.querySelector('[data-lpdp-qty]');
+    if (qwrap) {
+      var input = qwrap.querySelector('input');
+      var steps = qwrap.querySelectorAll('[data-lpdp-step]');
+      var max = parseInt(input.getAttribute('max'), 10) || 3;
+
+      var sweep = function () {
+        var n = parseInt(input.value, 10) || 1;
+        for (var i = 0; i < steps.length; i++) {
+          var d = parseInt(steps[i].getAttribute('data-lpdp-step'), 10);
+          steps[i].disabled = d > 0 ? n >= max : n <= 1;
+        }
+      };
+
+      for (var s = 0; s < steps.length; s++) {
+        steps[s].hidden = false;
+        steps[s].addEventListener('click', function (e) {
+          var by = parseInt(e.currentTarget.getAttribute('data-lpdp-step'), 10) || 0;
+          var n = (parseInt(input.value, 10) || 1) + by;
+          input.value = Math.min(max, Math.max(1, n));
+          sweep();
+        });
+      }
+
+      input.addEventListener('change', function () {
+        var n = parseInt(input.value, 10);
+        if (isNaN(n) || n < 1) n = 1;
+        if (n > max) n = max;
+        input.value = n;
+        sweep();
+      });
+
+      qwrap.setAttribute('data-ready', 'true');
+      sweep();
+    }
+
+    /* --- size guide: the panel closes the way a popover is expected to.
+       <details> gives the open and close for free and works with this
+       script blocked; these two listeners are the only things it does
+       not give. --- */
+    var guide = root.querySelector('[data-lpdp-guide]');
+    if (guide) {
+      document.addEventListener('click', function (e) {
+        if (guide.open && !guide.contains(e.target)) guide.open = false;
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || !guide.open) return;
+        guide.open = false;
+        var s = guide.querySelector('summary');
+        if (s) s.focus();
+      });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Lada product",
+  "tag": "section",
+  "settings": [
+    { "type": "header", "content": "Buttons" },
+    { "type": "text", "id": "add_label", "label": "Add button", "default": "Add to bag" },
+    { "type": "text", "id": "sold_label", "label": "Sold out", "default": "Sold out" },
+    { "type": "text", "id": "unav_label", "label": "Combination not made", "default": "Unavailable" },
+    { "type": "text", "id": "qty_label", "label": "Quantity field label", "default": "Quantity",
+      "info": "Read out by screen readers. Not printed on the page." },
+    { "type": "range", "id": "qty_max", "label": "Most one customer can add",
+      "min": 1, "max": 10, "step": 1, "default": 3 },
+
+    { "type": "header", "content": "Colour and size" },
+    { "type": "paragraph",
+      "content": "How a product knows which kind it is. An option named in the first box becomes a colour choice with swatches and the measuring line. An option named in the second becomes size buttons with the size guide beside them. Nothing here is tied to a collection, so a new product works the day it is created." },
+    { "type": "text", "id": "colour_options", "label": "Colour option names", "default": "colour,color",
+      "info": "Comma separated. Capitals do not matter." },
+    { "type": "text", "id": "size_options", "label": "Size option names", "default": "size",
+      "info": "Comma separated. Capitals do not matter." },
+
+    { "type": "header", "content": "Measured in the shop" },
+    { "type": "paragraph",
+      "content": "One line under the colour choice, for unstitched cotton. Clear a box to hide that half." },
+    { "type": "text", "id": "measure_line", "label": "The line",
+      "default": "Cut to your measurement in the shop, free." },
+    { "type": "text", "id": "measure_cta", "label": "WhatsApp button",
+      "default": "Send your measurements" },
+    { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590",
+      "info": "Country code, no plus sign and no spaces. Leave blank to hide the button." },
+    { "type": "textarea", "id": "whatsapp_text", "label": "Pre filled message",
+      "default": "I would like to be measured for this cotton.",
+      "info": "The product name is added to the end automatically." },
+
+    { "type": "header", "content": "Size guide" },
+    { "type": "paragraph",
+      "content": "Opens beside the size buttons. Leave the chart boxes empty to use the standard waistcoat chart." },
+    { "type": "text", "id": "guide_label", "label": "Link text", "default": "Size guide" },
+    { "type": "text", "id": "size_columns", "label": "Column headings",
+      "info": "Comma separated. First one is the size column." },
+    { "type": "textarea", "id": "size_rows", "label": "Rows",
+      "info": "Separate rows with a vertical bar and cells with commas. Inches, as plain numbers." },
+    { "type": "text", "id": "size_note", "label": "Note under the chart" }
+  ],
+  "presets": [{ "name": "Lada product" }]
+}
+{% endschema %}

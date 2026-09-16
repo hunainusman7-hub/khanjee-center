@@ -1,0 +1,177 @@
+{%- comment -%}
+  snippets/lada-quick-view.liquid
+
+  The panel that opens behind the quick view button on a Lada card.
+
+  WHAT OPENS IT. snippets/lada-product-card.liquid emits the trigger and
+  owns that contract; this file only reads it:
+
+      <button type="button" data-lada-quickview
+              data-product-url="{{ product.url }}"> … </button>
+
+  Nothing else is required of the card. An <a href> carrying the same
+  attribute works too, and the href is used when data-product-url is
+  missing, so a future card can make the trigger a real link and keep
+  working without JavaScript.
+
+  WHAT GOES IN IT. Nothing is duplicated from the product page. On open
+  the panel asks the Section Rendering API for the product's own section
+
+      GET /products/<handle>?section_id=<qv_section_id>
+
+  and injects the part of it that is worth showing in a panel. That is
+  the same trick assets/kj-cart.js uses for the bag: the server renders
+  the markup, so prices come back formatted by `money` in the shop's
+  currency and this file never owns a second copy of a buy form that can
+  drift out of step with the real one.
+
+  WHICH PART. The fetched section is searched in this order:
+
+      [data-lada-qv-content]   the section nominates its own buy column
+      .pdp__info               the shared product page's buy column
+      the whole section
+
+  and the lead photograph from [data-lada-qv-media] or the first <img>.
+  So the Lada product section, when it is built, only has to put
+  data-lada-qv-content on its buying column and data-lada-qv-media on
+  its lead frame, and this panel picks the right thing up with no change
+  here. Until then it falls back to .pdp__info and works today against
+  sections/main-product.liquid.
+
+  WHY A SECTION ID SETTING AND NOT A CONSTANT. A section id is the KEY in
+  the JSON template, not the filename: templates/product.json calls its
+  one section "main", so that is the default. templates/product.lada.json
+  does not exist yet. If its key ever differs, this is a setting the
+  client (or whoever builds that template) can correct without touching
+  code — and even if it is wrong, the panel still fills, because a failed
+  or empty section response retries against the plain product URL. Two
+  requests in the worst case, none in the normal one.
+
+  WHY A REAL <dialog>. assets/kj-cart.js hand-rolls modality for the bag
+  because that drawer has to co-exist with an inert page it manages
+  itself. A second panel doing the same attribute bookkeeping would have
+  two scripts writing `inert` on the same elements and clearing each
+  other's work: adding to the bag from inside this panel opens the bag on
+  top of it, which is exactly the collision. showModal() puts this in the
+  browser's top layer instead, where the focus trap, the inertness of the
+  rest of the page and Escape are the browser's job and cannot fight
+  kj-cart.js over an attribute. The behaviour a customer sees is the
+  drawer's behaviour: Escape closes, the scrim closes, focus starts on
+  the close button and comes back to the card that opened it.
+
+  Usage, once per page, at the end of the section that renders the grid:
+
+    {% render 'lada-quick-view',
+       qv_section_id: section.settings.qv_section_id,
+       close_label: section.settings.qv_close_label,
+       loading_label: section.settings.qv_loading_label,
+       error_text: section.settings.qv_error_text,
+       full_label: section.settings.qv_full_label,
+       sold_label: section.settings.sold_label,
+       fallback_title: section.settings.qv_title %}
+
+  Every string is a setting the client owns; the defaults below are only
+  the fallback for a caller that has not added them yet. They are
+  lowercase where the CSS uppercases them, because uppercase on this
+  panel comes from text-transform and is never typed into a setting.
+
+  Render it ONCE. It carries ids, and two of these on a page would make
+  them duplicates.
+{%- endcomment -%}
+
+{%- liquid
+  assign qv_section_id = qv_section_id | default: 'main'
+  assign close_label   = close_label   | default: 'Close'
+  assign loading_label = loading_label | default: 'Loading'
+  assign error_text    = error_text    | default: 'This did not load.'
+  assign full_label    = full_label    | default: 'see the full page'
+  assign fallback_title = fallback_title | default: 'Quick view'
+
+  # The only string the JavaScript ever writes into the panel. When a
+  # chosen colour or size is not available the add button says this
+  # instead of what it says at rest, and "sold out" is right for both
+  # the piece being gone and that one size being gone. Same default as
+  # the card, so pass the card's setting through and the two agree.
+  assign sold_label = sold_label | default: 'Sold out'
+-%}
+
+<dialog class="lada-qv" id="lada-qv" data-lada-qv
+        aria-labelledby="lada-qv-title"
+        data-lada-qv-section="{{ qv_section_id | escape }}"
+        data-lada-qv-sold="{{ sold_label | escape }}"
+        data-lada-qv-fallback-title="{{ fallback_title | escape }}">
+
+  {%- comment -%}
+    The scrim is for the one case showModal() is not available. A modal
+    dialog paints ::backdrop and this element is hidden under :modal, so
+    on every current browser it is dead weight of one empty div; on a
+    browser that never gets to showModal it is the only thing darkening
+    the page. Written this way round on purpose: a browser that does not
+    understand :modal drops that rule and keeps the scrim, which is the
+    safe direction to fail.
+  {%- endcomment -%}
+  <div class="lada-qv__scrim" data-lada-qv-close aria-hidden="true"></div>
+
+  <div class="lada-qv__panel" data-lada-qv-panel tabindex="-1">
+
+    <header class="lada-qv__head">
+      {%- comment -%}
+        h2, never h1. One h1 per page, and on the listing that is the
+        page heading. The name here is set from the card that opened the
+        panel before it opens, so the dialog has its real accessible
+        name from the first frame rather than announcing "Quick view"
+        and correcting itself when the fetch lands.
+      {%- endcomment -%}
+      <h2 class="lada-qv__title" id="lada-qv-title" data-lada-qv-title>{{ fallback_title }}</h2>
+
+      <button class="lada-qv__x" type="button" data-lada-qv-close
+              aria-label="{{ close_label | escape }}">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+             stroke-width="1.5" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </button>
+    </header>
+
+    <div class="lada-qv__body" data-lada-qv-body>
+
+      {%- comment -%}
+        The quiet loading state. It is the shape of what is coming, a
+        4:5 plate and three lines, not a spinner: the panel is already
+        open and the plate is where the photograph will be, so nothing
+        moves when the content arrives. The word itself is for screen
+        readers only, because a customer looking at the panel can see it
+        is loading and a second copy in print is the writing this build
+        exists to remove.
+      {%- endcomment -%}
+      <div class="lada-qv__load" data-lada-qv-load hidden>
+        <div class="lada-qv__load-plate" aria-hidden="true"></div>
+        <div class="lada-qv__load-lines" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <p class="vh">{{ loading_label }}</p>
+      </div>
+
+      {%- comment -%}
+        Failure, said plainly, with the way out. role="alert" on an
+        element that starts hidden is the theme's existing idiom
+        ([data-kj-atc-error] does the same): unhiding it announces it,
+        and a panel that has already taken focus would otherwise change
+        silently. Never a spinner that keeps turning.
+      {%- endcomment -%}
+      <div class="lada-qv__fail" data-lada-qv-fail role="alert" hidden>
+        <p class="lada-qv__fail-t">{{ error_text }}</p>
+        <a class="lada-qv__fail-a" href="#" data-lada-qv-full>{{ full_label }}</a>
+      </div>
+
+      {%- comment -%}
+        Where the fetched markup lands. JS builds exactly two children
+        in here, the media plate and the buying column, so the grid has
+        a shape it can rely on whatever the section returns.
+      {%- endcomment -%}
+      <div class="lada-qv__slot" data-lada-qv-slot></div>
+    </div>
+
+    <footer class="lada-qv__foot" data-lada-qv-foot hidden>
+      <a class="lada-qv__full" href="#" data-lada-qv-full>{{ full_label }}</a>
+    </footer>
+  </div>
+</dialog>
