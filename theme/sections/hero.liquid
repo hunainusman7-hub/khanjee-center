@@ -1,12 +1,65 @@
+{%- comment -%}
+  sections/hero.liquid
+  No template renders this today, the homepage runs hero-slideshow. It
+  keeps its preset, though, so it is one click away in the theme editor
+  and has to be right the day somebody makes that click. Unlike
+  hero-mosaic it has a full set of styles in site.css, so it does work.
+{%- endcomment -%}
+
 <section class="hero" data-hero>
   <div class="hero__media">
-    {% if section.settings.hero_image %}
-      <img src="{{ section.settings.hero_image | image_url: width: 2560 }}" alt="{{ section.settings.hero_image.alt | escape }}" fetchpriority="high" width="2560" height="1810">
-    {% else %}
-      <img src="{{ 'hiran-minar-2560.jpg' | asset_url }}"
-           srcset="{{ 'hiran-minar-1280.jpg' | asset_url }} 1280w, {{ 'hiran-minar-2560.jpg' | asset_url }} 2560w"
-           sizes="100vw" alt="Hiran Minar, Sheikhupura" fetchpriority="high" width="2560" height="1810">
-    {% endif %}
+    {%- comment -%}
+      Exactly one image is printed, and it carries the section's only
+      fetchpriority. This is a full-bleed photograph sitting behind the
+      page heading, so wherever this section is used it is meant to be
+      the first thing on the page, which makes it the LCP. There is
+      nothing else here worth racing it.
+
+      sizes is 100vw. .hero__media is inset:0 on a full-bleed section,
+      so the box IS the viewport. The parallax scales it to between
+      1.04 and 1.12, which a browser cannot be told about in sizes and
+      which object-fit: cover already over-supplies in almost every
+      case, so it is left alone rather than padded with a guess.
+    {%- endcomment -%}
+    {%- if section.settings.hero_image -%}
+      {%- comment -%}
+        The dimensions are the picked image's own. They used to be
+        2560x1810 whatever was chosen, which is the Hiran Minar
+        photograph's shape: pick a square or a portrait and the browser
+        reserved a 1.41:1 letterbox, then shoved the whole page when
+        the real thing arrived.
+      {%- endcomment -%}
+      <img src="{{ section.settings.hero_image | image_url: width: 2000 }}"
+           srcset="{{ section.settings.hero_image | image_url: width: 900 }} 900w,
+                   {{ section.settings.hero_image | image_url: width: 1400 }} 1400w,
+                   {{ section.settings.hero_image | image_url: width: 2000 }} 2000w,
+                   {{ section.settings.hero_image | image_url: width: 2560 }} 2560w"
+           sizes="100vw"
+           width="{{ section.settings.hero_image.width }}" height="{{ section.settings.hero_image.height }}"
+           fetchpriority="high" decoding="async"
+           alt="{{ section.settings.hero_image.alt | escape }}">
+    {%- else -%}
+      {%- comment -%}
+        Four candidates off the shipped photograph, the same set
+        hero-slideshow draws from. The old pair started at 1280, which
+        is 69KB of detail for a 390px phone; the 900 render is 46KB and
+        is what most of this traffic will now take. The full 2560 file
+        stays at the top of the list for a large or two-times screen.
+
+        width and height stay at the source's 2560x1810 even though src
+        points at the 2000 render. They are a ratio, not a promise
+        about which file arrives, and 2000x1414 is the same ratio.
+      {%- endcomment -%}
+      <img src="{{ 'hiran-minar-2560-w2000.webp' | asset_url }}"
+           srcset="{{ 'hiran-minar-2560-w900.webp' | asset_url }} 900w,
+                   {{ 'hiran-minar-2560-w1400.webp' | asset_url }} 1400w,
+                   {{ 'hiran-minar-2560-w2000.webp' | asset_url }} 2000w,
+                   {{ 'hiran-minar-2560.webp' | asset_url }} 2560w"
+           sizes="100vw"
+           width="2560" height="1810"
+           fetchpriority="high" decoding="async"
+           alt="Hiran Minar, Sheikhupura">
+    {%- endif -%}
   </div>
   <div class="hero__scrim"></div>
   <div class="hero__in">

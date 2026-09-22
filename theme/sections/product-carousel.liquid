@@ -4,6 +4,16 @@
   progress bar. Each tab is a block pointing at a collection.
 {%- endcomment -%}
 
+{%- comment -%}
+  The rail cell is not a .pgrid cell, so the card is handed the rail's own
+  slot. The wrapper below is clamp(200px,58vw,290px): 200px until the
+  viewport reaches 345px, then 58vw, then flat 290px from 500px up. The
+  grid's default sizes bottoms out at 46vw, which on a 500px phone asks for
+  a 230px file to fill a 290px box, so every card in the rail arrived a
+  quarter too small and upscaled.
+{%- endcomment -%}
+{%- capture rail_sizes -%}(min-width:500px) 290px, (min-width:345px) 58vw, 200px{%- endcapture -%}
+
 <section class="pcar" data-pcar aria-labelledby="pcar-{{ section.id }}">
   <div class="wrap">
     <div class="shead">
@@ -45,7 +55,7 @@
         <div class="rail" data-pcar-rail>
           {%- for product in coll.products limit: section.settings.count -%}
             <div style="width:clamp(200px,58vw,290px)">
-              {% render 'product-card', product: product, index: forloop.index0 %}
+              {% render 'product-card', product: product, index: forloop.index0, card_sizes: rail_sizes %}
             </div>
           {%- endfor -%}
         </div>

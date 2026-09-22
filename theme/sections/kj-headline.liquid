@@ -1,0 +1,192 @@
+{%- comment -%}
+  sections/kj-headline.liquid — the strip above the header.
+
+  One line of shop news: a sale, a delivery promise, a new arrival. It sits
+  above the sticky header and scrolls away with the page, so it is never in
+  the way once someone is actually shopping.
+
+  WHY THE MESSAGES ARE ALL IN THE MARKUP AT ONCE. The obvious build swaps
+  the text with JS and keeps one line in the DOM. That line then has to be
+  announced as it changes, which means aria-live, which means a screen
+  reader interrupts whatever it was reading every few seconds to read out a
+  discount. Printing all of them as a real list instead means the assistive
+  reading is finished in one pass, the rotation is purely a visual device,
+  and nothing has to be announced at all.
+
+  WHY THE FIRST MESSAGE IS VISIBLE WITHOUT JS. The paint state is CSS only:
+  the first item is opaque, the rest are not. The script adds .headline--js
+  to the root before it touches anything, and only then does the .is-on
+  class take over. So the bar is never blank, and if the script fails to
+  load the shop still shows its headline.
+
+  NO "presets" BLOCK, AND DO NOT ADD ONE. This section is rendered statically
+  by layout/theme.liquid, not added to a JSON template, so "default" is the
+  key that supplies its starting settings and blocks. Shopify rejects any
+  schema carrying both, with "Invalid schema: cannot define both 'default'
+  and 'presets'", and the push fails. Note also that the schema takes no
+  arbitrary keys: a "_comment" field is rejected the same way, which is why
+  this paragraph is here rather than in the JSON.
+
+  REDUCED MOTION TURNS THE ROTATION OFF ENTIRELY rather than just shortening
+  it. A carousel of text is a WCAG 2.2.2 problem — information that changes
+  under you while you are still reading it — and speeding it up or slowing
+  it down does not fix that. Under `prefers-reduced-motion: reduce` the
+  stack becomes a plain inline row with every message visible at once, which
+  is the same information with no moving parts. The script checks the same
+  query and does not start the timer.
+{%- endcomment -%}
+
+{%- liquid
+  assign msgs = section.blocks | where: 'type', 'message'
+  assign dwell = section.settings.dwell | default: 5
+  assign dwell_ms = dwell | times: 1000
+-%}
+
+{%- if msgs.size > 0 -%}
+  <aside class="headline headline--{{ section.settings.tone }}"
+         id="headline-{{ section.id }}"
+         data-headline
+         data-dwell="{{ dwell_ms }}"
+         aria-label="{{ section.settings.aria_label | default: 'Shop news' | escape }}">
+    <div class="wrap headline__bar">
+
+      {%- comment -%}
+        role="list" because list-style:none drops list semantics in Safari,
+        which is the one browser most of this shop's visitors are using.
+      {%- endcomment -%}
+      <ul class="headline__stack" role="list">
+        {%- for b in msgs -%}
+          {%- liquid
+            assign text = b.settings.text
+            assign href = b.settings.link
+          -%}
+          {%- if text != blank -%}
+            <li class="headline__msg{% if forloop.first %} is-on{% endif %}" {{ b.shopify_attributes }}>
+              {%- if href != blank -%}
+                <a class="headline__link" href="{{ href }}">
+                  <span class="headline__text">{{ text }}</span>
+                  {%- if b.settings.cta != blank -%}
+                    <span class="headline__cta">{{ b.settings.cta }}</span>
+                  {%- endif -%}
+                </a>
+              {%- else -%}
+                <span class="headline__text">{{ text }}</span>
+              {%- endif -%}
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+
+    </div>
+  </aside>
+
+  {%- comment -%}
+    Inline, because it is thirty lines and a separate asset would cost a
+    round trip for a strip that has to be painted before anything else.
+    It is also the only script on the page that runs above the header, so
+    keeping it next to its markup means the two cannot drift apart.
+
+    Everything is guarded on the element still being in the document, and
+    the wiring is marked with data-wired so a second pass cannot start a
+    second timer. The theme editor tears sections out and rebuilds them,
+    and an interval left running against a removed node — or two timers
+    racing on the same strip — is how a theme starts misbehaving while the
+    client is the one editing it.
+  {%- endcomment -%}
+  <script>
+    (() => {
+      // Found by id rather than by currentScript, because the theme editor
+      // replaces a section's HTML wholesale and re-runs this on
+      // shopify:section:load, at which point currentScript is long gone.
+      const init = () => {
+      const root = document.getElementById('headline-{{ section.id }}');
+      if (!root || root.dataset.wired === '1') return;
+      root.dataset.wired = '1';
+
+      const msgs = [...root.querySelectorAll('.headline__msg')];
+      root.classList.add('headline--js');
+      if (msgs.length < 2) return;
+
+      const still = matchMedia('(prefers-reduced-motion: reduce)');
+      const dwell = Math.max(3000, parseInt(root.dataset.dwell, 10) || 5000);
+      let at = 0, timer = null;
+
+      const show = (i) => {
+        msgs[at].classList.remove('is-on');
+        at = (i + msgs.length) % msgs.length;
+        msgs[at].classList.add('is-on');
+      };
+      const stop = () => { clearInterval(timer); timer = null; };
+      const start = () => {
+        if (timer || still.matches || document.hidden) return;
+        timer = setInterval(() => {
+          if (!root.isConnected) return stop();
+          show(at + 1);
+        }, dwell);
+      };
+
+      // Pause while someone is reading it, or has tabbed into a link inside
+      // it, or has left the tab. WCAG 2.2.2 wants a way to stop text that
+      // changes on its own; hovering it is the one people actually find.
+      root.addEventListener('pointerenter', stop);
+      root.addEventListener('pointerleave', start);
+      root.addEventListener('focusin', stop);
+      root.addEventListener('focusout', start);
+      document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+      still.addEventListener('change', () => { stop(); start(); });
+
+      start();
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+      } else {
+        init();
+      }
+      document.addEventListener('shopify:section:load', init);
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Headline bar",
+  "tag": "section",
+  "class": "headline-host",
+  "settings": [
+    { "type": "paragraph",
+      "content": "One line of news above the header: a sale, a delivery promise, whatever is worth saying today. Add more than one and they take turns. Keep each to a few words so it fits on a phone in one line." },
+    { "type": "select", "id": "tone", "label": "Colour",
+      "options": [
+        { "value": "ink",    "label": "Black" },
+        { "value": "accent", "label": "Maroon" },
+        { "value": "gold",   "label": "Gold on black" }
+      ],
+      "default": "ink" },
+    { "type": "range", "id": "dwell", "label": "Seconds on each message",
+      "min": 3, "max": 12, "step": 1, "default": 5,
+      "info": "Ignored when only one message is set, and switched off entirely for visitors who have asked their device for less motion." },
+    { "type": "text", "id": "aria_label", "label": "Name for screen readers", "default": "Shop news" }
+  ],
+  "blocks": [
+    {
+      "type": "message",
+      "name": "Message",
+      "limit": 6,
+      "settings": [
+        { "type": "text", "id": "text", "label": "Message", "default": "Free delivery on orders over Rs 5,000" },
+        { "type": "text", "id": "cta", "label": "Link words", "info": "Shown after the message, underlined. Leave empty for no link words." },
+        { "type": "url", "id": "link", "label": "Links to" }
+      ]
+    }
+  ],
+  "default": {
+    "settings": { "tone": "ink", "dwell": 5 },
+    "blocks": [
+      { "type": "message", "settings": { "text": "All brands under one roof. Civil Quarters Road, Sheikhupura." } },
+      { "type": "message", "settings": { "text": "New winter cloth on the shelf", "cta": "See it", "link": "/collections/ladies-unstitched" } },
+      { "type": "message", "settings": { "text": "Cut to measure at the counter, or send your size on WhatsApp" } }
+    ]
+  }
+}
+{% endschema %}

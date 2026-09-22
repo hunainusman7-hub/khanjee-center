@@ -10,9 +10,47 @@
          aria-roledescription="carousel" aria-label="{{ section.settings.aria_label | default: 'Featured' | escape }}">
   <div class="hs__track">
     {%- for block in section.blocks -%}
+      {%- comment -%}
+        THE FOCAL POINT IS DECLARED ON THE SLIDE, NOT ON THE IMAGE, and that
+        is the whole reason a phone can be told to crop somewhere else.
+
+        It used to be `style="object-position:…"` on the <img>. An inline
+        style beats every stylesheet rule for that property on that element,
+        so no media query could reach it and every screen got the same crop.
+        On the Hiran Minar slide that meant a phone, which sees only the
+        middle 38% of a 1.41:1 photograph, showed water and an arcade and
+        cut the baradari — the domed pavilion the picture is of — clean out
+        of frame.
+
+        Now the slide carries two custom properties and the stylesheet
+        decides which one the image reads. Custom properties inherit, so the
+        value still arrives inline per slide; but `object-position` itself is
+        set in kj-v2.css, where a media query can swap the variable under it.
+      {%- endcomment -%}
+      {%- liquid
+        assign focal = block.settings.focal | default: 'center'
+        assign focal_m = block.settings.focal_mobile
+        assign focal_style = '--focal:' | append: focal
+        if focal_m != blank
+          assign focal_style = focal_style | append: ';--focal-m:' | append: focal_m
+        endif
+
+        # THE FIRST SLIDE CARRIES THE PAGE'S h1.
+        # Every slide was an h2, so the homepage had no h1 at all: the first
+        # heading in the whole document was one of the mega menu's labels, and
+        # a screen-reader user listing the headings met the navigation before
+        # he met the shop. The hero IS the page heading on the page this
+        # section is used on, so slide one takes h1 and the rest stay h2 —
+        # which also keeps the carousel from announcing four competing h1s.
+        assign htag = 'h2'
+        if forloop.first
+          assign htag = 'h1'
+        endif
+      -%}
       <div class="hs__slide{% if forloop.first %} is-active{% endif %}"
            data-hs-slide role="group" aria-roledescription="slide"
            aria-label="{{ forloop.index }} of {{ section.blocks.size }}"
+           style="{{ focal_style }}"
            {% unless forloop.first %}aria-hidden="true"{% endunless %}
            {{ block.shopify_attributes }}>
 
@@ -22,13 +60,11 @@
                        {{ block.settings.image | image_url: width: 1600 }} 1600w,
                        {{ block.settings.image | image_url: width: 2400 }} 2400w"
                sizes="100vw" width="2400" height="1350"
-               style="object-position:{{ block.settings.focal | default: 'center' }}"
                {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                decoding="async" alt="{{ block.settings.image.alt | default: block.settings.heading | escape }}">
         {%- elsif block.settings.asset_file != blank -%}
           <img class="hs__img" src="{{ block.settings.asset_file | asset_url }}"
                width="2400" height="1350"
-               style="object-position:{{ block.settings.focal | default: 'center' }}"
                {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                decoding="async" alt="{{ block.settings.heading | escape }}">
         {%- endif -%}
@@ -47,11 +83,11 @@
               outline is intact; the mark carries the accessible name, so a
               screen reader still hears "Khan Jee" / "Lada" here.
             {%- endcomment -%}
-            <h2 class="hs__title hs__title--mark hs__title--{{ block.settings.heading_mark }}">
+            <{{ htag }} class="hs__title hs__title--mark hs__title--{{ block.settings.heading_mark }}">
               {%- render 'kj-mark', mark: block.settings.heading_mark, label: block.settings.heading -%}
-            </h2>
+            </{{ htag }}>
           {%- else -%}
-            <h2 class="hs__title">{{ block.settings.heading }}</h2>
+            <{{ htag }} class="hs__title">{{ block.settings.heading }}</{{ htag }}>
           {%- endif -%}
           <div class="hs__rule"></div>
           {%- if block.settings.sub != blank -%}
@@ -100,12 +136,29 @@
       "settings": [
         { "type": "image_picker", "id": "image", "label": "Image" },
         { "type": "text", "id": "asset_file", "label": "…or theme asset filename",
-          "info": "e.g. hiran-minar-2560.jpg, used only when no image is picked" },
-        { "type": "select", "id": "focal", "label": "Image focus", "default": "center",
+          "info": "e.g. hiran-minar-2560.webp, used only when no image is picked" },
+        { "type": "select", "id": "focal", "label": "Image focus on a laptop", "default": "center",
           "options": [
-            { "value": "center", "label": "Centre" },
-            { "value": "center top", "label": "Top" },
-            { "value": "center bottom", "label": "Bottom" }
+            { "value": "center",        "label": "Centre" },
+            { "value": "center top",    "label": "Top" },
+            { "value": "center bottom", "label": "Bottom" },
+            { "value": "20% 50%",       "label": "Left of centre" },
+            { "value": "80% 50%",       "label": "Right of centre" },
+            { "value": "100% 50%",      "label": "Far right" },
+            { "value": "0% 50%",        "label": "Far left" }
+          ]},
+        { "type": "select", "id": "focal_mobile", "label": "Image focus on a phone", "default": "",
+          "info": "A phone shows a tall slice of a wide photograph, so the middle is often not the part worth keeping. Leave this on Same as laptop unless the subject sits off to one side.",
+          "options": [
+            { "value": "",              "label": "Same as laptop" },
+            { "value": "center",        "label": "Centre" },
+            { "value": "center top",    "label": "Top" },
+            { "value": "center bottom", "label": "Bottom" },
+            { "value": "20% 50%",       "label": "Left of centre" },
+            { "value": "80% 50%",       "label": "Right of centre" },
+            { "value": "88% 50%",       "label": "Right" },
+            { "value": "100% 50%",      "label": "Far right" },
+            { "value": "0% 50%",        "label": "Far left" }
           ]},
         { "type": "select", "id": "align", "label": "Text position", "default": "left",
           "options": [

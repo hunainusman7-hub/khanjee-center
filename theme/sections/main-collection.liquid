@@ -20,7 +20,12 @@
 </div>
 
 <div class="wrap listing">
-  <aside class="filters" data-filters aria-label="Filters">
+  {%- comment -%}
+    The id is what the Filter button's aria-controls points at. It used to
+    point at "filters", which is a class here and an id nowhere, so the
+    relationship the button announced did not resolve to anything.
+  {%- endcomment -%}
+  <aside class="filters" id="CollectionFilters" data-filters aria-label="Filters">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
       <h2 class="filters__h">Filter</h2>
       <button class="iconbtn filters__close" type="button" data-filter-close aria-label="Close filters">&times;</button>
@@ -33,16 +38,39 @@
             <h3>{{ filter.label }}</h3>
             <div class="filters__list" data-facet>
               {%- if filter.type == 'price_range' -%}
+                {%- comment -%}
+                  onchange is the only thing that can apply a price here.
+                  This form carries no submit button: each checkbox posts
+                  itself on change, and "View results" is type="button"
+                  because all it does is shut the drawer on a phone. HTML
+                  only submits a button-less form on Enter when it holds
+                  exactly one field that blocks implicit submission, and a
+                  price range is two number inputs, so without this a
+                  customer could type a range, press Enter, and watch
+                  nothing happen. change fires when the value is committed,
+                  which is Enter or leaving the field. Same idiom as
+                  main-collection-lada.liquid.
+                {%- endcomment -%}
                 <div class="filters__price">
                   <input type="number" inputmode="numeric" name="{{ filter.min_value.param_name }}"
-                         placeholder="Min" value="{{ filter.min_value.value }}" aria-label="Minimum price">
+                         placeholder="Min" value="{{ filter.min_value.value }}" aria-label="Minimum price"
+                         onchange="this.form.submit()">
                   <span aria-hidden="true">&ndash;</span>
                   <input type="number" inputmode="numeric" name="{{ filter.max_value.param_name }}"
-                         placeholder="Max" value="{{ filter.max_value.value }}" aria-label="Maximum price">
+                         placeholder="Max" value="{{ filter.max_value.value }}" aria-label="Maximum price"
+                         onchange="this.form.submit()">
                 </div>
               {%- else -%}
+                {%- comment -%}
+                  The selected state is a class, not aria-pressed.
+                  aria-pressed only carries meaning on something with
+                  role="button"; on a <label> nothing reads it, so it was
+                  styling wearing an ARIA attribute's clothes. The real
+                  control is the checkbox inside, and it already reports
+                  checked, which is the same fact announced properly.
+                {%- endcomment -%}
                 {%- for value in filter.values -%}
-                  <label class="chip" aria-pressed="{{ value.active }}">
+                  <label class="chip{% if value.active %} is-on{% endif %}">
                     <input type="checkbox" class="vh" name="{{ value.param_name }}" value="{{ value.value }}"
                            {% if value.active %}checked{% endif %} onchange="this.form.submit()">
                     {{ value.label }} <span class="chip__n">{{ value.count }}</span>
@@ -62,10 +90,10 @@
 
   <div>
     <div class="toolbar">
-      <span class="toolbar__n num">{{ collection.products_count }} products</span>
+      <span class="toolbar__n num">{{ collection.products_count }} {{ collection.products_count | pluralize: 'product', 'products' }}</span>
       {%- if collection.filters.size > 0 -%}
         <button class="btn btn--ghost btn--sm toolbar__filter" type="button"
-                data-filter-toggle aria-expanded="false" aria-controls="filters">Filter</button>
+                data-filter-toggle aria-expanded="false" aria-controls="CollectionFilters">Filter</button>
       {%- endif -%}
     </div>
 
@@ -73,7 +101,7 @@
       {%- if collection.products.size == 0 -%}
         <div class="empty">
           <h3>{{ collection.title }} arriving shortly</h3>
-          <p>Stock is being photographed and listed now. The filters are live and ready &mdash;
+          <p>Stock is being photographed and listed now. The filters are live, so
              as soon as pieces are added they will appear here.</p>
         </div>
       {%- else -%}
@@ -84,7 +112,7 @@
         </div>
 
         {%- if paginate.pages > 1 -%}
-          <nav class="pagination" aria-label="Pagination" style="margin-block:var(--s7)">
+          <nav class="pagination" aria-label="Pagination">
             {{ paginate | default_pagination }}
           </nav>
         {%- endif -%}

@@ -54,6 +54,20 @@
 <a class="skip" href="#main">Skip to content</a>
 {% render 'kj-svg-defs' %}
 
+{%- comment -%}
+  The headline strip sits above the header and scrolls away with the page,
+  so it is out of the way the moment someone starts shopping while the
+  header stays stuck to the top.
+
+  Rendered with {% section %} rather than through sections/header-group.json,
+  which this layout does not use. That group is still on disk and still
+  lists Horizon's stock `header-announcements` section, whose default copy
+  is "Welcome to our store" — switching the layout over to the group would
+  put that sentence at the top of every page. If the group is ever adopted,
+  delete that entry first.
+{%- endcomment -%}
+{% section 'kj-headline' %}
+
 {% section 'header' %}
 
 <main id="main">

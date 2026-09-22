@@ -19,9 +19,9 @@
            width="2560" height="1810" fetchpriority="high" decoding="async"
            alt="{{ section.settings.main_alt | default: 'Hiran Minar, Sheikhupura' | escape }}">
     {%- else -%}
-      <img src="{{ 'hiran-minar-2560.jpg' | asset_url }}"
-           srcset="{{ 'hiran-minar-1280.jpg' | asset_url }} 1280w,
-                   {{ 'hiran-minar-2560.jpg' | asset_url }} 2560w"
+      <img src="{{ 'hiran-minar-2560.webp' | asset_url }}"
+           srcset="{{ 'hiran-minar-1280.webp' | asset_url }} 1280w,
+                   {{ 'hiran-minar-2560.webp' | asset_url }} 2560w"
            sizes="(min-width:900px) 62vw, 100vw"
            width="2560" height="1810" fetchpriority="high" decoding="async"
            alt="Hiran Minar, Sheikhupura">
@@ -90,7 +90,7 @@
       "name": "Panel",
       "settings": [
         { "type": "image_picker", "id": "image", "label": "Image" },
-        { "type": "text", "id": "asset_file", "label": "…or theme asset filename", "info": "e.g. women-shawls.jpg, used only when no image is picked above" },
+        { "type": "text", "id": "asset_file", "label": "…or theme asset filename", "info": "e.g. women-shawls.webp, used only when no image is picked above" },
         { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
         { "type": "text", "id": "title", "label": "Title", "default": "New Arrivals" },
         { "type": "text", "id": "sub", "label": "Subtitle" },

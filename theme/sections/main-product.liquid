@@ -35,6 +35,9 @@
   unless product.has_only_default_variant
     assign has_options = true
   endunless
+
+  assign sold_label = section.settings.sold_label | default: 'Sold out'
+  assign gone_label = section.settings.unavailable_label
 -%}
 
 <div class="pdp">
@@ -58,15 +61,17 @@
           <div class="pdp__stage">
             {%- for media in product.media -%}
               {%- comment -%}
-                Each image is the tabpanel its thumbnail controls, so the
-                tablist pattern is complete rather than half-declared.
-                tabindex="0" makes the panel reachable, which is what lets
-                someone move from the thumbnails into the image itself.
+                A photograph, and nothing else. role="tabpanel" used to sit
+                here: it replaced the image role, so a screen reader stopped
+                calling this a picture, and tabindex="0" put every shot in
+                the gallery into the tab order for no reason a reader could
+                act on. The id stays, because the thumbnail buttons point
+                their aria-controls at it. alt carries the description on its
+                own; the aria-label that used to repeat it simply overrode
+                alt with the same words.
               {%- endcomment -%}
               <img class="pdp__img{% if forloop.first %} is-active{% endif %}"
                    id="pdp-media-{{ media.id }}"
-                   role="tabpanel" tabindex="0"
-                   aria-label="{{ media.alt | default: product.title | escape }}"
                    src="{{ media | image_url: width: 1400 }}"
                    srcset="{{ media | image_url: width: 700 }} 700w,
                            {{ media | image_url: width: 1400 }} 1400w"
@@ -117,26 +122,60 @@
           {%- if product.compare_at_price > product.price -%}
             {%- assign off = product.compare_at_price | minus: product.price
                              | times: 100.0 | divided_by: product.compare_at_price | round -%}
-            <s>{{ product.compare_at_price | money }}</s>
-            <span class="now">{{ product.price | money }}</span>
+            {%- comment -%}
+              Two bare amounts in a row tell a screen reader nothing about
+              which is which. Same fix as the product card: the old price is
+              struck AND labelled, the new one is labelled too.
+            {%- endcomment -%}
+            <s><span class="vh">Was </span>{{ product.compare_at_price | money }}</s>
+            <span class="now"><span class="vh">Now </span>{{ product.price | money }}</span>
             <span class="pdp__off">{{ off }}% off</span>
           {%- else -%}
             <span class="now">{{ product.price | money }}</span>
           {%- endif -%}
         </div>
 
+        {%- comment -%}
+          "Off the shelf" was saying the opposite of what was meant: in
+          English it describes something you can pick up ready made, which
+          is the one thing this piece is not, and it sat next to a disabled
+          Sold out button.
+
+          Both WhatsApp links used to send the product title on its own, so
+          the shop received a message that read "Dynasty Boski 2 Piece" with
+          no question attached and no way to tell which of the two links it
+          came from. They now send a sentence and the page address, which is
+          what the man at the counter needs to answer it.
+        {%- endcomment -%}
         {%- unless product.available -%}
+          {%- capture wa_restock -%}Hello Khan Jee Center. Is {{ product.title | split: ' - ' | first }} back in stock? {{ shop.url }}{{ product.url }}{%- endcapture -%}
           <p class="pdp__oos">
-            Off the shelf for now.
+            Sold out for now.
             {%- if section.settings.whatsapp != blank %}
-              <a href="https://wa.me/{{ section.settings.whatsapp }}?text={{ product.title | url_encode }}"
+              <a href="https://wa.me/{{ section.settings.whatsapp }}?text={{ wa_restock | strip | url_encode }}"
                  target="_blank" rel="noopener">Ask us when it is back</a>.
             {%- endif -%}
           </p>
         {%- endunless -%}
 
+        {%- comment -%}
+          These two attributes are the only place the out-of-stock wording
+          exists. assets/kj-v2.js rewrites the button when the shopper
+          changes an option and deliberately holds no English of its own:
+          it reads the resting wording off the button and the two refusals
+          off here, so every word on that button stays in the theme editor
+          and inside a translator's reach.
+
+          data-unavailable-label is written only when the merchant has
+          given the "we do not list that pairing" case a wording of its
+          own. Cleared, the attribute is absent and the script reuses the
+          sold-out word, which is honest: either way the customer cannot
+          have it.
+        {%- endcomment -%}
         <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data"
-              class="pdp__form" data-kj-atc>
+              class="pdp__form" data-kj-atc
+              data-sold-label="{{ sold_label | escape }}"
+              {%- if gone_label != blank %} data-unavailable-label="{{ gone_label | escape }}"{% endif %}>
 
           {%- if has_options -%}
             {%- comment -%}
@@ -185,7 +224,7 @@
             <button class="pdp__atc" type="submit"
                     {% unless product.available %}disabled{% endunless %}>
               <span class="pdp__atc-t">
-                {%- if product.available -%}Add to bag{%- else -%}Sold out{%- endif -%}
+                {%- if product.available -%}Add to bag{%- else -%}{{ sold_label }}{%- endif -%}
               </span>
               <span class="pcard__spin" aria-hidden="true"></span>
             </button>
@@ -195,8 +234,9 @@
         </form>
 
         {%- if section.settings.whatsapp != blank -%}
+          {%- capture wa_ask -%}Hello Khan Jee Center. I would like to ask about {{ product.title | split: ' - ' | first }}{% if v.sku != blank %}, code {{ v.sku }}{% endif %}. {{ shop.url }}{{ product.url }}{%- endcapture -%}
           <a class="pdp__wa"
-             href="https://wa.me/{{ section.settings.whatsapp }}?text={{ product.title | url_encode }}"
+             href="https://wa.me/{{ section.settings.whatsapp }}?text={{ wa_ask | strip | url_encode }}"
              target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
               <path d="M12 2a10 10 0 0 0-8.7 15L2 22l5.2-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5 0-1.1 0-1.9-.3a11 11 0 0 1-5.6-4.9c-.4-.7-.6-1.4-.6-2 0-.6.3-1.2.7-1.6.2-.2.4-.3.6-.3h.5c.2 0 .4 0 .5.4l.7 1.7c0 .2 0 .3-.1.5l-.4.5c-.1.2-.2.3 0 .5a7.8 7.8 0 0 0 3.4 2.9c.2.1.4 0 .5 0l.7-.8c.2-.2.3-.1.5 0l1.6.8c.2.1.3.2.3.3v.8Z"/>
@@ -261,7 +301,13 @@
   "settings": [
     { "type": "text", "id": "whatsapp", "label": "WhatsApp number",
       "default": "923019090590",
-      "info": "Country code, no + or spaces. Leave blank to hide the enquiry links." }
+      "info": "Country code, no + or spaces. Leave blank to hide the enquiry links." },
+
+    { "type": "header", "content": "Add to bag button" },
+    { "type": "text", "id": "sold_label", "label": "Sold out wording", "default": "Sold out",
+      "info": "Shown on the button when the piece, or the size the shopper picked, has run out." },
+    { "type": "text", "id": "unavailable_label", "label": "Not stocked wording", "default": "Not available",
+      "info": "Shown when the combination the shopper picked is not one the shop lists at all. Clear the box to reuse the sold out wording." }
   ]
 }
 {% endschema %}

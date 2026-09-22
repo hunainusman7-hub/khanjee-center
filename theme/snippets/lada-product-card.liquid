@@ -24,7 +24,7 @@
       Everything in Lada is cotton, so it taught one word, and that word
       was on every card.
     - the made-to-measure price substitution and its "Measured in the
-      shop" link. Alamghir is cut to measurement as a matter of course,
+      shop" link. Alamgeer is cut to measurement as a matter of course,
       so the exception was the rule, and the price slot is for a price.
       The client has confirmed prices are shown and products add to the bag.
     - every badge, chip and seal
@@ -44,10 +44,39 @@
   fourth and fifth thing on the card: at rest on a desktop the card is
   the photograph, the name and the price, and nothing else is painted.
 
-  The title is the real title. The shared card splits on " (em dash) " to
-  strip a white-label suffix off imported titles, which is exactly the
-  behaviour Lada must not inherit: a Lada piece has a proper name and any
-  punctuation in it is part of that name.
+  WHAT THIS CARD NOW SHARES WITH .pcard, AND WHY THAT MATTERS MORE THAN
+  THE FORK DID.
+
+  The client's complaint about Lada was that it reads as a different
+  website. A fork is the right call for the register and the wrong call
+  for the grammar, so everything that is not the register has been put
+  back in step with snippets/product-card.liquid:
+
+    - the title rule. Both cards now print
+      `product.title | split: ' - ' | first`. Shopify titles on this
+      store carry a " - suffix" the shop uses for its own sorting, and
+      one card trimming it while the other did not meant the SAME piece
+      read with two different names depending on which grid you found
+      it in. An earlier note here argued the suffix was part of a Lada
+      piece's proper name; it is not, it is the shop's filing, and
+      hiding it in one grid and not the other was the visible symptom.
+    - the touch swap. See data-pcard on the article below.
+    - element order within each block, the .vh accessible-name idiom on
+      the controls, and the data-kj-atc / data-kj-atc-error contract.
+    - `card_sizes`, the optional slot string, same name and same meaning
+      on both cards.
+
+  One thing the shared card grew that this one does not need: its .vh
+  status line. Its badges (sold out, percent off, the seal, pre order)
+  all sit inside the aria-hidden photograph anchor, so they had to be
+  repeated as text for a screen reader. This card has no badges at all,
+  and the one state it does show, sold out, is already plain text in the
+  price line and already in the reading order.
+
+  What stays forked is only what the register needs: no seal badge, no
+  compare-at, no percent-off chip, no SKU eyebrow, and the controls last
+  in the DOM rather than wrapped in a .pcard__top. Each of those is
+  argued at the point it happens.
 
   Usage:
     {% render 'lada-product-card', product: product, index: forloop.index0,
@@ -107,6 +136,23 @@
     assign alt_src_w = alt_w
   endif
 
+  # SAME RULE AS THE SHARED CARD, deliberately. See the header.
+  # `split` on a title with no " - " in it returns the whole title as the
+  # only element, so a clean name passes through untouched.
+  assign card_title = product.title | split: ' - ' | first
+
+  # The stagger for the site's scroll reveal. index is the caller's
+  # forloop.index0 and is defaulted here because the snippet is also
+  # rendered by callers that have no loop to count.
+  #
+  # Capped at the seventh card, which is 420ms. Past that the last card
+  # in a long grid is still waiting to start after the visitor has
+  # scrolled it back off screen, which reads as a stuck page rather than
+  # as an entrance. Same cap, for the same reason, as the Lada observer
+  # in kj-v2.js.
+  assign reveal_i = index | default: 0
+  assign reveal_d = reveal_i | times: 60 | at_most: 420
+
   # A price slot is only rendered when it has something true to say. A
   # product sitting at 0.00 because a variant was never priced must not
   # print a currency symbol against nothing, and inventing a phrase to
@@ -117,9 +163,57 @@
   endif
 -%}
 
-{%- capture card_sizes -%}(min-width:1240px) 283px, (min-width:1100px) 23vw, (min-width:760px) 31vw, 46vw{%- endcapture -%}
+{%- comment -%}
+  The slot, named and defaulted exactly as snippets/product-card.liquid
+  names and defaults it, so a caller hands either card its own `sizes`
+  string the same way. The default below is a .pgrid cell: 283px is the
+  cell at the 1180px wrap cap, and the vw steps are the three column
+  counts under it.
+{%- endcomment -%}
+{%- assign slot = card_sizes | default: '(min-width:1240px) 283px, (min-width:1100px) 23vw, (min-width:760px) 31vw, 46vw' -%}
 
-<article class="lcard{% if alt_media %} lcard--pair{% endif %}">
+{%- comment -%}
+  data-pcard IS THE TOUCH HOOK, NOT A STYLE.
+
+  On a pointer device the second photograph arrives on :hover, which
+  CSS does on its own. A phone has no hover, so kj-v2.js gives the
+  shared card a first-tap-swaps / second-tap-navigates fallback, and
+  the Lada card had none: on the device most of this shop is browsed
+  on, the second frame simply never existed.
+
+  That script finds a card by [data-pcard] and then looks inside it for
+  .pcard__img--alt and .pcard__link. Those two are carried alongside the
+  .lcard names rather than instead of them, so the existing fallback
+  binds with no change to the JavaScript at all. Neither borrowed class
+  drags any white-register paint over: .pcard__img--alt is opacity:0,
+  which .lcard__img--alt already is, and .pcard__link::after is the same
+  inset:0 overlay as .lcard__link::after. Every visible rule on this card
+  still comes from .lcard.
+
+  data-pcard is only emitted when there is a second frame to swap to.
+  Without that gate the script would add a click handler that swallows
+  the first tap on a card with nothing to show for it, turning a working
+  link into a dead one.
+
+  THE ONE THING THIS NEEDS FROM THE STYLESHEET. kj-v2.js paints the
+  swapped state by putting .is-touched on the card, and the rule that
+  reads it is written against the white card:
+
+      .pcard.is-touched .pcard__img--alt{opacity:1}
+
+  which cannot match an .lcard article. The dark twin of that rule,
+  .lcard.is-touched .lcard__img--alt{opacity:1}, belongs beside the
+  existing .lcard--pair hover rules in kj-v2.css. Until it lands the
+  first tap is swallowed and shows nothing, so if this hook is ever
+  reverted, revert it together with that rule and not on its own.
+
+  data-reveal is the site's own scroll reveal, the hook
+  sections/category-grid.liquid already uses, so the Lada wall of
+  photographs arrives the same way the white shop's category grid does.
+{%- endcomment -%}
+<article class="lcard{% if alt_media %} lcard--pair{% endif %}"
+         {% if alt_media %}data-pcard{% endif %}
+         data-reveal style="--d:{{ reveal_d }}ms">
 
   {%- comment -%}
     The image link is marked decorative so the name below stays the one
@@ -139,7 +233,7 @@
     this is the state the whole grid ships in and it has to look
     intentional rather than broken.
   {%- endcomment -%}
-  <a class="lcard__media lcard__link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+  <a class="lcard__media lcard__link pcard__link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
     {%- if product.featured_media -%}
       <img class="lcard__img lcard__img--main"
            src="{{ product.featured_media | image_url: width: main_src_w }}"
@@ -147,32 +241,32 @@
                    {%- if main_w > 600 %}{{ product.featured_media | image_url: width: 600 }} 600w, {% endif -%}
                    {%- if main_w > 900 %}{{ product.featured_media | image_url: width: 900 }} 900w, {% endif -%}
                    {{ product.featured_media | image_url: width: main_w }} {{ main_w }}w"
-           sizes="{{ card_sizes }}"
+           sizes="{{ slot }}"
            width="{{ product.featured_media.width }}" height="{{ product.featured_media.height }}"
            loading="{{ loading }}" decoding="async"
-           alt="{{ product.featured_media.alt | default: product.title | escape }}">
+           alt="{{ product.featured_media.alt | default: card_title | escape }}">
     {%- endif -%}
 
     {%- if alt_media -%}
-      <img class="lcard__img lcard__img--alt"
+      <img class="lcard__img lcard__img--alt pcard__img--alt"
            src="{{ alt_media | image_url: width: alt_src_w }}"
            srcset="{%- if alt_w > 400 %}{{ alt_media | image_url: width: 400 }} 400w, {% endif -%}
                    {%- if alt_w > 600 %}{{ alt_media | image_url: width: 600 }} 600w, {% endif -%}
                    {%- if alt_w > 900 %}{{ alt_media | image_url: width: 900 }} 900w, {% endif -%}
                    {{ alt_media | image_url: width: alt_w }} {{ alt_w }}w"
-           sizes="{{ card_sizes }}"
+           sizes="{{ slot }}"
            width="{{ alt_media.width }}" height="{{ alt_media.height }}"
            loading="lazy" decoding="async" aria-hidden="true" alt="">
     {%- endif -%}
   </a>
 
-  <h3 class="lcard__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+  <h3 class="lcard__title"><a href="{{ product.url }}">{{ card_title }}</a></h3>
 
   {%- comment -%}
     Price slot. Never a compare-at, never a percentage, never coloured,
     never larger than the name.
 
-    product.price is the lowest variant price. Alamghir is priced by the
+    product.price is the lowest variant price. Alamgeer is priced by the
     piece and Ready to Wear by the garment, not by the size, so in
     practice every variant of a Lada product carries the same figure and
     a "from" prefix would be a word added to every card to describe a
@@ -235,7 +329,7 @@
     buys the piece.
 
     The form only renders for a genuinely single-variant piece, which on
-    Lada is the exception: Alamghir carries colour options and Ready to
+    Lada is the exception: Alamgeer carries colour options and Ready to
     Wear carries S, M and L. Everything else gets the quick view trigger
     alone. The old "Choose options" link is gone because that is now the
     quick view's entire job, and two controls a centimetre apart sending
@@ -246,7 +340,7 @@
             data-lada-quickview
             data-product-url="{{ product.url }}">
       <span class="lcard__quick-t">{{ quickview_label }}</span>
-      <span class="vh">, {{ product.title }}</span>
+      <span class="vh">, {{ card_title }}</span>
     </button>
 
     {%- if product.available and product.variants.size == 1 -%}
@@ -256,7 +350,7 @@
         <input type="hidden" name="quantity" value="1">
         <button type="submit" class="lcard__quick lcard__quick--add">
           <span class="lcard__quick-t">{{ add_label }}</span>
-          <span class="vh">, {{ product.title }}</span>
+          <span class="vh">, {{ card_title }}</span>
           <span class="lcard__spin" aria-hidden="true"></span>
         </button>
         <p class="lcard__err" data-kj-atc-error role="alert" hidden></p>

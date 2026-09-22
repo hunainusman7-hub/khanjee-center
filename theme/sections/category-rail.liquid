@@ -5,6 +5,25 @@
   Replaces the old "Choose your cloth" grid.
 {%- endcomment -%}
 
+{%- liquid
+  # asset_url cannot report a file's width, so a theme asset gets no srcset
+  # unless we already know what was generated for it. These are the six
+  # category photographs the shop ships with; anything else the client types
+  # into the fallback box still renders, just as a single src.
+  assign v_420_860 = 'men-unstitched,men-shawls,women-shawls' | split: ','
+  assign v_900 = 'women-unstitched,bridal,lada-waistcoats' | split: ','
+-%}
+
+{%- comment -%}
+  The real slot, read off .ccard in kj-v2.css: clamp(210px,62vw,300px), and
+  clamp(240px,34vw,300px) from 700px up. The breakpoints below are where
+  those clamps change hands (62vw passes 210px at 340px and 300px at 485px;
+  34vw passes 300px at 882px). A flat "22vw" on a 1920px screen claimed a
+  422px box for a card that is never wider than 300px, so the browser pulled
+  the 900w file onto every tile.
+{%- endcomment -%}
+{%- capture card_sizes -%}(min-width:882px) 300px, (min-width:706px) 34vw, (min-width:485px) 300px, (min-width:340px) 62vw, 210px{%- endcapture -%}
+
 <section class="crail" aria-labelledby="crail-{{ section.id }}">
   {%- if section.settings.heading != blank -%}
     <div class="wrap crail__head">
@@ -22,6 +41,12 @@
     {%- for block in section.blocks -%}
       <a class="ccard" href="{{ block.settings.link | default: '#' }}" {{ block.shopify_attributes }}>
         <span class="ccard__media">
+          {%- comment -%}
+            alt is empty on purpose. The label below is inside this same
+            link, so a described image would make the link announce the
+            category twice: "Gents Unstitched, Gents Unstitched, link".
+            The photograph carries no information the label does not.
+          {%- endcomment -%}
           {%- if block.settings.image -%}
             {%- comment -%}
               width/height are the picked image's own intrinsic size, so
@@ -30,16 +55,30 @@
               a guaranteed layout shift on every tile.
             {%- endcomment -%}
             <img src="{{ block.settings.image | image_url: width: 900 }}"
-                 srcset="{{ block.settings.image | image_url: width: 500 }} 500w,
+                 srcset="{{ block.settings.image | image_url: width: 300 }} 300w,
+                         {{ block.settings.image | image_url: width: 500 }} 500w,
                          {{ block.settings.image | image_url: width: 900 }} 900w"
-                 sizes="(min-width:1100px) 22vw, (min-width:700px) 34vw, 62vw"
+                 sizes="{{ card_sizes }}"
                  width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}"
                  loading="lazy" decoding="async"
-                 alt="{{ block.settings.image.alt | default: block.settings.label | escape }}">
+                 alt="">
           {%- elsif block.settings.asset_file != blank -%}
+            {%- liquid
+              assign base = block.settings.asset_file | split: '.' | first
+              assign steps = ''
+              if v_420_860 contains base
+                assign steps = '420,860'
+              elsif v_900 contains base
+                assign steps = '900'
+              endif
+            -%}
             <img src="{{ block.settings.asset_file | asset_url }}"
+                 {%- if steps != blank %}
+                 srcset="{% assign step_list = steps | split: ',' %}{% for w in step_list %}{{ base | append: '-w' | append: w | append: '.webp' | asset_url }} {{ w }}w, {% endfor %}{{ block.settings.asset_file | asset_url }} 1000w"
+                 sizes="{{ card_sizes }}"
+                 {%- endif %}
                  width="1000" height="1250" loading="lazy" decoding="async"
-                 alt="{{ block.settings.label | escape }}">
+                 alt="">
           {%- endif -%}
         </span>
         <span class="ccard__label">{{ block.settings.label }}</span>
@@ -61,7 +100,8 @@
   "blocks": [
     { "type": "card", "name": "Card", "settings": [
       { "type": "image_picker", "id": "image", "label": "Image" },
-      { "type": "text", "id": "asset_file", "label": "…or theme asset filename" },
+      { "type": "text", "id": "asset_file", "label": "Or theme asset filename",
+        "info": "One of the pictures already in the theme, for example men-unstitched.webp. Used only when no image is picked above." },
       { "type": "text", "id": "label", "label": "Label", "default": "Unstitched" },
       { "type": "url", "id": "link", "label": "Link" }
     ]}

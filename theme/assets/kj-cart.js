@@ -108,6 +108,18 @@
         if (toggle) toggle.setAttribute('aria-expanded', 'false');
       }
     });
+
+    /* The filters panel does not paint its own backdrop. site.js opens
+       a separate full-screen [data-scrim] beside it and closes the two
+       together, so closing only the panel from here left the scrim
+       painted over the whole page: the bag slid away and the customer
+       was looking at a dimmed catalogue behind a fixed layer with no
+       panel in front of it to explain why. It is dismissible — the
+       scrim's own click handler clears it — but nothing on screen says
+       so, which is the same as being stuck. Close it with the panel it
+       belongs to. */
+    $$('[data-scrim]').forEach(function (s) { s.setAttribute('data-open', 'false'); });
+
     // site.js locks the body for the filters panel; the drawer manages
     // its own lock, so clear the inline one rather than fight it.
     document.body.style.overflow = '';

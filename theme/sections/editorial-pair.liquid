@@ -3,17 +3,65 @@
   Two large editorial banners side by side, label centred on the image.
   Mirrors the READY TO WEAR / UNSTITCHED pair on the reference site.
 {%- endcomment -%}
+
+{%- liquid
+  # asset_url cannot report a file's width, so a theme asset gets no srcset
+  # unless we already know what was generated for it. These are the six
+  # category photographs the shop ships with; anything else the client types
+  # into the fallback box still renders, just as a single src.
+  assign v_420_860 = 'men-unstitched,men-shawls,women-shawls' | split: ','
+  assign v_900 = 'women-unstitched,bridal,lada-waistcoats' | split: ','
+-%}
+
+{%- comment -%}
+  .epair is two equal columns inside .wrap from 900px up, with a 0.75rem
+  gutter, so each banner tops out at 634px once the wrap hits its 1280px
+  ceiling. The old value was a flat 46vw, which on a 1920px screen claimed
+  883px for a 634px box, and it was written next to an <img> with no srcset
+  at all, so it decided nothing: every phone downloaded the 1400px file.
+{%- endcomment -%}
+{%- capture banner_sizes -%}(min-width:1344px) 634px, (min-width:900px) calc(50vw - 38px), calc(100vw - 40px){%- endcapture -%}
+
 <section class="wrap epair">
   {%- for block in section.blocks limit: 2 -%}
     <a class="epair__item" href="{{ block.settings.link | default: '#' }}" {{ block.shopify_attributes }}>
+      {%- comment -%}
+        alt is empty. The label is printed over the image inside this same
+        link, so a described photograph made the link announce "Gents,
+        Gents, link".
+      {%- endcomment -%}
       {%- if block.settings.image -%}
-        <img src="{{ block.settings.image | image_url: width: 1400 }}"
-             sizes="(min-width:900px) 46vw, 92vw" width="1400" height="900"
-             loading="lazy" decoding="async"
-             alt="{{ block.settings.image.alt | default: block.settings.label | escape }}">
+        {%- liquid
+          assign src_w = block.settings.image.width | default: 1300
+          assign base_w = 900
+          if src_w < base_w
+            assign base_w = src_w
+          endif
+        -%}
+        <img src="{{ block.settings.image | image_url: width: base_w }}"
+             srcset="{%- if src_w > 500 %}{{ block.settings.image | image_url: width: 500 }} 500w, {% endif -%}
+                     {%- if src_w > 900 %}{{ block.settings.image | image_url: width: 900 }} 900w, {% endif -%}
+                     {%- if src_w > 1300 %}{{ block.settings.image | image_url: width: 1300 }} 1300w, {% endif -%}
+                     {{ block.settings.image | image_url: width: src_w }} {{ src_w }}w"
+             sizes="{{ banner_sizes }}"
+             width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}"
+             loading="lazy" decoding="async" alt="">
       {%- elsif block.settings.asset_file != blank -%}
-        <img src="{{ block.settings.asset_file | asset_url }}" width="1400" height="900"
-             loading="lazy" decoding="async" alt="{{ block.settings.label | escape }}">
+        {%- liquid
+          assign base = block.settings.asset_file | split: '.' | first
+          assign steps = ''
+          if v_420_860 contains base
+            assign steps = '420,860'
+          elsif v_900 contains base
+            assign steps = '900'
+          endif
+        -%}
+        <img src="{{ block.settings.asset_file | asset_url }}"
+             {%- if steps != blank %}
+             srcset="{% assign step_list = steps | split: ',' %}{% for w in step_list %}{{ base | append: '-w' | append: w | append: '.webp' | asset_url }} {{ w }}w, {% endfor %}{{ block.settings.asset_file | asset_url }} 1000w"
+             sizes="{{ banner_sizes }}"
+             {%- endif %}
+             width="1000" height="1250" loading="lazy" decoding="async" alt="">
       {%- endif -%}
       <span class="epair__label">{{ block.settings.label }}</span>
     </a>
@@ -27,7 +75,8 @@
   "blocks": [
     { "type": "item", "name": "Banner", "settings": [
       { "type": "image_picker", "id": "image", "label": "Image" },
-      { "type": "text", "id": "asset_file", "label": "…or theme asset filename" },
+      { "type": "text", "id": "asset_file", "label": "Or theme asset filename",
+        "info": "One of the pictures already in the theme, for example men-unstitched.webp. Used only when no image is picked above." },
       { "type": "text", "id": "label", "label": "Label", "default": "Unstitched" },
       { "type": "url", "id": "link", "label": "Link" }
     ]}

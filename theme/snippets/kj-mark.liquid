@@ -16,7 +16,7 @@
 
   Both of those shipped once. Do not "simplify" them away again.
 
-  The Lada mark is the client's own artwork (assets/lada-mark.png), so
+  The Lada mark is the client's own artwork (assets/lada-mark.webp), so
   it is an <img>, not an SVG path. It has a metallic gold gradient, which
   currentColor cannot express — any attempt to recolour it would flatten
   the thing that makes it the mark. It was supplied on a black card and
@@ -33,6 +33,7 @@
   Colour comes from currentColor: set it on the parent, never here.
   Pass label to give the mark an accessible name; omit it and the mark
   is decorative, which is right when readable text sits beside it.
+  Pass sizes on the Lada mark to tell it how wide its box really is.
 {%- endcomment -%}
 
 {%- liquid
@@ -40,8 +41,35 @@
 -%}
 
 {%- if m == 'lada' -%}
+  {%- comment -%}
+    THE CALLER HAS TO SAY HOW WIDE THE BOX IS, because the sections that
+    draw this mark disagree by a factor of four and one <img> gets one
+    sizes:
+
+      lada-gateway crest   clamp(84px,10vw,124px)
+      lada-band            clamp(210px,38vw,360px)
+      hero-slideshow slide clamp(200px,32vw,400px)
+
+    The crest is the one that matters: it is the largest thing painted
+    on /pages/lada, which makes it that page's LCP, and it is fetching
+    600px of artwork to fill 124. The two smaller renders below exist
+    for it. Pass sizes: '(min-width:1240px) 124px, 10vw' there.
+
+    The default is the widest of the three rather than the smallest, so
+    a caller that says nothing wastes some bytes instead of painting a
+    soft mark at 400px. Wrong-but-sharp beats wrong-and-blurry.
+
+    The full 600px file stays as the top candidate: w520 is only 20%
+    smaller, so there is nothing to gain by dropping it and a retina
+    hero would have to upscale without it.
+  {%- endcomment -%}
+  {%- assign mark_sizes = sizes | default: '(min-width:1250px) 400px, (min-width:625px) 32vw, 200px' -%}
   <img class="kj-mark kj-mark--lada{% if class %} {{ class }}{% endif %}"
-       src="{{ 'lada-mark.png' | asset_url }}"
+       src="{{ 'lada-mark.webp' | asset_url }}"
+       srcset="{{ 'lada-mark-w260.webp' | asset_url }} 260w,
+               {{ 'lada-mark-w520.webp' | asset_url }} 520w,
+               {{ 'lada-mark.webp' | asset_url }} 600w"
+       sizes="{{ mark_sizes }}"
        width="600" height="447" decoding="async"
        {% if loading %}loading="{{ loading }}"{% else %}loading="lazy"{% endif %}
        {% if label %}alt="{{ label | escape }}"{% else %}alt="" aria-hidden="true"{% endif %}>

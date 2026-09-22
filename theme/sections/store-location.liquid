@@ -121,6 +121,37 @@
 
   assign photo_alt = section.settings.image_alt | default: 'The Khan Jee Center on Civil Quarters Road, Sheikhupura, lit at dusk'
 
+  comment
+    ONE sizes STRING FOR BOTH BRANCHES, read straight off store.css so
+    the two cannot drift apart when the grid is next adjusted.
+
+      under 500      the photo is the column, so 100vw
+      500 to 900     --store-pw caps it at 420px flat
+      900 to 1400    the track is --store-h * .62, and --store-h is
+                     clamp(430px,50vw,700px), so it is exactly 31vw
+      1400 and up    --store-h is pinned at 700, so the track is
+                     pinned at 434px and stays there for good
+
+    The last stop is the one worth having. Without a ceiling a bare
+    31vw asks a 1920 screen for 595px of a box that is 434 wide, and
+    on a two-times display that is the difference between fetching the
+    photograph and fetching it twice over.
+  endcomment
+  assign photo_sizes = '(min-width:1400px) 434px, (min-width:900px) 31vw, (min-width:500px) 420px, 100vw'
+
+  comment
+    The 420px render exists only for the photograph that ships with
+    the theme, so it is offered only when that is the file being asked
+    for. A srcset candidate that 404s is not skipped, it is chosen and
+    then fails to paint, so a client who types his own filename gets
+    one honest src instead.
+  endcomment
+  assign photo_file = section.settings.photo_asset
+  assign photo_small = ''
+  if photo_file == 'khanjee-storefront.webp'
+    assign photo_small = 'khanjee-storefront-w420.webp'
+  endif
+
   assign has_facts = false
   if section.settings.address != blank or section.settings.hours != blank or section.settings.phone != blank or section.blocks.size > 0
     assign has_facts = true
@@ -171,11 +202,11 @@
           cap is the picked image's own width, and the 700w candidate
           is only offered when the source can actually fill it.
 
-          sizes is measured off the built page, not guessed. Above 900
-          the photo track runs 266px at a 900 viewport up to 384px at
-          1440, so 30vw is a tight ceiling. Below 900 --store-pw caps
-          the photo at 420px, so a plain 100vw would over-fetch by
-          nearly double on a tablet; 100vw is only honest under 500.
+          sizes comes from photo_sizes at the top of the file, which is
+          derived from the stylesheet rather than measured once and
+          left behind: the figures that used to be written out here
+          (266px at 900, 384px at 1440) were taken when --store-h was
+          620, and the clamp has been raised to 700 since.
 
           Keep every attribute on its own line with no Liquid tag
           between them. A whitespace-stripping comment tag placed in
@@ -189,20 +220,28 @@
         <img src="{{ section.settings.image | image_url: width: pw }}"
              srcset="{% if pw > 700 %}{{ section.settings.image | image_url: width: 700 }} 700w,
                      {% endif %}{{ section.settings.image | image_url: width: pw }} {{ pw }}w"
-             sizes="(min-width:900px) 30vw, (min-width:500px) 420px, 100vw"
+             sizes="{{ photo_sizes }}"
              width="{{ section.settings.image.width }}" height="{{ section.settings.image.height }}"
              loading="lazy" decoding="async"
              alt="{{ section.settings.image.alt | default: photo_alt | escape }}">
       {%- else -%}
         {%- comment -%}
-          The shipped asset is khanjee-storefront.jpg at 740x1285. The
+          The shipped asset is khanjee-storefront.webp at 740x1285. The
           box is sized by the stylesheet and the image is object-fit
           cover inside it, so if the client swaps in a file of another
           shape these two numbers only affect the reserved box before
           CSS lands, never the final crop.
+
+          740 real pixels into a box that is 434 at its widest and 279
+          at a 900 laptop was the whole file every time. The 420 render
+          covers every one-times screen; the full file is still there
+          for the two-times ones, which is what the pair is for.
         {%- endcomment -%}
-        <img src="{{ section.settings.photo_asset | asset_url }}"
-             width="740" height="1285" loading="lazy" decoding="async"
+        <img src="{{ photo_file | asset_url }}"
+             {% if photo_small != blank %}srcset="{{ photo_small | asset_url }} 420w,
+                     {{ photo_file | asset_url }} 740w"
+             sizes="{{ photo_sizes }}"
+             {% endif %}width="740" height="1285" loading="lazy" decoding="async"
              alt="{{ photo_alt | escape }}">
       {%- endif -%}
     </figure>
@@ -341,7 +380,7 @@
     { "type": "paragraph", "content": "Portrait, the building from the street. Hidden if both fields are empty." },
     { "type": "image_picker", "id": "image", "label": "Image" },
     { "type": "text", "id": "photo_asset", "label": "…or theme asset filename",
-      "default": "khanjee-storefront.jpg",
+      "default": "khanjee-storefront.webp",
       "info": "Used only when no image is picked" },
     { "type": "text", "id": "image_alt", "label": "Alt text",
       "default": "The Khan Jee Center on Civil Quarters Road, Sheikhupura, lit at dusk",

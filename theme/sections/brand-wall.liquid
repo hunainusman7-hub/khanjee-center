@@ -5,9 +5,13 @@
   that list appears anywhere on the site.
 
   Logos: each cell renders a typographic wordmark until a real logo file
-  exists in the theme's assets. To switch a brand to its logo, add the file
-  as `brand-<handle>.png` (or .svg) and add its handle to `logo_handles`
-  below. Nothing else needs to change.
+  exists in the theme's assets. To switch a brand to its logo, upload the
+  file as `<handle>.webp` (or .svg) and append one `handle:filename` pair
+  to `logo_map` below. Nothing else needs to change.
+
+  It used to say a `brand-` prefix, a .png and a list called
+  `logo_handles`, none of which this file has ever had, so anybody who
+  followed it uploaded a file the section could not find.
 {%- endcomment -%}
 
 {%- liquid
@@ -20,7 +24,7 @@
     Everything else falls back to a typographic wordmark. To add a logo,
     upload the file to assets and append one pair here.
   endcomment
-  assign logo_map = 'dynasty:dynasty.svg,pasha:pasha.png,grace:grace.png,narkins:narkins.png,maria-b:maria-b.svg,zellbury:zellbury.png,saira-shakira:saira-shakira.png,shahista:shaista.webp' | split: ','
+  assign logo_map = 'dynasty:dynasty.svg,pasha:pasha.webp,grace:grace.webp,narkins:narkins.webp,maria-b:maria-b.svg,zellbury:zellbury.webp,saira-shakira:saira-shakira.webp,shahista:shaista.webp' | split: ','
 -%}
 
 <section class="wrap" aria-labelledby="bwall-h">
@@ -38,14 +42,17 @@
           assign list = gents
           assign label = 'Gents'
           assign prefix = 'gents-'
+          assign fallback_handle = 'gents-unstitched'
         when 2
           assign list = ladies
           assign label = 'Ladies'
           assign prefix = 'ladies-'
+          assign fallback_handle = 'ladies-unstitched'
         when 3
           assign list = bridal
           assign label = 'Bridal & Formal'
           assign prefix = 'bridal-'
+          assign fallback_handle = 'bridal'
       endcase
     -%}
     <div class="bwall__group">
@@ -62,8 +69,23 @@
                 assign logo_file = kv[1]
               endif
             endfor
+            assign brand_handle = prefix | append: handle
           -%}
-          <a class="bwall__cell" href="{{ routes.collections_url }}/{{ prefix }}{{ handle }}">
+          {%- comment -%}
+            The href used to be built by hand as /collections/gents-pasha
+            and the like. Not one of those collections exists, so all
+            seventy cells on this wall were links to a 404, and they will
+            stay that way until somebody creates seventy collections.
+
+            kj-collection-url is the resolution brand-directory already
+            uses: the brand's own collection when it exists, otherwise the
+            department collection filtered to that vendor, otherwise all
+            products. Same helper, same behaviour, one wall to the next.
+          {%- endcomment -%}
+          {%- capture cell_url -%}
+            {%- render 'kj-collection-url', handle: brand_handle, fallback: fallback_handle, vendor: name -%}
+          {%- endcapture -%}
+          <a class="bwall__cell" href="{{ cell_url | strip }}">
             {%- if logo_file != '' -%}
               <img src="{{ logo_file | asset_url }}"
                    alt="{{ name | escape }}" loading="lazy" decoding="async" width="160" height="44">

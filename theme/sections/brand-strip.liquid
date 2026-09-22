@@ -4,12 +4,41 @@
   </div>
   <div class="strip__track">
     <div class="strip__row" data-strip-row>
+      {%- comment -%}
+        EVERY LOGO DECLARES A BOX, and that is not only the usual
+        layout-shift argument.
+
+        site.js duplicates this row's markup to make the loop seamless
+        and then reads scrollWidth to find out where to wrap. It reads
+        it immediately, before a single logo has arrived. Images with
+        no width and height measure as empty boxes at that moment, so
+        the loop distance comes out short and the strip snaps back
+        mid-run until the next resize event corrects it.
+
+        A picked logo can state its own pixels. A theme asset cannot
+        report its size to Liquid, so it states the nominal 160x46
+        instead. Neither pair decides the final size: .strip__item
+        pins the height (46px, 32px on a phone) and .strip__item img
+        leaves the width auto, so this is reserved space and nothing
+        more.
+
+        The picked branch asks for 400 rather than 200 because a 46px
+        tall logo is around 160 wide, and a 200px file is visibly soft
+        on the retina screens most of this traffic is on.
+      {%- endcomment -%}
       {% for block in section.blocks %}
         <span class="strip__item">
           {% if block.settings.logo %}
-            <img src="{{ block.settings.logo | image_url: width: 200 }}" alt="{{ block.settings.name | escape }}" decoding="async">
+            <img src="{{ block.settings.logo | image_url: width: 400 }}"
+                 srcset="{{ block.settings.logo | image_url: width: 200 }} 200w,
+                         {{ block.settings.logo | image_url: width: 400 }} 400w"
+                 sizes="160px"
+                 width="{{ block.settings.logo.width }}" height="{{ block.settings.logo.height }}"
+                 alt="{{ block.settings.name | escape }}" loading="lazy" decoding="async">
           {% elsif block.settings.asset_file != blank %}
-            <img src="{{ block.settings.asset_file | asset_url }}" alt="{{ block.settings.name | escape }}" decoding="async">
+            <img src="{{ block.settings.asset_file | asset_url }}"
+                 width="160" height="46"
+                 alt="{{ block.settings.name | escape }}" loading="lazy" decoding="async">
           {% else %}
             <span>{{ block.settings.name }}</span>
           {% endif %}
@@ -39,24 +68,24 @@
     {
       "name": "Brand strip",
       "blocks": [
-        { "type": "brand", "settings": { "name": "Grace", "asset_file": "grace.png" } },
-        { "type": "brand", "settings": { "name": "Pasha", "asset_file": "pasha.png" } },
+        { "type": "brand", "settings": { "name": "Grace", "asset_file": "grace.webp" } },
+        { "type": "brand", "settings": { "name": "Pasha", "asset_file": "pasha.webp" } },
         { "type": "brand", "settings": { "name": "Dynasty", "asset_file": "dynasty.svg" } },
         { "type": "brand", "settings": { "name": "Gul Ahmed" } },
         { "type": "brand", "settings": { "name": "Asco" } },
-        { "type": "brand", "settings": { "name": "Narkin's", "asset_file": "narkins.png" } },
+        { "type": "brand", "settings": { "name": "Narkin's", "asset_file": "narkins.webp" } },
         { "type": "brand", "settings": { "name": "Colorum" } },
         { "type": "brand", "settings": { "name": "Watan" } },
         { "type": "brand", "settings": { "name": "Maria.B", "asset_file": "maria-b.svg" } },
-        { "type": "brand", "settings": { "name": "Saira Shakira", "asset_file": "saira-shakira.png" } },
+        { "type": "brand", "settings": { "name": "Saira Shakira", "asset_file": "saira-shakira.webp" } },
         { "type": "brand", "settings": { "name": "Khoobsoorat" } },
         { "type": "brand", "settings": { "name": "LimeLight", "asset_file": "limelight.svg" } },
-        { "type": "brand", "settings": { "name": "Nishat Linen", "asset_file": "nishat-linen.png" } },
-        { "type": "brand", "settings": { "name": "Zellbury", "asset_file": "zellbury.png" } },
+        { "type": "brand", "settings": { "name": "Nishat Linen", "asset_file": "nishat-linen.webp" } },
+        { "type": "brand", "settings": { "name": "Zellbury", "asset_file": "zellbury.webp" } },
         { "type": "brand", "settings": { "name": "Razab" } },
         { "type": "brand", "settings": { "name": "Shaista", "asset_file": "shaista.webp" } },
-        { "type": "brand", "settings": { "name": "Nuréh", "asset_file": "nureh.png" } },
-        { "type": "brand", "settings": { "name": "Izza", "asset_file": "izza.png" } },
+        { "type": "brand", "settings": { "name": "Nuréh", "asset_file": "nureh.webp" } },
+        { "type": "brand", "settings": { "name": "Izza", "asset_file": "izza.webp" } },
         { "type": "brand", "settings": { "name": "Mahee's" } },
         { "type": "brand", "settings": { "name": "Nazakat" } }
       ]

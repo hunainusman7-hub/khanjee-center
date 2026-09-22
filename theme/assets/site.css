@@ -1,11 +1,20 @@
 /* ============================================================
    Khan Jee — implements DESIGN.md. Every value here traces to
    a rule in that file. No hard-coded hex outside :root.
+
+   THIS FILE OWNS EVERY TOKEN. kj-v2.css extends the theme and may
+   read anything declared here, but it declares nothing of its own
+   except the --lada-* palette, which is a colour scheme rather than
+   a scale. If you find yourself writing a custom property in
+   kj-v2.css, it belongs up here.
    ============================================================ */
 :root{
   /* The one micro type size, 11px — the mobile legibility floor.
-     Declared here as well as in kj-v2.css so this file does not depend
-     on which stylesheet loads first. */
+     Sole declaration: kj-v2.css used to carry a second copy "so this
+     file does not depend on which stylesheet loads first", which was
+     answering a question that has an answer — theme.liquid loads
+     site.css and then kj-v2.css, always, so there is exactly one
+     possible order and exactly one owner. */
   --fs-micro:.6875rem;
 
   --bg:#FFFFFF; --surface:#FAF8F6; --surface-alt:#EFE7DC; --surface-hover:#F4EFE8; --surface-dark:#14100E;
@@ -14,6 +23,24 @@
   --accent:#9A1B2F; --accent-hover:#6E1222; --accent-soft:#F6E9EB; --gold:#C6A15B;
   --bg-rgb:255,255,255; --accent-rgb:154,27,47; --dark-rgb:20,16,14;
   --success:#1E6B4F; --error:#A32020; --warning:#A8720E; --sale:#9A1B2F;
+
+  /* --gold is a DARK-GROUND colour and nothing else.
+     #C6A15B on #FFFFFF measures 2.43:1, so every place the brand gold
+     was carrying text on a white surface — the LADA nav link, the
+     footer tagline, the Lada row in the brand directory and the
+     "woven in-house" line on a product page — was under the 4.5:1
+     floor by a wide margin. It stays where it passes: on the hero
+     scrim, on the Lada grounds, and as a FILL under dark text
+     (#14100E on #C6A15B is 7.79:1, which is why the seal badge is
+     fine as it is).
+
+     --gold-ink is the darker companion for white grounds. #8F7038
+     measures 4.62:1 on #FFFFFF, so it clears the body-text floor with
+     a little room, and it is the same hue family so the two read as
+     one brand colour rather than two golds. It is deliberately NOT
+     used on the Lada grounds: there it measures 4.17:1 on
+     --lada-ground and 3.87:1 on --lada-panel, both under the floor. */
+  --gold-ink:#8F7038;
 
   /* ---- type ----
      Matched to mariab.pk, which is a single-typeface site: Montserrat
@@ -39,35 +66,139 @@
   --font-weight-heading:500;
   --font-weight-heavy:700;
 
+  /* ---- tracking, three values for the whole theme ----
+     The shop was running nine different letter-spacings on 11px caps
+     alone (.12 .14 .16 .18 .2 .22 .24 .28 .3) while Lada ran exactly
+     one. Nobody can see the difference between .2em and .22em; what
+     they can see is that no two labels on the page are set the same.
+     Three values, and they are chosen by the SIZE of the type, not by
+     which component it lives in:
+
+       --track-micro  11px uppercase. Labels, eyebrows, buttons,
+                      badges, table heads, chips. The house default and
+                      already the Lada journey's only value.
+       --track-wide   the one airy eyebrow, used above a hero or band
+                      heading and nowhere else.
+       --track-caps   uppercase ABOVE 11px. Large caps need less
+                      tracking, not more, so these come back rather
+                      than going out.
+
+     Anything under .05em is optical tracking on mixed-case display
+     type (the hero h1's .015em, the heading tightening at -.015em) and
+     is a separate axis; it is left alone. */
+  --track-micro:.24em;
+  --track-wide:.34em;
+  --track-caps:.14em;
+
   --s1:.25rem; --s2:.5rem; --s3:.75rem; --s4:1rem; --s5:1.5rem;
   --s6:2rem; --s7:3rem; --s8:4.5rem; --s9:7rem; --s10:10rem;
-  --radius:8px; --radius-sm:4px; --radius-lg:12px; --radius-pill:999px; --measure:62ch; --ease:cubic-bezier(.22,.61,.36,1);
+
+  /* The page gutter. .wrap, and every full-bleed rail that has to line
+     up with .wrap, read it from here — see the note on .rail in
+     kj-v2.css for what went wrong when they each carried their own
+     copy of the number. */
+  --gutter:1.25rem;
+
+  --radius:8px; --radius-sm:4px; --radius-lg:12px; --radius-pill:999px;
+  /* Photographic plates. Declared here with the rest of the scale
+     rather than in kj-v2.css, and moved from 10px onto the stated
+     4 / 8 / 12 / pill scale. Nothing computed against the 10. */
+  --radius-media:12px;
+  --measure:62ch; --ease:cubic-bezier(.22,.61,.36,1);
+
+  /* ---- duration, three values for the whole theme ----
+     There was no duration token and twenty-two distinct literals, so
+     two controls doing the same job a centimetre apart ran at
+     different speeds. Every one of them now maps onto this scale, and
+     the values are the ones the theme was already using most:
+
+       --dur-1  colour, border-colour, background, and the opacity of
+                a small control. The old .25s, which 46 rules already
+                carried.
+       --dur-2  transforms. Hover lifts, drawers, scrims, menus,
+                underlines. The old .38s, from the two drawers.
+       --dur-3  photographs. Image scale on hover, image cross-fades,
+                the hero's slide change, scroll reveals. The old .7s,
+                from the two homepage card hovers.
+
+     Two literals survive on purpose and both are ambient loops rather
+     than responses to a gesture: the 9s hero pan on .hs__img and the
+     26s ken-burns on .hero__media img. A loop's period is its
+     character; putting it on a UI scale would be a category error.
+     The .6s spinner rotation and the 1.5s shimmer are the same case. */
+  --dur-1:.25s;
+  --dur-2:.38s;
+  --dur-3:.7s;
+
   --shadow-raised:0 1px 2px rgba(var(--dark-rgb),.06),0 8px 24px rgba(var(--dark-rgb),.06);
 }
-@media (max-width:640px){:root{--s6:1.5rem;--s7:2rem;--s8:2.75rem;--s9:3.5rem;--s10:4.5rem;}}
+/* Paired with @media (min-width:640px) elsewhere, so it stops one pixel
+   short of it. Both used to be written at 640 and both fired at exactly
+   640px, where the winner was whichever rule came later in the file. */
+@media (max-width:639px){:root{--s6:1.5rem;--s7:2rem;--s8:2.75rem;--s9:3.5rem;--s10:4.5rem;}}
+@media (min-width:900px){:root{--gutter:2rem}}
 
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+/* 1rem, not 16px. A pixel value here overrides the reader's own
+   text-size setting in the browser, which is the one accessibility
+   control almost everyone who needs it knows how to find. */
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-ui);
-  font-size:16px;line-height:1.6;overflow-x:hidden}
+  font-size:1rem;line-height:1.6;overflow-x:hidden}
 img,svg{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 h1,h2,h3,h4{margin:0;font-weight:400;line-height:1.05}
 button{font:inherit}
-.wrap{width:min(100% - 2.5rem,1280px);margin-inline:auto}
-@media (min-width:900px){.wrap{width:min(100% - 4rem,1280px)}}
+.wrap{width:min(calc(100% - var(--gutter) * 2),1280px);margin-inline:auto}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 .num{font-variant-numeric:tabular-nums}
 
-.eyebrow{font-size:.7rem;font-weight:600;letter-spacing:.34em;text-transform:uppercase}
+/* ---------- the ring, once, for everything ----------
+   Eleven controls shipped with a hover state and no focus state at
+   all: the hero button and its arrows, the rail arrows and tabs, the
+   "View all" links, the category-rail and editorial cards, the
+   split-section button and its dots, the shared quick-add, the cart
+   page's checkout, and the dark Lada button on the white homepage.
+   Naming them one at a time is how the list got to eleven in the
+   first place, so the floor is stated once for every focusable thing.
+
+   :where() so it carries NO specificity. Every per-component ring in
+   this file and in kj-v2.css still wins outright, including the ones
+   that have to change colour to stay legible on a dark ground, and
+   nothing below has to be reordered to keep working. */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px}
+
+.eyebrow{font-size:.7rem;font-weight:600;letter-spacing:var(--track-wide);text-transform:uppercase}
 .kj-mark{width:100%;height:auto;color:inherit}
 
-/* ---------- skip link ---------- */
-.skip{position:fixed;left:var(--s4);top:-100px;z-index:100;background:var(--accent);color:#fff;
-  padding:.75rem 1rem;transition:top .2s var(--ease)}
-.skip:focus{top:var(--s4)}
+/* ---------- skip link ----------
+   Travels on transform, not on `top`. Animating `top` on a
+   position:fixed element relayouts it every frame; the transform runs
+   on the compositor and lands in the same place. */
+.skip{position:fixed;left:var(--s4);top:var(--s4);z-index:100;background:var(--accent);color:#fff;
+  padding:.75rem 1rem;transform:translateY(calc(-100% - var(--s4) - 8px));
+  transition:transform var(--dur-2) var(--ease)}
+.skip:focus{transform:none}
 
-/* ---------- header ---------- */
+/* ---------- header ----------
+   THE STICKY HAS TO BE ON THE WRAPPER, NOT ONLY ON .hdr.
+   layout/theme.liquid renders the header with {% section 'header' %},
+   and Shopify wraps every {% section %} in
+   <div id="shopify-section-header" class="shopify-section">. A sticky
+   element can only travel inside its own parent's box, and that
+   wrapper is exactly as tall as the bar, so .hdr had nowhere to go: it
+   scrolled off the top of every page like an ordinary block. Several
+   things in this theme are written on the assumption that it sticks —
+   the gateway's calc(100svh - 61px), the scroll-margin-top on anchor
+   targets, the new headline strip sitting above it — so the bar is
+   given a parent it can actually stick to.
+
+   The id is Shopify's own and is derived from the file name, so it is
+   as stable as sections/header.liquid is. .hdr keeps its own sticky
+   declaration: it is harmless inside a now-sticky parent and every
+   rule in both stylesheets that reaches for .hdr still matches. */
+#shopify-section-header{position:sticky;top:0;z-index:60}
 .hdr{position:sticky;top:0;z-index:60;background:rgba(var(--bg-rgb),.95);
   backdrop-filter:saturate(150%) blur(10px);border-bottom:1px solid var(--border)}
 .hdr__bar{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
@@ -78,9 +209,17 @@ button{font:inherit}
 .hdr__tools{display:flex;align-items:center;gap:var(--s1)}
 .iconbtn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;
   background:none;border:0;color:var(--text);cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* `[hidden]` is a USER AGENT rule and any author `display` beats it,
+   however weak the selector. The burger ships with the hidden
+   attribute and site.js removes it once the drawer is wired, so
+   without this line a no-script visitor gets a burger that opens
+   nothing, sitting next to a nav that is already showing. Measured:
+   computed display came back `inline-flex` with the attribute set. */
+.iconbtn[hidden]{display:none}
 .iconbtn:hover{color:var(--accent)}
 .iconbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.navtoggle span{display:block;width:22px;height:2px;background:currentColor;transition:transform .3s var(--ease),opacity .2s}
+.navtoggle span{display:block;width:22px;height:2px;background:currentColor;
+  transition:transform var(--dur-2) var(--ease),opacity var(--dur-2) var(--ease)}
 .navtoggle{flex-direction:column;gap:5px}
 .navtoggle[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .navtoggle[aria-expanded="true"] span:nth-child(2){opacity:0}
@@ -90,21 +229,51 @@ button{font:inherit}
 .nav__link{font-size:.82rem;letter-spacing:.04em;color:var(--text)}
 .nav__link:hover,.nav__link[aria-current="page"]{color:var(--accent)}
 @media (max-width:1023px){
+  /* THE DRAWER FADES AND LIFTS; IT NO LONGER ANIMATES max-height.
+     max-height is a layout property: every frame of the open relaid
+     out the panel and everything under it, and because the border and
+     the shadow are painted on the box rather than on its contents,
+     both appeared at full strength on frame one and then waited for
+     the box to catch up — the drawer looked like it was being
+     unrolled out of a line that was already drawn.
+
+     Opacity and transform instead, which is the same gesture the
+     desktop mega panel already uses, so the two behave alike. The
+     panel is position:absolute, so it takes no space when it is out;
+     nothing needs to be collapsed to zero. visibility carries it out
+     of the tab order as well, which max-height:0 with overflow:hidden
+     never did.
+
+     The CLOSED state is written on [data-open="false"], not the open
+     state on [data-open="true"], because site.js sets the attribute
+     and a visitor with no JavaScript must get the nav, not a blank
+     header. With no attribute the base rule applies and the drawer is
+     simply open. */
   .nav{position:absolute;left:0;right:0;top:100%;background:var(--bg);border-bottom:1px solid var(--border);
-    max-height:80vh;overflow-y:auto;transition:max-height .38s var(--ease);box-shadow:var(--shadow-raised)}
-  .nav[data-open="false"]{max-height:0;overflow:hidden;border-bottom-color:transparent;box-shadow:none}
+    max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-raised);
+    transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease),
+               visibility var(--dur-2) var(--ease)}
+  .nav[data-open="false"]{opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none}
   .nav__inner{padding-block:var(--s2)}
   .nav__sec{border-top:1px solid var(--border)}
   .nav__sec:first-child{border-top:0}
   .nav__link{display:block;padding:14px var(--s4);font-size:.95rem}
   .nav__grp{padding:0 var(--s4) var(--s4)}
-  .nav__grp h4{font-size:var(--fs-micro);letter-spacing:.24em;text-transform:uppercase;color:var(--text-tertiary);
+  /* The mega-menu group labels were <h4>. They print before the page's own
+     h1 in the document, which put five level-four headings ahead of every
+     real heading on the site — a screen-reader user tabbing the heading
+     list met the navigation before the shop. They are labels for a group
+     of links, not document structure, so they are <p> now. Both the rule
+     below and its desktop twin already set margin explicitly, and between
+     them they cover every width, so the tag change costs nothing: the
+     h1-h4 reset a <p> falls outside of was never doing the work here. */
+  .nav__grp .nav__grp-h{font-size:var(--fs-micro);letter-spacing:var(--track-micro);text-transform:uppercase;color:var(--text-tertiary);
     font-weight:600;margin:var(--s3) 0 var(--s2)}
-  .nav__grp h4 a{display:block;padding-block:14px}
+  .nav__grp .nav__grp-h a{display:block;padding-block:14px}
   /* breadcrumb links are inline text; give them a real tap area on touch */
   .crumb a{display:inline-block;padding-block:12px}
   .nav__grp a{display:block;padding:14px 0;font-size:.9rem;color:var(--text-secondary)}
-  .nav__viewall{display:block;padding:12px var(--s4);font-size:.8rem;letter-spacing:.12em;
+  .nav__viewall{display:block;padding:12px var(--s4);font-size:.8rem;letter-spacing:var(--track-caps);
     text-transform:uppercase;color:var(--accent);font-weight:600}
 }
 @media (min-width:1024px){
@@ -112,16 +281,16 @@ button{font:inherit}
   .nav{display:block}
   .nav__inner{display:flex;gap:var(--s6);align-items:center}
   .nav__sec{position:relative}
-  .nav__viewall,.nav__grp h4 .vaonly{display:none}
+  .nav__viewall,.nav__grp .nav__grp-h .vaonly{display:none}
   .mega{position:absolute;left:50%;transform:translateX(-50%) translateY(-6px);top:100%;
     min-width:min(760px,90vw);background:var(--bg);border:1px solid var(--border);
     box-shadow:var(--shadow-raised);padding:var(--s6);opacity:0;visibility:hidden;
-    transition:opacity .22s var(--ease),transform .22s var(--ease),visibility .22s;
+    transition:opacity var(--dur-2) var(--ease),transform var(--dur-2) var(--ease),visibility var(--dur-2) var(--ease);
     display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s6)}
   .nav__sec:hover .mega,.nav__sec:focus-within .mega{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-  .nav__grp h4{font-size:var(--fs-micro);letter-spacing:.22em;text-transform:uppercase;font-weight:600;
+  .nav__grp .nav__grp-h{font-size:var(--fs-micro);letter-spacing:var(--track-micro);text-transform:uppercase;font-weight:600;
     margin:0 0 var(--s3);color:var(--text)}
-  .nav__grp h4 a:hover{color:var(--accent)}
+  .nav__grp .nav__grp-h a:hover{color:var(--accent)}
   .nav__grp ul{list-style:none;margin:0;padding:0;columns:2;column-gap:var(--s5)}
   .nav__grp li{break-inside:avoid;margin-bottom:.4rem}
   .nav__grp a{font-size:.88rem;color:var(--text-secondary)}
@@ -132,6 +301,14 @@ button{font:inherit}
 .hero{--p:0;position:relative;min-height:min(88svh,760px);display:grid;place-items:center;
   overflow:hidden;background:var(--surface-dark);text-align:center}
 .hero__media{position:absolute;inset:0;transform:scale(calc(1.04 + var(--p)*.08))}
+/* 26s is not on the duration scale and must not be: it is an ambient
+   loop, and a loop's period is its character rather than a response
+   time. The same goes for the 9s pan on .hs__img in kj-v2.css.
+   ease-in-out rather than var(--ease) for the same reason. This
+   alternates, so it has to slow into BOTH ends; var(--ease) eases out
+   only, and on an alternating pan that reads as the camera stopping
+   dead and jerking back. It is the one timing function in the theme
+   that is not var(--ease), and this is why. */
 .hero__media img{width:100%;height:100%;object-fit:cover;object-position:68% 50%;
   filter:saturate(1.12) contrast(1.07) sepia(.16) brightness(.96);
   animation:ken 26s ease-in-out infinite alternate}
@@ -148,7 +325,7 @@ button{font:inherit}
 .hero__rule{width:70px;height:2px;background:var(--accent);margin:var(--s5) auto}
 .hero__tag{color:rgba(255,255,255,.9);font-size:clamp(.66rem,1.4vw,.8rem)}
 .hero__since{position:absolute;z-index:2;left:50%;bottom:var(--s5);transform:translateX(-50%);
-  color:rgba(255,255,255,.55);font-size:var(--fs-micro);letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(255,255,255,.55);font-size:var(--fs-micro);letter-spacing:var(--track-wide);text-transform:uppercase;
   opacity:calc(1 - var(--p)*2)}
 
 /* ---------- brand strip (scroll-velocity marquee) ---------- */
@@ -160,11 +337,11 @@ button{font:inherit}
 .strip__row{display:flex;align-items:center;gap:var(--s8);width:max-content;will-change:transform}
 .strip__row + .strip__row{margin-top:var(--s5)}
 .strip__item{display:flex;align-items:center;justify-content:center;height:46px;flex:0 0 auto;
-  opacity:.72;transition:opacity .3s var(--ease)}
+  opacity:.72;transition:opacity var(--dur-1) var(--ease)}
 .strip__item:hover{opacity:1}
 .strip__item img{max-height:100%;width:auto;object-fit:contain}
 .strip__item span{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.35rem;white-space:nowrap;color:var(--text)}
-@media (max-width:640px){.strip__item{height:32px}.strip__item span{font-size:1.1rem}}
+@media (max-width:639px){.strip__item{height:32px}.strip__item span{font-size:1.1rem}}
 
 /* ---------- sections ---------- */
 .sec{padding-block:var(--s9)}
@@ -179,7 +356,10 @@ button{font:inherit}
 
 /* ---------- grids ---------- */
 .grid-cat{display:grid;gap:var(--s6) var(--s4);grid-template-columns:1fr;align-items:start}
-@media (min-width:620px){.grid-cat{grid-template-columns:repeat(2,1fr)}}
+/* 640, not the 620 this carried. 620 was used by this one rule and
+   nothing else, and 640 is a breakpoint the theme already turns at;
+   the twenty pixels between them hold no layout. */
+@media (min-width:640px){.grid-cat{grid-template-columns:repeat(2,1fr)}}
 @media (min-width:1000px){.grid-cat{grid-template-columns:repeat(3,1fr);gap:var(--s7) var(--s6)}
   .grid-cat > :nth-child(2),.grid-cat > :nth-child(5){margin-top:var(--s8)}}
 .grid-arch{display:grid;gap:var(--s5) var(--s4);grid-template-columns:repeat(2,1fr);align-items:start}
@@ -192,37 +372,50 @@ button{font:inherit}
 .cat{display:block;position:relative}
 .cat__media{display:block;position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--surface-alt)}
 .cat__media img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.05);
-  transition:transform .7s var(--ease)}
-.cat:hover .cat__media img{transform:scale(1.04)}
+  transition:transform var(--dur-3) var(--ease)}
 .cat__media::after{content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(20,16,14,0) 26%,rgba(20,16,14,.46) 56%,rgba(12,8,7,.88) 82%,rgba(12,8,7,.95) 100%)}
 .cat__label{position:absolute;left:var(--s5);right:var(--s5);bottom:var(--s5);z-index:1;color:#fff;
   font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.05rem,1.6vw,1.4rem);
   text-shadow:0 1px 10px rgba(0,0,0,.6)} /* unslop-ignore — legibility over photography */
 .cat__label::after{content:"";display:block;height:1px;margin-top:var(--s3);background:var(--accent);
-  transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
-.cat:hover .cat__label::after,.cat:focus-visible .cat__label::after{transform:scaleX(1)}
+  transform:scaleX(0);transform-origin:left;transition:transform var(--dur-2) var(--ease)}
+.cat:focus-visible .cat__label::after{transform:scaleX(1)}
 .cat:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 
 .arch{display:block;text-align:center}
 .arch__media{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--surface-alt);clip-path:url(#kj-arch)}
-.arch__media img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.04);transition:transform .7s var(--ease)}
-.arch:hover .arch__media img{transform:scale(1.04)}
+.arch__media img{width:100%;height:100%;object-fit:cover;filter:saturate(.9) contrast(1.04);transition:transform var(--dur-3) var(--ease)}
 .arch__label{display:block;margin-top:var(--s4);font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.05rem}
 .arch__label::after{content:"";display:block;width:26px;height:1px;margin:var(--s2) auto 0;background:var(--accent);
-  transform:scaleX(0);transition:transform .5s var(--ease)}
-.arch:hover .arch__label::after,.arch:focus-visible .arch__label::after{transform:scaleX(1)}
+  transform:scaleX(0);transition:transform var(--dur-2) var(--ease)}
+.arch:focus-visible .arch__label::after{transform:scaleX(1)}
 .arch:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+
+/* HOVER IS GATED, EVERYWHERE, ON (hover:hover).
+   A tap on a touch screen fires :hover and then leaves it latched
+   until the next tap lands somewhere else, so on a phone the card the
+   customer just tapped stayed zoomed in behind the page they had
+   navigated to, and came back still zoomed when they pressed Back.
+   The Lada gateway was the only surface in the theme that got this
+   right. The :focus-visible twins above stay outside the query: a
+   keyboard user has no pointer at all. */
+@media (hover:hover){
+  .cat:hover .cat__media img{transform:scale(1.045)}
+  .cat:hover .cat__label::after{transform:scaleX(1)}
+  .arch:hover .arch__media img{transform:scale(1.045)}
+  .arch:hover .arch__label::after{transform:scaleX(1)}
+}
 
 .bcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s3);
   min-height:140px;padding:var(--s5) var(--s4);background:var(--surface);border:1px solid var(--border);
-  text-align:center;transition:border-color .25s var(--ease),background .25s var(--ease)}
+  text-align:center;transition:border-color var(--dur-1) var(--ease),background var(--dur-1) var(--ease)}
 .bcard:hover{border-color:var(--accent);background:var(--bg)}
 .bcard:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .bcard__logo{display:flex;align-items:center;justify-content:center;height:38px;width:100%}
 .bcard__logo img{max-height:100%;max-width:100%;width:auto;object-fit:contain}
 .bcard__wm{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:1.4rem;color:var(--text)}
-.bcard__name{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text-tertiary);font-weight:600}
+.bcard__name{font-size:.7rem;letter-spacing:var(--track-micro);text-transform:uppercase;color:var(--text-tertiary);font-weight:600}
 
 /* ---------- breadcrumb + chip row ---------- */
 .crumb{display:flex;flex-wrap:wrap;gap:var(--s2);font-size:.8rem;color:var(--text-tertiary);
@@ -236,10 +429,26 @@ button{font:inherit}
 .chiprow::-webkit-scrollbar-thumb{background:var(--border-hover)}
 .chip{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:0 .875rem;white-space:nowrap;
   font-size:.875rem;color:var(--text);background:var(--bg);border:1px solid var(--border);cursor:pointer;
-  transition:border-color .2s var(--ease),background .2s var(--ease)}
+  transition:border-color var(--dur-1) var(--ease),background var(--dur-1) var(--ease)}
 .chip:hover{border-color:var(--border-hover);background:var(--surface-hover)}
-.chip[aria-pressed="true"],.chip[aria-current="page"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-hover)}
+/* .is-on IS THE ONLY MARKER FOR A CHOSEN FACET, on this rail and on
+   the Lada one. aria-pressed used to share this rule, which is how a
+   <label> ended up claiming a button's state: nothing reads it there,
+   and a selector matching both let the markup, the script and the two
+   stylesheets drift for a release, so a selected chip lost its
+   highlight. The checkbox inside the label already reports `checked`,
+   which is the same fact announced properly.
+   [aria-current="page"] is left because it is a different state on a
+   different element — the chips on the brands page are links, and a
+   link on its own page is what aria-current means. */
+.chip[aria-current="page"],.chip.is-on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-hover)}
 .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* FOCUS-WITHIN AS WELL AS FOCUS-VISIBLE. On the filter rail the chip is
+   a <label> wrapped round a checkbox that is parked off-screen with
+   .vh, so the label itself never takes focus and :focus-visible never
+   fires: a keyboard user tabbing the facets saw nothing at all move.
+   The ring has to be drawn by the label on behalf of its input. */
+.chip:focus-within{outline:2px solid var(--accent);outline-offset:2px}
 .chip__n{color:var(--text-tertiary);font-variant-numeric:tabular-nums;font-size:.8rem}
 
 /* ---------- listing layout ---------- */
@@ -255,9 +464,9 @@ button{font:inherit}
   padding-block:var(--s4);border-bottom:1px solid var(--border)}
 .toolbar__n{font-size:.85rem;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:48px;padding:0 1.5rem;
-  font-weight:600;font-size:.875rem;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:600;font-size:.875rem;letter-spacing:var(--track-caps);text-transform:uppercase;
   border:1px solid var(--accent);border-radius:var(--radius);background:var(--accent);color:#fff;cursor:pointer;
-  transition:background .25s var(--ease),border-color .25s var(--ease),transform .1s}
+  transition:background var(--dur-1) var(--ease),border-color var(--dur-1) var(--ease),transform var(--dur-1) var(--ease)}
 .btn:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
 .btn:active{transform:translateY(1px)}
 .btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -266,26 +475,84 @@ button{font:inherit}
 .btn--sm{min-height:44px;padding:0 1.1rem;font-size:.78rem}
 
 .filters__grp{border-bottom:1px solid var(--border);padding-block:var(--s4)}
-.filters__grp h3{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600;
+.filters__grp h3{font-size:.7rem;letter-spacing:var(--track-micro);text-transform:uppercase;font-weight:600;
   color:var(--text);margin-bottom:var(--s3)}
 .filters__list{display:flex;flex-wrap:wrap;gap:var(--s2)}
 .swatch{width:26px;height:26px;border:1px solid var(--border);display:inline-block}
 .filters__price{display:flex;gap:var(--s2);align-items:center}
-.filters__price input{width:100%;min-height:40px;padding:0 .6rem;border:1px solid var(--border);
+/* flex:1 1 0 AND min-width:0, and both are load-bearing. A number
+   input's intrinsic minimum width is its default `size` of 20
+   characters, roughly 175px, and a flex item will not shrink below its
+   intrinsic minimum unless it is told to. Two of them plus the dash
+   between came to about 360px inside a 248px rail and a 320px drawer,
+   so the Max field hung out of the rail and off the side of the phone
+   sheet. width:100% could never help: it was being floored from
+   underneath. */
+.filters__price input{flex:1 1 0;min-width:0;min-height:40px;padding:0 .6rem;border:1px solid var(--border);
   background:var(--bg);font:inherit;font-size:.85rem;font-variant-numeric:tabular-nums}
 .filters__price input:focus-visible{outline:2px solid var(--accent);outline-offset:-1px}
 
 @media (max-width:999px){
+  /* visibility:hidden, not just the offscreen transform. Parked with
+     transform alone, every facet checkbox in the shut drawer kept its
+     tab stop: tab past the grid on a phone and the focus ring vanished
+     off the bottom of the screen into a fixed panel that cannot be
+     scrolled to. visibility takes the subtree out of the tab order and
+     out of the accessibility tree, which is what the Filter button's
+     aria-expanded="false" has been claiming all along.
+
+     The 0s delay is what keeps the slide-out visible: visibility flips
+     only after the transform has finished. Opening is immediate, so
+     the first frame of the slide-in is already painted. */
   .filters{position:fixed;inset:auto 0 0 0;z-index:70;background:var(--bg);max-height:84vh;overflow-y:auto;
-    box-shadow:var(--shadow-raised);transform:translateY(100%);transition:transform .38s var(--ease);
+    box-shadow:var(--shadow-raised);transform:translateY(100%);visibility:hidden;
+    transition:transform var(--dur-2) var(--ease),visibility 0s linear var(--dur-2);
     padding:var(--s5) var(--s5) var(--s6)}
-  .filters[data-open="true"]{transform:none}
+  .filters[data-open="true"]{transform:none;visibility:visible;
+    transition:transform var(--dur-2) var(--ease),visibility 0s}
   .filters__done{position:sticky;bottom:0;padding-top:var(--s4);background:var(--bg)}
   .scrim{position:fixed;inset:0;z-index:65;background:rgba(var(--dark-rgb),.42);opacity:0;visibility:hidden;
-    transition:opacity .3s var(--ease),visibility .3s}
+    transition:opacity var(--dur-2) var(--ease),visibility var(--dur-2) var(--ease)}
   .scrim[data-open="true"]{opacity:1;visibility:visible}
 }
 @media (min-width:1000px){.filters__done,.filters__close{display:none}.scrim{display:none}.toolbar__filter{display:none}}
+
+/* ---------- pagination ----------
+   THE WHITE SHOP HAD NONE OF THIS AND THE LADA LISTING HAD ALL OF IT.
+   {{ paginate | default_pagination }} emits bare <span> and <a> with no
+   classes but .page, .current and .deco, so with nothing styling them
+   the numbers came out as one run of 16px text in which the links were
+   indistinguishable from the page you are already on: `a` is
+   colour:inherit and text-decoration:none at the top of this file, so
+   there was no colour, no underline and no box to tell them apart. The
+   Lada listing has carried a styled copy under .lcoll__pages since it
+   was built, which left the two listings, on the same shop, one styled
+   and one not.
+
+   Stated on .pagination, which BOTH listings put on the nav, in the
+   white palette. Every Lada rule is .template-collection-lada
+   .lcoll__pages …, a class heavier than anything here, so the dark
+   listing keeps its own treatment untouched and simply stops being the
+   only one that has one.
+
+   44px per number, and that is the reason the rules exist rather than a
+   nicety: these are the smallest tap targets on a listing. No margin is
+   set here because main-collection.liquid writes margin-block inline on
+   the nav, and an inline style wins; the hairline and the padding above
+   it are what separate the row from the grid. */
+.pagination{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:var(--s1);padding-top:var(--s5);border-top:1px solid var(--border);
+  font-size:var(--fs-micro);font-weight:600;letter-spacing:var(--track-micro);
+  text-transform:uppercase;font-variant-numeric:tabular-nums}
+.pagination span{display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;min-height:44px;color:var(--text-tertiary)}
+.pagination a{display:inline-flex;align-items:center;justify-content:center;
+  min-width:44px;min-height:44px;padding-inline:var(--s3);color:var(--text);
+  border:1px solid transparent;
+  transition:color var(--dur-1) var(--ease),border-color var(--dur-1) var(--ease)}
+.pagination a:hover{color:var(--accent);border-color:var(--border-hover)}
+.pagination a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pagination .current{color:var(--accent);border-bottom:1px solid var(--accent)}
 
 /* ---------- empty state ---------- */
 .empty{border:1px dashed var(--border-hover);background:var(--surface);padding:var(--s8) var(--s5);text-align:center}
@@ -307,7 +574,7 @@ button{font:inherit}
 .foot__grid{display:grid;gap:var(--s6);grid-template-columns:1fr}
 @media (min-width:760px){.foot__grid{grid-template-columns:1.4fr 1fr 1fr 1fr}}
 .foot__mark{width:88px;color:var(--accent)}
-.foot h4{margin:0 0 var(--s3);font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;
+.foot .foot__ch{margin:0 0 var(--s3);font-size:.7rem;letter-spacing:var(--track-micro);text-transform:uppercase;
   color:var(--text-tertiary);font-weight:600}
 .foot ul{list-style:none;margin:0;padding:0}
 .foot li a{display:inline-block;padding-block:6px;font-size:.9rem;color:var(--text-secondary)}
@@ -321,10 +588,15 @@ button{font:inherit}
 /* ---------- reveal ---------- */
 .js-reveal [data-reveal]{opacity:0;transform:translateY(18px)}
 .js-reveal [data-reveal].is-in{opacity:1;transform:none;
-  transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:var(--d,0ms)}
+  transition:opacity var(--dur-3) var(--ease),transform var(--dur-3) var(--ease);transition-delay:var(--d,0ms)}
 @media (prefers-reduced-motion:reduce){
+  /* transition-delay as well as the durations. Without it a rule that
+     holds visibility back until a transform has finished — the filter
+     drawer, the hero's slide swap — still waits out its full delay
+     with nothing moving, so the panel sits invisible for a third of a
+     second after it has already arrived. */
   *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-    transition-duration:.001ms !important;scroll-behavior:auto !important}
+    transition-duration:.001ms !important;transition-delay:0s !important;scroll-behavior:auto !important}
   .js-reveal [data-reveal]{opacity:1;transform:none}
   .strip__row{transform:none !important}
 }
@@ -332,7 +604,7 @@ button{font:inherit}
 /* Fabric arches are typographic, not photographic: one stock photo repeated behind
    eleven different fabrics would misrepresent the cloth. */
 .arch__media--type{display:flex;align-items:flex-end;justify-content:center;
-  background:var(--surface-alt);padding-bottom:18%;transition:background .3s var(--ease)}
+  background:var(--surface-alt);padding-bottom:18%;transition:background var(--dur-1) var(--ease)}
 .arch:hover .arch__media--type{background:var(--surface-hover)}
 .arch__word{font-family:var(--font-display);font-weight:var(--font-weight-heading);font-size:clamp(1.1rem,2vw,1.6rem);color:var(--text);
   text-align:center;padding-inline:var(--s3)}

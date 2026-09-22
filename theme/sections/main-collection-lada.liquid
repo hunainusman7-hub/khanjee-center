@@ -1,6 +1,6 @@
 {%- comment -%}
   sections/main-collection-lada.liquid
-  Rendered by templates/collection.lada.json, which is what the Alamghir
+  Rendered by templates/collection.lada.json, which is what the Alamgeer
   and Ready to Wear collections are put on. Every other collection on the
   store keeps sections/main-collection.liquid and is untouched by this file.
 
@@ -24,27 +24,41 @@
     - pagination through {{ paginate | default_pagination }}
   Only the look changes: dark ground, champagne hairlines, Lada card.
 
-  THREE THINGS IN THAT RAIL ARE NOT COPIES, AND EACH ONE IS A BUG IN THE
-  SHARED FILE THAT IS NOT THIS TASK'S TO EDIT:
-    - the aside carries id="LadaFilters", which is what the phone
-      button's aria-controls points at. The shared button points at
-      "filters" and nothing on that page carries that id.
+  THE RAIL WAS AHEAD OF THE SHARED ONE ON THREE POINTS AND IS NOW LEVEL
+  WITH IT ON ALL THREE. Worth reading before touching any of them:
+    - the aside carries a real id (LadaFilters) for the phone button's
+      aria-controls to point at. main-collection.liquid used to point at
+      "filters", which was a class there and an id nowhere; it now
+      carries CollectionFilters and the two are the same idea with two
+      names, which is correct: two different pages, two different ids.
     - the price inputs carry onchange="this.form.submit()". Without it
       there is no way to apply a price at all; see the comment on those
-      inputs.
+      inputs. The shared rail has since adopted it.
+    - the active chip. This file used to mark it with aria-pressed on the
+      <label>, which the shared rail has now dropped for a plain .is-on
+      class, and dropping it is right: aria-pressed only means anything
+      on something with role="button", so on a label nothing read it and
+      it was styling in an ARIA attribute's clothes. The checkbox inside
+      already reports `checked`, which is the same fact announced
+      properly. This file follows, so one rule set dresses both rails.
     - the chips draw their focus ring on :focus-within, in the
       stylesheet, because the thing that takes focus is the off-screen
       checkbox inside the label.
-  A fourth is in the stylesheet: the phone drawer goes visibility:hidden
+  One more is in the stylesheet: the phone drawer goes visibility:hidden
   when it is shut, so its checkboxes are not still in the tab order
   under the bottom of the screen.
 
-  WHAT IS ABOVE THE GRID: the collection name. Nothing else.
-  No kicker, no description, no result count, no sort control, no
-  breadcrumb. The previous Lada build was rejected for exactly this: too
-  much writing, too many options. The reference the client gave,
+  WHAT IS ABOVE THE GRID: the site's breadcrumb, then the collection
+  name. Nothing else. No kicker, no description, no result count, no
+  sort control. The previous Lada build was rejected for exactly this:
+  too much writing, too many options. The reference the client gave,
   faizasaqlain.pk, puts one word above a wall of photographs. If a future
-  pass wants to add a line here, that is the line to argue about first.
+  pass wants to add a LINE here, that is the line to argue about first.
+
+  The breadcrumb is not that line. It is the same <nav class="crumb">
+  every other page on this store opens with, it is navigation rather
+  than writing, and its absence was a large part of why Lada read as a
+  different website instead of a room inside this one.
 
   THE RAIL IS DROPPED, NOT EMPTIED, WHEN THERE ARE NO FACETS.
   Search & Discovery populates collection.filters from the products in the
@@ -104,10 +118,18 @@
   assign wa_text = section.settings.whatsapp_text | default: 'I would like to ask about'
 
   # The collection name is appended rather than typed into the message,
-  # because one section file serves both Alamghir and Ready to Wear and
+  # because one section file serves both Alamgeer and Ready to Wear and
   # the shopkeeper needs to know which one the message came from without
   # the client having to keep two copies of the same sentence in step.
   assign wa_msg = wa_text | append: ' ' | append: collection.title | append: '.'
+
+  # Only the tail of the empty heading is a setting. The collection name
+  # is prepended in the markup for the same reason it is appended to the
+  # WhatsApp message above: one file serves both Alamgeer and Ready to
+  # Wear, so a client who typed the whole sentence would have to keep two
+  # copies of it in step. It is also how the white shop's own empty block
+  # builds the line, and matching that block word for word is the point.
+  assign empty_head = section.settings.empty_head | default: 'arriving shortly'
 
   # Card strings live on the section, not in the snippet, so the client
   # edits them once for the whole grid instead of once per product.
@@ -117,6 +139,26 @@
 -%}
 
 <div class="wrap lcoll">
+
+  {%- comment -%}
+    Same element, same classes, same separator and same aria-label as
+    sections/main-collection.liquid, so one rule set dresses both.
+    .crumb--lada is the only addition: the shared rule paints
+    --text-tertiary, a dark grey that disappears on a dark ground, so the
+    modifier is the hook the Lada palette hangs off.
+
+    The middle step is the Lada page itself, which is the collection's
+    real parent and the thing the customer came through. It is composed
+    from routes.root_url the way snippets/kj-nav.liquid and
+    snippets/kj-footer.liquid already compose it, rather than looked up
+    by handle: this trail is two links and must never be the reason a
+    page half-renders.
+  {%- endcomment -%}
+  <nav class="crumb crumb--lada lcoll__crumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a><i>/</i>
+    <a href="{{ routes.root_url }}pages/lada">Lada</a><i>/</i>
+    <span aria-current="page">{{ collection.title }}</span>
+  </nav>
 
   {%- comment -%}
     One h1 per page, and it is the collection name. Uppercase, if the
@@ -177,8 +219,9 @@
                     the same event: change fires when the value is committed,
                     which is Enter or leaving the field.
 
-                    Same defect on main-collection.liquid. Not back-ported,
-                    that file is not this task's to edit.
+                    main-collection.liquid had the same defect and has
+                    since taken the same fix, so the two rails now apply
+                    a price the same way.
                   {%- endcomment -%}
                   <div class="filters__price">
                     <input type="number" inputmode="numeric" name="{{ filter.min_value.param_name }}"
@@ -190,8 +233,12 @@
                            onchange="this.form.submit()">
                   </div>
                 {%- else -%}
+                  {%- comment -%}
+                    .is-on, not aria-pressed, and identical to the shared
+                    rail's chip. See the note in this file's header.
+                  {%- endcomment -%}
                   {%- for value in filter.values -%}
-                    <label class="chip" aria-pressed="{{ value.active }}">
+                    <label class="chip{% if value.active %} is-on{% endif %}">
                       <input type="checkbox" class="vh" name="{{ value.param_name }}" value="{{ value.value }}"
                              {% if value.active %}checked{% endif %} onchange="this.form.submit()">
                       {{ value.label }} <span class="chip__n">{{ value.count }}</span>
@@ -235,16 +282,49 @@
 
           {%- comment -%}
             Two empty states, because they are two different facts.
-            Neither gets a heading: the collection name is already the h1
-            eighty pixels above, and repeating it in a box is the second
-            sentence this page was cut down to remove.
+
+            THE FIRST ONE IS NOW THE WHITE SHOP'S, WORD FOR WORD, and
+            that is the change. The two halves of this store used to
+            describe the same situation in two unrelated voices: over
+            there a collection was "arriving shortly" and being
+            "photographed and listed now"; here it said "Nothing listed
+            here yet", which is the same fact told as a shortage. A
+            customer who walks from one listing to the other inside a
+            minute reads two different shops. So this is the shared
+            .empty block's heading and sentence, in the dark palette,
+            and the heading comes back with it: the white shop repeats
+            the collection name under its own h1 too, and matching is
+            the whole point.
+
+            ONE CLAUSE IS DROPPED AND ONLY ONE. The shared sentence ends
+            "The filters are live, so as soon as pieces are added they
+            will appear here." On this page there is no rail to point
+            at: the aside is not rendered at all while a collection is
+            empty, because Search & Discovery builds the facets out of
+            the products in it. Promising a customer a filter he cannot
+            see is worse than saying less.
+
+            The WhatsApp button stays. It is the one way out of an empty
+            room that this shop actually has, the client owns both the
+            number and the wording in the editor, and deleting it would
+            delete settings he has already saved.
           {%- endcomment -%}
           <div class="lcoll__empty">
             {%- if filters_on -%}
               <p class="lcoll__empty-p">{{ section.settings.no_match_text | default: 'Nothing here with those filters.' }}</p>
               <a class="lada__link" href="{{ collection.url }}">{{ section.settings.no_match_label | default: 'Show everything' }}</a>
             {%- else -%}
-              <p class="lcoll__empty-p">{{ section.settings.empty_text | default: 'Nothing listed here yet. Ask us what is in the shop today.' }}</p>
+              {%- comment -%}
+                h2, where the shared block uses h3. Over there an h3 sits
+                under the rail's own "Filter" h2; here the rail is not
+                rendered at all while the collection is empty, so an h3
+                would jump straight from the page h1 to level three with
+                nothing in between. The class is what the stylesheet
+                hangs off, so the level can differ without the two
+                blocks looking different.
+              {%- endcomment -%}
+              <h2 class="lcoll__empty-h">{{ collection.title }} {{ empty_head }}</h2>
+              <p class="lcoll__empty-p">{{ section.settings.empty_text | default: 'Stock is being photographed and listed now. As soon as pieces are added they will appear here.' }}</p>
               <a class="btn-lada" href="https://wa.me/{{ wa }}?text={{ wa_msg | url_encode }}"
                  target="_blank" rel="noopener">{{ section.settings.empty_cta | default: 'Ask on WhatsApp' }}</a>
             {%- endif -%}
@@ -340,7 +420,7 @@
     { "type": "text", "id": "qv_close_label", "label": "Close button", "default": "Close" },
     { "type": "text", "id": "qv_loading_label", "label": "While it loads", "default": "Loading" },
     { "type": "text", "id": "qv_error_text", "label": "If it does not load", "default": "This did not load." },
-    { "type": "text", "id": "qv_full_label", "label": "Link to the product page", "default": "see the full page" },
+    { "type": "text", "id": "qv_full_label", "label": "Link to the product page", "default": "See the full page" },
     { "type": "text", "id": "qv_section_id", "label": "Product section key", "default": "main", "info": "The name of the main section inside the product template. Leave this alone unless the product template names it something other than main." },
     { "type": "header", "content": "Filter rail" },
     { "type": "paragraph", "content": "The filters come from the Search & Discovery app and appear on their own once this collection has products in it. While it is empty there is no rail and the photographs take the full width." },
@@ -348,8 +428,9 @@
     { "type": "text", "id": "filters_button", "label": "Phone open button", "default": "Filter" },
     { "type": "text", "id": "filters_done", "label": "Phone close button", "default": "View results" },
     { "type": "header", "content": "While the collection is empty" },
-    { "type": "paragraph", "content": "This is what the page shows until products are added, so it is the state it ships in. Keep it to one line." },
-    { "type": "text", "id": "empty_text", "label": "Line", "default": "Nothing listed here yet. Ask us what is in the shop today." },
+    { "type": "paragraph", "content": "This is what the page shows until products are added, so it is the state it ships in. It says the same thing, in the same words, as every other collection on the store." },
+    { "type": "text", "id": "empty_head", "label": "Heading", "default": "arriving shortly", "info": "The collection name is added in front of it, so this reads as Alamgeer arriving shortly." },
+    { "type": "text", "id": "empty_text", "label": "Line", "default": "Stock is being photographed and listed now. As soon as pieces are added they will appear here." },
     { "type": "text", "id": "empty_cta", "label": "Button", "default": "Ask on WhatsApp" },
     { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590" },
     { "type": "text", "id": "whatsapp_text", "label": "Pre-filled message", "default": "I would like to ask about", "info": "The collection name is added to the end, so one message serves both Lada collections." },

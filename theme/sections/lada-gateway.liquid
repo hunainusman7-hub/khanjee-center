@@ -15,7 +15,7 @@
   do all the remaining work. Everything under Lada is cotton and there
   are exactly two ways in:
 
-    Alamghir       unstitched cotton, cut to the customer's measurement
+    Alamgeer       100% combed cotton, cut to the customer's measurement
     Ready to wear  stitched waistcoats in S, M, L
 
   DO NOT ADD A KICKER, A LEDE, AN INTRO, A SCROLL CUE OR A SEAL ROW
@@ -24,13 +24,21 @@
   justify itself on this screen, it belongs on the collection page
   behind the door, not in front of it.
 
-  THE DOORS MUST NEVER DISAPPEAR. /collections/alamghir and
-  /collections/lada-ready-to-wear do not exist yet — the client creates
-  them himself. An earlier pattern in this theme hides a link when the
+  THE BREADCRUMB IS NOT COPY AND IS NOT ONE OF THOSE. It is the same
+  <nav class="crumb"> every other page on this store opens with, and it
+  is here because its absence was a large part of why Lada read as a
+  different website rather than a room inside this one. Two links and a
+  slash, in the dark register. Leave it.
+
+  THE DOORS MUST NEVER DISAPPEAR. /collections/alamgeer and
+  /collections/ready-to-wear both exist now, as smart collections on a
+  tag rule, so both hrefs resolve. The hand-built fallback below stays
+  anyway: an earlier pattern in this theme hides a link when the
   collection is missing, which here would leave a visitor staring at
-  half a screen. Instead the handle is a setting, the URL is built by
-  hand when the collection is not there yet, and the door renders and
-  404s until the day it does not. Wrong-but-present beats absent.
+  half a screen, and the client can rename a collection in admin at any
+  time. So the handle is a setting, the URL is composed by hand when the
+  collection is not found, and the door renders either way.
+  Wrong-but-present beats absent.
 
   NO PHOTOGRAPHS IS THE SHIPPING STATE, not an error state. The client
   shoots these later. With nothing picked a door is a --lada-panel
@@ -38,8 +46,8 @@
   dignified thing to look at, not a grey box with a torn-image glyph.
   That is also why the asset-filename fallbacks default to empty rather
   than to some other product's picture: a borrowed photograph of a
-  waistcoat on the unstitched door would be a lie, and lies are worse
-  than blanks. men-unstitched.jpg and lada-waistcoats.jpg are already
+  waistcoat on the Alamgeer door would be a lie, and lies are worse
+  than blanks. men-unstitched.webp and lada-waistcoats.webp are already
   in assets/ if he wants a stand-in before the shoot.
 {%- endcomment -%}
 
@@ -48,6 +56,25 @@
 -%}
 
 <section class="lada lada-gate" aria-labelledby="lada-gate-h">
+
+  {%- comment -%}
+    THE BREADCRUMB. Same element, same classes and same separator as
+    sections/main-collection.liquid, so one rule set dresses both and
+    the two halves of the store cannot drift apart again. .crumb--lada
+    is the only addition: the shared rule paints --text-tertiary, which
+    is a dark grey and disappears on a dark ground, so the modifier is
+    the hook the Lada palette hangs off. Everything else about the
+    element (the flex row, the 12px tap targets on a phone, the
+    aria-current on the last item) comes free from .crumb.
+
+    Home is the only real link: this IS the Lada page, so the second
+    item is the current page and is marked as such rather than linking
+    to itself.
+  {%- endcomment -%}
+  <nav class="crumb crumb--lada lada-gate__crumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a><i>/</i>
+    <span aria-current="page">{{ page.title | default: crest_label }}</span>
+  </nav>
 
   {%- comment -%}
     ONE h1 ON THE PAGE, ALWAYS, AND IT IS THE LABEL'S NAME.
@@ -67,11 +94,14 @@
 
     The mark is the client's own artwork on a transparent ground, which
     is why it is an <img> and not type — see snippets/kj-mark.liquid.
-    It is the first paint on its own page, so it loads eagerly.
+    It is the first paint on its own page, so it loads eagerly, and
+    sizes restates the crest's own clamp() so a phone takes the 260px
+    file instead of downloading 600px of artwork to paint 84.
   {%- endcomment -%}
   {%- if section.settings.show_mark -%}
     <h1 class="lada-gate__crest" id="lada-gate-h">
-      {%- render 'kj-mark', mark: 'lada', label: crest_label, loading: 'eager' -%}
+      {%- render 'kj-mark', mark: 'lada', label: crest_label, loading: 'eager',
+                 sizes: '(min-width:1240px) 124px, 10vw' -%}
     </h1>
   {%- else -%}
     <h1 class="lada-gate__crest vh" id="lada-gate-h">{{ crest_label }}</h1>
@@ -109,7 +139,7 @@
           when 1
             assign pic    = section.settings.door1_image
             assign file   = section.settings.door1_asset
-            assign name   = section.settings.door1_name | default: 'Alamghir'
+            assign name   = section.settings.door1_name | default: 'Alamgeer'
             assign note   = section.settings.door1_note
             assign handle = section.settings.door1_handle
           when 2
@@ -147,7 +177,16 @@
           endif
         endif
       -%}
-      <li class="lada-gate__cell">
+      {%- comment -%}
+        data-reveal is the site's own scroll-reveal hook, the one
+        sections/category-grid.liquid and sections/store-location.liquid
+        already use, and --d is the delay it reads. The client asked for
+        smooth animations that are CONSISTENT, so the Lada journey opts
+        into the effect the white shop already has rather than growing a
+        second one of its own. 90ms between the two doors is enough to
+        read as one movement with a follow rather than as two.
+      {%- endcomment -%}
+      <li class="lada-gate__cell" data-reveal style="--d:{{ i | minus: 1 | times: 90 }}ms">
         <a class="lada-gate__door{% if pic == blank and file == blank %} lada-gate__door--bare{% endif %}"
            href="{{ href }}">
 
@@ -175,12 +214,26 @@
             </span>
           {%- elsif file != blank -%}
             {%- comment -%}
-              A typed filename has no dimensions Liquid can read, so no
-              width/height here. It costs nothing: the box is sized by the
-              door, not by the image, so there is no shift either way.
+              A TYPED FILENAME HAS NO DIMENSIONS LIQUID CAN READ, so the
+              pair below is declared rather than measured, and 1000x1250
+              is the size of both stand-ins actually shipped in assets/
+              (men-unstitched.webp and lada-waistcoats.webp), which is
+              what the schema tells the client to type here.
+
+              It is safe even when he types something else. The image is
+              laid out entirely by the door: .lada-gate__media is
+              inset:0 on a cell with its own min-block-size, and the img
+              is width:100%/height:100%/object-fit:cover inside it, so
+              the declared ratio never sizes anything on the page and a
+              wrong pair cannot crop, stretch or shift a door. What the
+              pair does buy is the browser's intrinsic-ratio reservation
+              before the bytes land, which is the same thing the picked
+              image branch above gets from pic.width / pic.height, and
+              it clears ImgWidthAndHeight, the one real theme-check
+              error in this theme's own code.
             {%- endcomment -%}
             <span class="lada-gate__media">
-              <img src="{{ file | asset_url }}"
+              <img src="{{ file | asset_url }}" width="1000" height="1250"
                    loading="eager"{% if i == 1 %} fetchpriority="high"{% endif %} decoding="async" alt="">
             </span>
           {%- endif -%}
@@ -210,23 +263,23 @@
 
     { "type": "header", "content": "Left door" },
     { "type": "image_picker", "id": "door1_image", "label": "Photograph" },
-    { "type": "text", "id": "door1_asset", "label": "…or theme asset filename",
-      "info": "Used only when no photograph is picked. men-unstitched.jpg is already in the theme if you want a stand-in. Leave empty and the door is a plain panel, which is fine." },
-    { "type": "text", "id": "door1_name", "label": "Name", "default": "Alamghir" },
-    { "type": "text", "id": "door1_note", "label": "What it is", "default": "Unstitched cotton, cut to your size",
+    { "type": "text", "id": "door1_asset", "label": "Or theme asset filename",
+      "info": "Used only when no photograph is picked. men-unstitched.webp is already in the theme if you want a stand-in. Leave empty and the door is a plain panel, which is fine." },
+    { "type": "text", "id": "door1_name", "label": "Name", "default": "Alamgeer" },
+    { "type": "text", "id": "door1_note", "label": "What it is", "default": "100% combed cotton, cut to your size",
       "info": "A few plain words. Keep it short, or clear the box and the door shows the name on its own." },
-    { "type": "text", "id": "door1_handle", "label": "Collection handle", "default": "alamghir",
-      "info": "The end of the web address, for example alamghir for /collections/alamghir. The door works the moment you create that collection. Clear the box and it opens all products instead." },
+    { "type": "text", "id": "door1_handle", "label": "Collection handle", "default": "alamgeer",
+      "info": "The end of the web address, for example alamgeer for /collections/alamgeer. The door works the moment you create that collection. Clear the box and it opens all products instead." },
 
     { "type": "header", "content": "Right door" },
     { "type": "image_picker", "id": "door2_image", "label": "Photograph" },
-    { "type": "text", "id": "door2_asset", "label": "…or theme asset filename",
-      "info": "Used only when no photograph is picked. lada-waistcoats.jpg is already in the theme if you want a stand-in." },
+    { "type": "text", "id": "door2_asset", "label": "Or theme asset filename",
+      "info": "Used only when no photograph is picked. lada-waistcoats.webp is already in the theme if you want a stand-in." },
     { "type": "text", "id": "door2_name", "label": "Name", "default": "Ready to wear" },
     { "type": "text", "id": "door2_note", "label": "What it is", "default": "Stitched waistcoats, S to L",
       "info": "Clear the box and the door shows the name on its own." },
-    { "type": "text", "id": "door2_handle", "label": "Collection handle", "default": "lada-ready-to-wear",
-      "info": "Clear the box and it opens all products instead." }
+    { "type": "text", "id": "door2_handle", "label": "Collection handle", "default": "ready-to-wear",
+      "info": "The end of the web address, for example ready-to-wear for /collections/ready-to-wear. Clear the box and it opens all products instead." }
   ],
   "presets": [{ "name": "Lada gateway" }]
 }

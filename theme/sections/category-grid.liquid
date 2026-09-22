@@ -1,3 +1,33 @@
+{%- comment -%}
+  sections/category-grid.liquid
+  The stacked category tiles. .grid-cat is one column, two from 640px and
+  three from 1000px, inside .wrap.
+{%- endcomment -%}
+
+{%- liquid
+  # asset_url cannot report a file's width, so a theme asset gets no srcset
+  # unless we already know what was generated for it. These are the six
+  # category photographs the shop ships with; anything else the client types
+  # into the fallback box still renders, just as a single src.
+  assign v_420_860 = 'men-unstitched,men-shawls,women-shawls' | split: ','
+  assign v_900 = 'women-unstitched,bridal,lada-waistcoats' | split: ','
+-%}
+
+{%- comment -%}
+  The real slot, worked back from .grid-cat and .wrap in site.css. Three
+  columns with a 2rem gutter inside a 1280px wrap is 405px a tile, and it
+  never gets wider than that however wide the screen is. Two columns carry a
+  1rem gutter, and the wrap's own margin is 2.5rem until 900px and 4rem
+  after it, which is where the two 50vw entries differ.
+
+  The 640px below is .grid-cat's own one-column-to-two breakpoint. It is the
+  one number here that is not arithmetic, so it has to be moved by hand if
+  that media query in site.css ever moves. It was written at 620 while the
+  stylesheet still said 620; between the two values the tile is still full
+  width, so the browser was told to fetch a file half the size it needed.
+{%- endcomment -%}
+{%- capture tile_sizes -%}(min-width:1344px) 405px, (min-width:1000px) calc(33.3vw - 43px), (min-width:900px) calc(50vw - 40px), (min-width:640px) calc(50vw - 28px), calc(100vw - 40px){%- endcapture -%}
+
 <section class="sec">
   <div class="wrap">
     <div class="sec__head" data-reveal>
@@ -9,10 +39,35 @@
       {% for block in section.blocks %}
         <a class="cat" href="{{ block.settings.link }}" data-reveal style="--d:{{ forloop.index0 | times: 80 }}ms">
           <span class="cat__media">
+            {%- comment -%}
+              alt stays empty: the label below sits inside this same link, so
+              a described photograph would make the link announce the
+              category twice over.
+            {%- endcomment -%}
             {% if block.settings.image %}
-              <img src="{{ block.settings.image | image_url: width: 1000 }}" alt="" decoding="async" width="1000" height="1250">
+              <img src="{{ block.settings.image | image_url: width: 900 }}"
+                   srcset="{{ block.settings.image | image_url: width: 420 }} 420w,
+                           {{ block.settings.image | image_url: width: 640 }} 640w,
+                           {{ block.settings.image | image_url: width: 900 }} 900w"
+                   sizes="{{ tile_sizes }}"
+                   width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}"
+                   loading="lazy" decoding="async" alt="">
             {% elsif block.settings.asset_file != blank %}
-              <img src="{{ block.settings.asset_file | asset_url }}" alt="" decoding="async" width="1000" height="1250">
+              {%- liquid
+                assign base = block.settings.asset_file | split: '.' | first
+                assign steps = ''
+                if v_420_860 contains base
+                  assign steps = '420,860'
+                elsif v_900 contains base
+                  assign steps = '900'
+                endif
+              -%}
+              <img src="{{ block.settings.asset_file | asset_url }}"
+                   {%- if steps != blank %}
+                   srcset="{% assign step_list = steps | split: ',' %}{% for w in step_list %}{{ base | append: '-w' | append: w | append: '.webp' | asset_url }} {{ w }}w, {% endfor %}{{ block.settings.asset_file | asset_url }} 1000w"
+                   sizes="{{ tile_sizes }}"
+                   {%- endif %}
+                   width="1000" height="1250" loading="lazy" decoding="async" alt="">
             {% endif %}
           </span>
           <span class="cat__label">{{ block.settings.label }}</span>
@@ -36,7 +91,8 @@
         { "type": "text", "id": "label", "label": "Label" },
         { "type": "url", "id": "link", "label": "Link" },
         { "type": "image_picker", "id": "image", "label": "Image (overrides asset file)" },
-        { "type": "text", "id": "asset_file", "label": "Theme asset filename (fallback image)" }
+        { "type": "text", "id": "asset_file", "label": "Theme asset filename (fallback image)",
+          "info": "One of the pictures already in the theme, for example men-unstitched.webp." }
       ]
     }
   ],
@@ -44,12 +100,12 @@
     {
       "name": "Category grid",
       "blocks": [
-        { "type": "tile", "settings": { "label": "Gents Unstitched", "link": "/collections/gents-unstitched", "asset_file": "men-unstitched.jpg" } },
-        { "type": "tile", "settings": { "label": "Gents Shawls", "link": "/collections/gents-fabric-shawls", "asset_file": "men-shawls.jpg" } },
-        { "type": "tile", "settings": { "label": "Ladies Unstitched", "link": "/collections/ladies-unstitched", "asset_file": "women-unstitched.jpg" } },
-        { "type": "tile", "settings": { "label": "Ladies Shawls", "link": "/collections/ladies-fabric-shawls", "asset_file": "women-shawls.jpg" } },
-        { "type": "tile", "settings": { "label": "Bridal Collection", "link": "/collections/bridal", "asset_file": "bridal.jpg" } },
-        { "type": "tile", "settings": { "label": "Lada Waistcoats", "link": "/collections/lada", "asset_file": "lada-waistcoats.jpg" } }
+        { "type": "tile", "settings": { "label": "Gents Unstitched", "link": "/collections/gents-unstitched", "asset_file": "men-unstitched.webp" } },
+        { "type": "tile", "settings": { "label": "Gents Shawls", "link": "/collections/gents-fabric-shawls", "asset_file": "men-shawls.webp" } },
+        { "type": "tile", "settings": { "label": "Ladies Unstitched", "link": "/collections/ladies-unstitched", "asset_file": "women-unstitched.webp" } },
+        { "type": "tile", "settings": { "label": "Ladies Shawls", "link": "/collections/ladies-fabric-shawls", "asset_file": "women-shawls.webp" } },
+        { "type": "tile", "settings": { "label": "Bridal Collection", "link": "/collections/bridal", "asset_file": "bridal.webp" } },
+        { "type": "tile", "settings": { "label": "Lada Waistcoats", "link": "/collections/lada", "asset_file": "lada-waistcoats.webp" } }
       ]
     }
   ]

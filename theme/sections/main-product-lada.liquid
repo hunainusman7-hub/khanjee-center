@@ -44,10 +44,10 @@
   bottom of this file, and kj-v2.js is left untouched.
 
   TWO KINDS OF PRODUCT SHARE THIS TEMPLATE, detected by option name and
-  never by handle, because /collections/alamghir does not exist yet and a
+  never by handle, because /collections/alamgeer does not exist yet and a
   hardcoded handle would be wrong the day it does:
 
-    Alamghir       unstitched cotton. One option, Colour, no size. The
+    Alamgeer       100% combed cotton. One option, Colour, no size. The
                    colour values render as swatches when the client has
                    set swatch values in Shopify, and as plain named
                    buttons when he has not, which is the state this ships
@@ -81,7 +81,7 @@
   assign qty_label   = section.settings.qty_label   | default: 'Quantity'
 
   assign wa      = section.settings.whatsapp
-  assign wa_text = section.settings.whatsapp_text | default: 'I would like to be measured for this cotton.'
+  assign wa_text = section.settings.whatsapp_text | default: 'Hello Khan Jee Center. I would like to be measured for'
   assign measure_line = section.settings.measure_line
   assign measure_cta  = section.settings.measure_cta
 
@@ -124,9 +124,9 @@
   endfor
 
   comment
-    The measure line belongs to unstitched cloth only. A product that has
-    a size is already cut, so the answer to "will it fit" is the size
-    guide, not the tailor.
+    The measure line belongs to Alamgeer, the 100% combed cotton, and to
+    nothing else. A product that carries a size is already cut, so the
+    answer to "will it fit" is the size guide, not the tailor.
   endcomment
   assign show_measure = false
   if has_colour and has_size == false
@@ -164,9 +164,37 @@
   assign price_varies = product.price_varies
 -%}
 
-{%- capture wa_msg -%}{{ wa_text }} {{ product.title }}{%- endcapture -%}
+{%- comment -%}
+  THE TITLE, TRIMMED THE SAME WAY EVERY OTHER PAGE TRIMS IT.
 
-<div class="lada lpdp" id="lpdp-{{ section.id }}" data-lpdp>
+  sections/main-product.liquid, snippets/product-card.liquid and
+  snippets/lada-product-card.liquid all print
+  `product.title | split: ' - ' | first`, because Shopify titles on this
+  store carry a " - suffix" the shop uses for its own filing. This page
+  printed the raw title, so the same piece was called one thing in the
+  grid and another at the top of its own page. `split` on a title with
+  no " - " in it returns the whole title, so a clean name is untouched.
+
+  The WhatsApp message carries the trimmed name AND the page address,
+  same as the shared product page. The shopkeeper used to receive a
+  sentence with a product name in it and no way to open the piece it
+  was about.
+{%- endcomment -%}
+{%- assign pdp_title = product.title | split: ' - ' | first -%}
+{%- capture wa_msg -%}{{ wa_text }} {{ pdp_title }}. {{ shop.url }}{{ product.url }}{%- endcapture -%}
+
+{%- comment -%}
+  The three button strings live on the root as attributes rather than
+  only inside the script below. A theme-editor reload hands the page a
+  NEW root with the client's newly saved wording already rendered into
+  these, and the re-init at the bottom reads them from there, so it can
+  never repaint the button with the wording this script was printed
+  with. See the note above that script.
+{%- endcomment -%}
+<div class="lada lpdp" id="lpdp-{{ section.id }}" data-lpdp
+     data-lpdp-add="{{ add_label | escape }}"
+     data-lpdp-sold="{{ sold_label | escape }}"
+     data-lpdp-unav="{{ unav_label | escape }}">
   <div class="lada__wrap lpdp__wrap">
 
     {%- comment -%}
@@ -243,7 +271,22 @@
                 assign src_w = mw
               endif
             -%}
-            <figure class="lpdp__frame">
+            {%- comment -%}
+              data-reveal is the site's own scroll-reveal hook, the one
+              sections/category-grid.liquid and store-location.liquid
+              already use, so the Lada journey animates the same way the
+              white shop does rather than growing an effect of its own.
+
+              NEVER ON THE FIRST FRAME. It is the page's largest paint
+              and it is above the fold on every screen; site.js hides
+              every [data-reveal] the moment it adds .js-reveal, so a
+              reveal there is a blank plate where the photograph should
+              be for as long as it takes the observer to call back. Every
+              frame after it is genuinely below the fold on a phone and
+              on a laptop both.
+            {%- endcomment -%}
+            <figure class="lpdp__frame"
+              {%- unless forloop.first %} data-reveal style="--d:{{ forloop.index0 | minus: 1 | times: 70 | at_most: 350 }}ms"{% endunless %}>
               {%- comment -%}
                 The 1600w step is here for the lone photograph: it draws
                 at 728px, which a retina screen wants 1456px for, and
@@ -262,7 +305,7 @@
                    width="{{ media.width }}" height="{{ media.height }}"
                    {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                    decoding="async"
-                   alt="{{ media.alt | default: product.title | escape }}">
+                   alt="{{ media.alt | default: pdp_title | escape }}">
             </figure>
           {%- endfor -%}
         {%- else -%}
@@ -281,7 +324,7 @@
       <div class="lpdp__info">
         <div class="lpdp__stick">
 
-          <h1 class="lpdp__title">{{ product.title }}</h1>
+          <h1 class="lpdp__title">{{ pdp_title }}</h1>
 
           {%- comment -%}
             Price. Compare-at is kept, because the shared PDP has it and a
@@ -494,6 +537,37 @@
                                 {% if dot != blank %}style="--dot:{{ dot | escape }}"{% endif %}></span>
                         {%- endif -%}
                         <span class="lpdp__chip-t">{{ value }}</span>
+                        {%- comment -%}
+                          A SOLD-OUT SIZE OR COLOUR HAS TO SAY SO IN
+                          WORDS. Before this, the only thing marking one
+                          was .is-out, which the stylesheet draws as
+                          dimmed text with a line through it. A line
+                          through a word is not in the accessibility
+                          tree, so a screen reader read "Red, radio
+                          button" for a colour that cannot be bought,
+                          and on the combination path the radio is not
+                          even disabled, so the customer can select it
+                          and only learn the truth from the button
+                          changing underneath him.
+
+                          It rides inside the <label>, so it becomes
+                          part of the radio's accessible name: "Red,
+                          sold out". Not an aria-label, which would
+                          replace the visible word and break voice
+                          control for anyone who says "click red", and
+                          not aria-disabled, which on the direct path
+                          would contradict the real `disabled` attribute
+                          and on the combination path would claim the
+                          value is unusable when picking it is exactly
+                          how the customer finds the pairing that works.
+
+                          sold_label is the client's own string, the
+                          same one the button and the quick view panel
+                          use, so the three cannot drift.
+                        {%- endcomment -%}
+                        {%- unless r_avail -%}
+                          <span class="vh">, {{ sold_label }}</span>
+                        {%- endunless -%}
                       </label>
                     {%- endfor -%}
                   </div>
@@ -603,142 +677,201 @@
   in kj-v2.js because that file's PDP handlers bind .pdp__form and
   .pdp__buy and would fight this markup (see the note at the top), and
   because the section is the only thing on the site that needs it. It is
-  scoped to this section's own id so the theme editor can re-render the
-  section without two copies driving each other, and it is written to
-  no-op on every branch it does not find.
+  written to no-op on every branch it does not find.
+
+  IT RUNS MORE THAN ONCE, AND THAT IS THE THING TO GET RIGHT.
+
+  In the theme editor every saved setting re-renders this section, and
+  each render brings another copy of this script tag. The previous
+  version guarded its per-section work on a flag and then, underneath
+  that guard, added two listeners to the DOCUMENT for the size guide.
+  The document is not re-rendered, so those two survived every reload
+  and stacked up: a client nudging the size chart a dozen times left two
+  dozen listeners behind, every one of them holding a <details> element
+  that had been thrown away, and every one of them still running on
+  every click and every keypress for the rest of the session.
+
+  So the work is split by lifetime, which is the only honest way to
+  divide it:
+
+    PER SECTION (init)     everything bound to elements inside the root.
+                           It dies with the root when the root is
+                           replaced, so it only needs guarding against
+                           running twice over the SAME root, which is
+                           what data-lpdp-ready does.
+
+    PER DOCUMENT (once)    the size guide's click-outside and Escape,
+                           and the shopify:section:load re-init. Bound a
+                           single time behind a flag on <html>, and they
+                           look the open guide up when they fire instead
+                           of closing over one, so they keep working
+                           against a root that did not exist when they
+                           were bound and hold nothing that can go stale.
+
+  The re-init exists because a section replaced by innerHTML does not
+  necessarily re-execute the script tags inside it. Both paths are safe:
+  if the inline call below runs first, the event handler finds the flag
+  already set and returns; if it does not run at all, the event handler
+  is what sets this page up. That is also why the labels are read off
+  the root's data- attributes rather than printed into this closure. The
+  handler was bound by whichever copy of this script ran first, and that
+  copy's idea of what the Add button says is exactly the stale value a
+  client who has just renamed it is looking for.
 {%- endcomment -%}
 <script>
   (function () {
     'use strict';
 
-    var root = document.getElementById('lpdp-{{ section.id }}');
-    if (!root || root.getAttribute('data-lpdp-ready')) return;
-    root.setAttribute('data-lpdp-ready', 'true');
+    var DOC_FLAG = 'data-lpdp-doc';
 
-    var ADD   = {{ add_label  | json }};
-    var SOLD  = {{ sold_label | json }};
-    var UNAV  = {{ unav_label | json }};
-
-    var atc    = root.querySelector('[data-lpdp-atc]');
-    var label  = root.querySelector('[data-lpdp-atc-t]');
-    var idField = root.querySelector('[data-lpdp-variant-id]');
-    var prices = root.querySelectorAll('[data-lpdp-vprice]');
-
-    var map = [];
-    var json = root.querySelector('[data-lpdp-variants]');
-    if (json) { try { map = JSON.parse(json.textContent) || []; } catch (e) { map = []; } }
-
-    function byId(id) {
-      for (var i = 0; i < map.length; i++) {
-        if (String(map[i].id) === String(id)) return map[i];
-      }
-      return null;
+    function openGuides() {
+      return document.querySelectorAll('[data-lpdp-guide][open]');
     }
 
-    /* Everything a chosen variant changes, in one place. The price is
-       never computed: the server rendered every variant's price into the
-       markup and this only picks which one is not hidden. */
-    function paint(variant) {
-      if (!variant) {
-        if (atc) atc.disabled = true;
-        if (label) label.textContent = UNAV;
-        return;
-      }
-      if (idField) idField.value = variant.id;
-      if (atc) atc.disabled = !variant.available;
-      if (label) label.textContent = variant.available ? ADD : SOLD;
-      for (var i = 0; i < prices.length; i++) {
-        prices[i].hidden = prices[i].getAttribute('data-lpdp-vprice') !== String(variant.id);
-      }
-    }
+    function init(root) {
+      if (!root || root.getAttribute('data-lpdp-ready')) return;
+      root.setAttribute('data-lpdp-ready', 'true');
 
-    /* --- one option: the radio already is the variant id --- */
-    var direct = root.querySelectorAll('[data-lpdp-variant-radio]');
-    if (direct.length) {
-      root.addEventListener('change', function (e) {
-        var r = e.target.closest ? e.target.closest('[data-lpdp-variant-radio]') : null;
-        if (r && r.checked) paint(byId(r.value));
-      });
-      var onNow = root.querySelector('[data-lpdp-variant-radio]:checked');
-      if (onNow) paint(byId(onNow.value));
-    } else {
-      /* --- several options: match the chosen combination --- */
-      var groups = root.querySelectorAll('[data-lpdp-group]');
-      if (groups.length && idField) {
-        var sync = function () {
-          var chosen = [];
-          for (var g = 0; g < groups.length; g++) {
-            var on = groups[g].querySelector('input:checked');
-            chosen.push(on ? on.value : null);
-          }
-          var match = null;
-          for (var i = 0; i < map.length && !match; i++) {
-            var ok = true;
-            for (var k = 0; k < chosen.length; k++) {
-              if (map[i].options[k] !== chosen[k]) ok = false;
-            }
-            if (ok) match = map[i];
-          }
-          paint(match);
-        };
-        root.addEventListener('change', function (e) {
-          if (e.target.closest && e.target.closest('[data-lpdp-group]')) sync();
-        });
-        sync();
-      }
-    }
+      var ADD  = root.getAttribute('data-lpdp-add')  || '';
+      var SOLD = root.getAttribute('data-lpdp-sold') || '';
+      var UNAV = root.getAttribute('data-lpdp-unav') || '';
 
-    /* --- quantity, capped --- */
-    var qwrap = root.querySelector('[data-lpdp-qty]');
-    if (qwrap) {
-      var input = qwrap.querySelector('input');
-      var steps = qwrap.querySelectorAll('[data-lpdp-step]');
-      var max = parseInt(input.getAttribute('max'), 10) || 3;
+      var atc     = root.querySelector('[data-lpdp-atc]');
+      var label   = root.querySelector('[data-lpdp-atc-t]');
+      var idField = root.querySelector('[data-lpdp-variant-id]');
+      var prices  = root.querySelectorAll('[data-lpdp-vprice]');
 
-      var sweep = function () {
-        var n = parseInt(input.value, 10) || 1;
-        for (var i = 0; i < steps.length; i++) {
-          var d = parseInt(steps[i].getAttribute('data-lpdp-step'), 10);
-          steps[i].disabled = d > 0 ? n >= max : n <= 1;
+      var map = [];
+      var json = root.querySelector('[data-lpdp-variants]');
+      if (json) { try { map = JSON.parse(json.textContent) || []; } catch (e) { map = []; } }
+
+      function byId(id) {
+        for (var i = 0; i < map.length; i++) {
+          if (String(map[i].id) === String(id)) return map[i];
         }
-      };
+        return null;
+      }
 
-      for (var s = 0; s < steps.length; s++) {
-        steps[s].hidden = false;
-        steps[s].addEventListener('click', function (e) {
-          var by = parseInt(e.currentTarget.getAttribute('data-lpdp-step'), 10) || 0;
-          var n = (parseInt(input.value, 10) || 1) + by;
-          input.value = Math.min(max, Math.max(1, n));
+      /* Everything a chosen variant changes, in one place. The price is
+         never computed: the server rendered every variant's price into the
+         markup and this only picks which one is not hidden. */
+      function paint(variant) {
+        if (!variant) {
+          if (atc) atc.disabled = true;
+          if (label) label.textContent = UNAV;
+          return;
+        }
+        if (idField) idField.value = variant.id;
+        if (atc) atc.disabled = !variant.available;
+        if (label) label.textContent = variant.available ? ADD : SOLD;
+        for (var i = 0; i < prices.length; i++) {
+          prices[i].hidden = prices[i].getAttribute('data-lpdp-vprice') !== String(variant.id);
+        }
+      }
+
+      /* --- one option: the radio already is the variant id --- */
+      var direct = root.querySelectorAll('[data-lpdp-variant-radio]');
+      if (direct.length) {
+        root.addEventListener('change', function (e) {
+          var r = e.target.closest ? e.target.closest('[data-lpdp-variant-radio]') : null;
+          if (r && r.checked) paint(byId(r.value));
+        });
+        var onNow = root.querySelector('[data-lpdp-variant-radio]:checked');
+        if (onNow) paint(byId(onNow.value));
+      } else {
+        /* --- several options: match the chosen combination --- */
+        var groups = root.querySelectorAll('[data-lpdp-group]');
+        if (groups.length && idField) {
+          var sync = function () {
+            var chosen = [];
+            for (var g = 0; g < groups.length; g++) {
+              var on = groups[g].querySelector('input:checked');
+              chosen.push(on ? on.value : null);
+            }
+            var match = null;
+            for (var i = 0; i < map.length && !match; i++) {
+              var ok = true;
+              for (var k = 0; k < chosen.length; k++) {
+                if (map[i].options[k] !== chosen[k]) ok = false;
+              }
+              if (ok) match = map[i];
+            }
+            paint(match);
+          };
+          root.addEventListener('change', function (e) {
+            if (e.target.closest && e.target.closest('[data-lpdp-group]')) sync();
+          });
+          sync();
+        }
+      }
+
+      /* --- quantity, capped --- */
+      var qwrap = root.querySelector('[data-lpdp-qty]');
+      if (qwrap) {
+        var input = qwrap.querySelector('input');
+        var steps = qwrap.querySelectorAll('[data-lpdp-step]');
+        var max = parseInt(input.getAttribute('max'), 10) || 3;
+
+        var sweep = function () {
+          var n = parseInt(input.value, 10) || 1;
+          for (var i = 0; i < steps.length; i++) {
+            var d = parseInt(steps[i].getAttribute('data-lpdp-step'), 10);
+            steps[i].disabled = d > 0 ? n >= max : n <= 1;
+          }
+        };
+
+        for (var st = 0; st < steps.length; st++) {
+          steps[st].hidden = false;
+          steps[st].addEventListener('click', function (e) {
+            var by = parseInt(e.currentTarget.getAttribute('data-lpdp-step'), 10) || 0;
+            var n = (parseInt(input.value, 10) || 1) + by;
+            input.value = Math.min(max, Math.max(1, n));
+            sweep();
+          });
+        }
+
+        input.addEventListener('change', function () {
+          var n = parseInt(input.value, 10);
+          if (isNaN(n) || n < 1) n = 1;
+          if (n > max) n = max;
+          input.value = n;
           sweep();
         });
-      }
 
-      input.addEventListener('change', function () {
-        var n = parseInt(input.value, 10);
-        if (isNaN(n) || n < 1) n = 1;
-        if (n > max) n = max;
-        input.value = n;
+        qwrap.setAttribute('data-ready', 'true');
         sweep();
-      });
-
-      qwrap.setAttribute('data-ready', 'true');
-      sweep();
+      }
     }
 
-    /* --- size guide: the panel closes the way a popover is expected to.
-       <details> gives the open and close for free and works with this
-       script blocked; these two listeners are the only things it does
-       not give. --- */
-    var guide = root.querySelector('[data-lpdp-guide]');
-    if (guide) {
-      document.addEventListener('click', function (e) {
-        if (guide.open && !guide.contains(e.target)) guide.open = false;
+    init(document.getElementById('lpdp-{{ section.id }}'));
+
+    /* --- the three things that belong to the document, bound once --- */
+    if (!document.documentElement.hasAttribute(DOC_FLAG)) {
+      document.documentElement.setAttribute(DOC_FLAG, '');
+
+      document.addEventListener('shopify:section:load', function (e) {
+        var t = e.target;
+        if (!t || !t.querySelector) return;
+        init(t.matches && t.matches('[data-lpdp]') ? t : t.querySelector('[data-lpdp]'));
       });
+
+      /* The size guide closes the way a popover is expected to. <details>
+         gives the open and the close for free and works with this script
+         blocked; these two are the only things it does not give. */
+      document.addEventListener('click', function (e) {
+        var open = openGuides();
+        for (var i = 0; i < open.length; i++) {
+          if (!open[i].contains(e.target)) open[i].open = false;
+        }
+      });
+
       document.addEventListener('keydown', function (e) {
-        if (e.key !== 'Escape' || !guide.open) return;
-        guide.open = false;
-        var s = guide.querySelector('summary');
-        if (s) s.focus();
+        if (e.key !== 'Escape') return;
+        var open = openGuides();
+        if (!open.length) return;
+        open[0].open = false;
+        var sm = open[0].querySelector('summary');
+        if (sm) sm.focus();
       });
     }
   })();
@@ -768,7 +901,7 @@
 
     { "type": "header", "content": "Measured in the shop" },
     { "type": "paragraph",
-      "content": "One line under the colour choice, for unstitched cotton. Clear a box to hide that half." },
+      "content": "One line under the colour choice, for Alamgeer, the 100% combed cotton. Clear a box to hide that half." },
     { "type": "text", "id": "measure_line", "label": "The line",
       "default": "Cut to your measurement in the shop, free." },
     { "type": "text", "id": "measure_cta", "label": "WhatsApp button",
@@ -776,8 +909,8 @@
     { "type": "text", "id": "whatsapp", "label": "WhatsApp number", "default": "923019090590",
       "info": "Country code, no plus sign and no spaces. Leave blank to hide the button." },
     { "type": "textarea", "id": "whatsapp_text", "label": "Pre filled message",
-      "default": "I would like to be measured for this cotton.",
-      "info": "The product name is added to the end automatically." },
+      "default": "Hello Khan Jee Center. I would like to be measured for",
+      "info": "The product name and the page address are added to the end automatically, so end this on a word the name can follow." },
 
     { "type": "header", "content": "Size guide" },
     { "type": "paragraph",

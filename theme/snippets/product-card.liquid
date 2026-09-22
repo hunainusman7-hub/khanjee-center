@@ -1,6 +1,8 @@
 {%- comment -%}
   snippets/product-card.liquid
   Usage: {% render 'product-card', product: product, index: forloop.index0 %}
+  Optional: card_sizes, a `sizes` string for callers whose slot is not a
+  .pgrid cell. sections/product-carousel.liquid passes the rail's own clamp.
 
   Hover swaps to the product's second image. Falls back gracefully to a
   single image, and on touch devices the swap fires on first tap
@@ -21,6 +23,7 @@
   assign fabric = product.metafields.custom.by_fabric.value
   assign pieces = product.metafields.custom.by_pieces.value
   assign in_house = product.metafields.lada.in_house.value
+  assign preorder = product.metafields.custom.preorder.value
 
   assign named_houses = 'Dynasty,Pasha' | split: ','
   assign show_vendor = false
@@ -33,6 +36,33 @@
   assign loading = 'lazy'
   if index < 4
     assign loading = 'eager'
+  endif
+
+  # Never ask the CDN for a width the source file does not have. An upscale
+  # request hands back the native file anyway, but it writes a candidate the
+  # browser may pick on a 3x screen and then render soft. The native width is
+  # always the last candidate and the smaller steps are only written when the
+  # source actually clears them. Same rule as snippets/lada-product-card.
+  assign main_w = product.featured_media.width | default: 800
+  assign main_src_w = 800
+  if main_w < main_src_w
+    assign main_src_w = main_w
+  endif
+  assign alt_w = alt_media.width | default: 800
+  assign alt_src_w = 800
+  if alt_w < alt_src_w
+    assign alt_src_w = alt_w
+  endif
+
+  # The slot depends on who rendered the card. The default is a .pgrid cell
+  # on a collection page; the homepage rail is a fixed clamp that is a quarter
+  # wider than that on a phone, so the carousel hands its own string in rather
+  # than letting every card there download a file too small for its box.
+  assign slot = card_sizes | default: '(min-width:1100px) 24vw, (min-width:760px) 32vw, 46vw'
+
+  assign off = 0
+  if product.compare_at_price > product.price
+    assign off = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round
   endif
 -%}
 
@@ -49,12 +79,14 @@
      tabindex="-1" aria-hidden="true">
     {%- if product.featured_media -%}
       <img class="pcard__img pcard__img--main"
-           src="{{ product.featured_media | image_url: width: 800 }}"
-           srcset="{{ product.featured_media | image_url: width: 400 }} 400w,
-                   {{ product.featured_media | image_url: width: 800 }} 800w,
-                   {{ product.featured_media | image_url: width: 1200 }} 1200w"
-           sizes="(min-width:1100px) 24vw, (min-width:760px) 32vw, 46vw"
-           width="800" height="1000" loading="{{ loading }}" decoding="async"
+           src="{{ product.featured_media | image_url: width: main_src_w }}"
+           srcset="{%- if main_w > 400 %}{{ product.featured_media | image_url: width: 400 }} 400w, {% endif -%}
+                   {%- if main_w > 800 %}{{ product.featured_media | image_url: width: 800 }} 800w, {% endif -%}
+                   {%- if main_w > 1200 %}{{ product.featured_media | image_url: width: 1200 }} 1200w, {% endif -%}
+                   {{ product.featured_media | image_url: width: main_w }} {{ main_w }}w"
+           sizes="{{ slot }}"
+           width="{{ product.featured_media.width }}" height="{{ product.featured_media.height }}"
+           loading="{{ loading }}" decoding="async"
            alt="{{ product.featured_media.alt | default: product.title | escape }}">
     {%- else -%}
       <span class="pcard__img pcard__img--main" aria-hidden="true"></span>
@@ -62,20 +94,21 @@
 
     {%- if alt_media -%}
       <img class="pcard__img pcard__img--alt"
-           src="{{ alt_media | image_url: width: 800 }}"
-           srcset="{{ alt_media | image_url: width: 400 }} 400w,
-                   {{ alt_media | image_url: width: 800 }} 800w"
-           sizes="(min-width:1100px) 24vw, (min-width:760px) 32vw, 46vw"
-           width="800" height="1000" loading="lazy" decoding="async" aria-hidden="true"
+           src="{{ alt_media | image_url: width: alt_src_w }}"
+           srcset="{%- if alt_w > 400 %}{{ alt_media | image_url: width: 400 }} 400w, {% endif -%}
+                   {%- if alt_w > 800 %}{{ alt_media | image_url: width: 800 }} 800w, {% endif -%}
+                   {{ alt_media | image_url: width: alt_w }} {{ alt_w }}w"
+           sizes="{{ slot }}"
+           width="{{ alt_media.width }}" height="{{ alt_media.height }}"
+           loading="lazy" decoding="async" aria-hidden="true"
            alt="">
     {%- endif -%}
 
     {%- if product.compare_at_price > product.price -%}
-      {%- assign off = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round -%}
       <span class="pcard__off">{{ off }}% OFF</span>
     {%- elsif in_house -%}
       <span class="pcard__badge pcard__badge--seal">Khan Jee Seal</span>
-    {%- elsif product.available == false and product.metafields.custom.preorder.value -%}
+    {%- elsif product.available == false and preorder -%}
       <span class="pcard__pre">Pre order</span>
     {%- endif -%}
 
@@ -118,6 +151,30 @@
   <h3 class="pcard__title">
     <a href="{{ product.url }}">{{ product.title | split: ' - ' | first }}</a>
   </h3>
+
+  {%- comment -%}
+    Every badge above sits inside .pcard__link, and that anchor is
+    aria-hidden, so a screen reader was never told a piece is sold out, cut
+    in price, sealed or on pre-order. The badges cannot simply move out:
+    each one is positioned against the photograph, which is that anchor.
+    So the same facts are repeated here as plain text in the reading order,
+    right after the name they belong to. The branches mirror the badge
+    branches exactly, so the two can never say different things.
+  {%- endcomment -%}
+  {%- capture card_status -%}
+    {%- if product.compare_at_price > product.price -%}
+      {{ off }}% off.
+    {%- elsif in_house -%}
+      Khan Jee Seal.
+    {%- elsif product.available == false and preorder -%}
+      Available to pre order.
+    {%- endif -%}
+    {%- unless product.available %} Sold out.{% endunless -%}
+  {%- endcapture -%}
+  {%- assign card_status = card_status | strip -%}
+  {%- if card_status != blank -%}
+    <p class="vh">{{ card_status }}</p>
+  {%- endif -%}
 
   <p class="pcard__meta">
     {%- if show_vendor -%}

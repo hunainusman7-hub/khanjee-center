@@ -2,7 +2,28 @@
    page to be readable or navigable with JS off. */
 (function () {
   'use strict';
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Asked every time, never captured in a boolean at parse time.
+     Reduce Motion is a system setting, not a device fact: somebody can
+     turn it on with the shop already open, often precisely because
+     something on the page is moving and making them ill. A snapshot
+     taken at load would keep every loop in this file running for the
+     rest of that visit. Same for (hover:hover): a tablet gains and
+     loses a trackpad while the page stays put. */
+  var motionMQ = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  var hoverMQ = window.matchMedia && window.matchMedia('(hover: hover)');
+  function reduced() { return !!(motionMQ && motionMQ.matches); }
+  function noHover() { return !!(hoverMQ && !hoverMQ.matches); }
+  function onMotionChange(fn) {
+    if (!motionMQ) return;
+    motionMQ.addEventListener ? motionMQ.addEventListener('change', fn) : motionMQ.addListener(fn);
+  }
+  /* Scrolls asked for in script carry their own behavior, and that
+     option beats the stylesheet's scroll-behavior — so a page-wide
+     `scroll-behavior:auto` under reduced motion does NOT rescue a
+     scrollBy({behavior:'smooth'}). Every programmatic scroll in this
+     file goes through here instead. */
+  function scrollEase() { return reduced() ? 'auto' : 'smooth'; }
 
   /* ---------------- hero slideshow ---------------- */
   document.querySelectorAll('[data-hs]').forEach(function (root) {
@@ -27,8 +48,14 @@
         d.setAttribute('aria-selected', k === i ? 'true' : 'false');
       });
     }
-    function start() { if (delay && !reduce) { stop(); timer = setInterval(function () { show(i + 1); }, delay); } }
+    function start() { if (delay && !reduced()) { stop(); timer = setInterval(function () { show(i + 1); }, delay); } }
     function stop()  { if (timer) { clearInterval(timer); timer = null; } }
+
+    /* An interval already ticking does not stop itself when the setting
+       changes, and the slides cross-fade, so a visitor who turns Reduce
+       Motion on would keep getting the one thing they just asked the
+       machine to stop. */
+    onMotionChange(function () { reduced() ? stop() : start(); });
 
     if (prev) prev.addEventListener('click', function () { show(i - 1); start(); });
     if (next) next.addEventListener('click', function () { show(i + 1); start(); });
@@ -72,9 +99,6 @@
      Reduced-motion users get static rows they can scroll by hand
      instead (see kj-v2.css). */
   (function () {
-    var wraps = Array.prototype.slice.call(document.querySelectorAll('[data-bmq]'));
-    if (!wraps.length || reduce) return;
-
     /* Motion is expressed per second and scaled by frame time, not
        applied per frame. Per-frame constants run at double speed on a
        120Hz phone, which is most new phones here. */
@@ -83,13 +107,44 @@
     var VEL_MAX = 900;   /* px per second, clamped */
     var DECAY = 0.06;    /* velocity half-life, in seconds-ish */
 
-    wraps.forEach(function (wrap) { init(wrap); });
+    /* Every strip this file has wired. Kept so a change to the motion
+       setting can reach a loop that is already running, rather than
+       only the next one to be created. */
+    var live = [];
+
+    function bootAll(root) {
+      Array.prototype.slice.call((root || document).querySelectorAll('[data-bmq]')).forEach(init);
+    }
+
+    bootAll(document);
+
+    /* Turning Reduce Motion ON stops every strip where it stands; the
+       stylesheet's own reduced-motion block pins the rows at transform
+       none and hands the strip back as a plain horizontal scroller, so
+       nothing is left mid-drift. Turning it OFF builds and starts the
+       strips that refused to initialise at load. */
+    onMotionChange(function () {
+      if (reduced()) { live.forEach(function (c) { c.stop(); }); return; }
+      bootAll(document);
+      live.forEach(function (c) { c.start(); });
+    });
 
     function init(wrap) {
+      /* Reduce Motion is asked here rather than once at the top of the
+         file, and the strip is simply not built while it is on. init
+         duplicates every logo to hide the seam, and the reduced-motion
+         stylesheet turns .bmq__rows into a row the visitor scrolls by
+         hand — where a duplicate set would print all seventy-four
+         brands twice. So: no clone, no loop, and the strip is built
+         properly the moment the setting is turned off. */
+      if (reduced() || wrap.getAttribute('data-bmq-ready')) return;
+
       var rows = Array.prototype.slice.call(wrap.querySelectorAll('[data-bmq-row]'));
       if (!rows.length) return;
+      wrap.setAttribute('data-bmq-ready', 'true');
 
       var raf = null, hover = false, lastY = window.scrollY, vel = 0, last = 0;
+      var onScreen = true, paused = false;
       var state = rows.map(function (row, i) {
         var half = row.children.length;
         if (!half) return null;
@@ -118,11 +173,20 @@
       }
 
       function measure() {
-        state.forEach(function (s) {
+        /* READ EVERY ROW FIRST, WRITE AFTERWARDS. paint() sets a
+           transform, and a transform write between two offsetLeft
+           reads forces the engine to lay the row out again to answer
+           the second one. Two passes means one layout for the whole
+           strip instead of one per row. */
+        var reads = state.map(function (s) {
           var first = s.row.children[0];
           var clone = s.row.children[s.half];
-          var w = (first && clone) ? clone.offsetLeft - first.offsetLeft
-                                   : s.row.scrollWidth / 2;
+          return (first && clone) ? clone.offsetLeft - first.offsetLeft
+                                  : s.row.scrollWidth / 2;
+        });
+
+        state.forEach(function (s, i) {
+          var w = reads[i];
           if (w <= 0) return;
 
           if (!s.w) {
@@ -146,24 +210,50 @@
       }
       measure();
 
-      /* Width changes after first paint, twice: the logos are lazy and
-         Bodoni replaces the fallback in the typographic items. Measuring
-         once at init leaves the period wrong for the life of the page. */
-      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+      /* ONE REMEASURE PER FRAME, NOT ONE PER LOGO.
+
+         Width changes after first paint, twice: the logos are lazy and
+         Bodoni replaces the fallback in the typographic items, so
+         measuring once at init leaves the loop period wrong for the
+         life of the page. But hanging measure() straight off each
+         image's load event meant seventy-four of them, arriving a few
+         milliseconds apart, each reading offsetLeft on every row while
+         the animation loop was writing transforms to those same rows —
+         up to ninety forced layouts interleaved with the frames the
+         strip is trying to draw, which is exactly the part of the page
+         load where a phone has nothing to spare.
+
+         They all want the same answer, so coalesce them into the next
+         frame and read once. Deferring also keeps the ResizeObserver
+         callback out of its own "loop completed with undelivered
+         notifications" warning, since the writes no longer happen
+         inside it. */
+      var queued = false;
+      function remeasure() {
+        if (queued) return;
+        queued = true;
+        window.requestAnimationFrame(function () { queued = false; measure(); });
+      }
+
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
       wrap.querySelectorAll('img').forEach(function (img) {
-        if (!img.complete) img.addEventListener('load', measure, { once: true });
+        if (!img.complete) img.addEventListener('load', remeasure, { once: true });
       });
       if (window.ResizeObserver) {
-        var ro = new ResizeObserver(measure);
+        var ro = new ResizeObserver(remeasure);
         ro.observe(wrap);
       } else {
-        window.addEventListener('resize', measure, { passive: true });
+        window.addEventListener('resize', remeasure, { passive: true });
       }
 
       function onScroll() {
         var y = window.scrollY;
         var dy = y - lastY;
+        /* lastY moves even while the strip is parked, or the first
+           frame after it scrolls back into view is handed the whole
+           journey as one delta. */
         lastY = y;
+        if (!onScreen || paused) return;
         /* Scroll restoration and anchor jumps arrive as one enormous
            delta; without a clamp the strip teleports. */
         if (Math.abs(dy) > 240) dy = dy > 0 ? 240 : -240;
@@ -227,50 +317,178 @@
          for good once the tab was finally opened. Opening a shop in a
          new tab is common enough that this is not a corner case. */
       function start() {
-        if (raf !== null || document.hidden) return;
+        if (raf !== null || document.hidden || !onScreen || paused || reduced()) return;
         last = 0;
         raf = window.requestAnimationFrame(frame);
       }
       function stop() {
         if (raf !== null) { window.cancelAnimationFrame(raf); raf = null; }
       }
+      var me = { start: start, stop: stop };
+      live.push(me);
+
+      /* OFF SCREEN IS OFF. The strip sits low on the home page, and
+         without this it held a frame callback open for the whole visit
+         — writing transforms to two rows nobody could see, on a phone,
+         while the customer read the rest of the page. The margin means
+         it is already moving by the time it is scrolled to, rather than
+         starting from a standstill in view. */
+      if (window.IntersectionObserver) {
+        var vis = new IntersectionObserver(function (entries) {
+          onScreen = entries[entries.length - 1].isIntersecting;
+          if (onScreen) start(); else stop();
+        }, { rootMargin: '150px 0px' });
+        vis.observe(wrap);
+      }
 
       document.addEventListener('visibilitychange', function () {
         if (document.hidden) stop(); else start();
       });
 
+      /* A WAY TO STOP IT WITHOUT A MOUSE.
+
+         On a pointer device the strip eases to a crawl on hover, which
+         is what makes seventy-four moving links clickable. A phone has
+         no hover and had nothing in its place: the links never stood
+         still, so the only way to reach one was to chase it.
+
+         First tap anywhere on the strip stops it and is not passed on
+         — a tap aimed at a moving logo is a tap on whatever happens to
+         be under the finger by the time it lands, so opening that is
+         worse than opening nothing. With the strip stopped the second
+         tap goes through to the logo the visitor can now actually see.
+         Tapping the strip again away from a link starts it moving.
+
+         Same two-step the product cards use for their second
+         photograph, so it is one habit on this site rather than two.
+         data-bmq-paused is on the wrapper for the stylesheet to show
+         that the strip is held. */
+      wrap.addEventListener('click', function (e) {
+        if (!noHover()) return;
+        var link = e.target.closest && e.target.closest('a');
+        if (!paused) {
+          /* Only a link's own default is worth cancelling; a tap on the
+             gap between two logos had nothing to do anyway. */
+          if (link) e.preventDefault();
+          paused = true;
+          wrap.setAttribute('data-bmq-paused', 'true');
+          stop();
+          return;
+        }
+        /* Paused already: a link is the visitor's choice and is left
+           alone, and a tap on the empty part of the strip resumes. */
+        if (link) return;
+        paused = false;
+        wrap.removeAttribute('data-bmq-paused');
+        start();
+      });
+
       /* The theme editor replaces a section's DOM wholesale. Without
          this the old loop keeps writing transforms to detached nodes
-         while the new markup sits still, un-duplicated. */
+         while the new markup sits still, un-duplicated. Dropping the
+         controller matters for the same reason: left in `live`, the
+         next change to the motion setting would start a loop on a
+         wrapper that is no longer in the document. */
       document.addEventListener('shopify:section:unload', function (e) {
-        if (e.target.contains(wrap)) stop();
+        if (!e.target.contains(wrap)) return;
+        stop();
+        var at = live.indexOf(me);
+        if (at !== -1) live.splice(at, 1);
       });
 
       start();
     }
 
-    document.addEventListener('shopify:section:load', function (e) {
-      e.target.querySelectorAll('[data-bmq]').forEach(init);
-    });
+    document.addEventListener('shopify:section:load', function (e) { bootAll(e.target); });
   })();
 
-  /* ---------------- product card image swap on touch ---------------- */
-  if (window.matchMedia && !window.matchMedia('(hover: hover)').matches) {
-    var cards = document.querySelectorAll('[data-pcard]');
-    cards.forEach(function (card) {
-      if (!card.querySelector('.pcard__img--alt')) return;
-      var link = card.querySelector('.pcard__link');
-      if (!link) return;
-      link.addEventListener('click', function (e) {
-        if (card.classList.contains('is-touched')) return;   /* second tap navigates */
-        e.preventDefault();
-        cards.forEach(function (c) { c.classList.remove('is-touched'); });
-        card.classList.add('is-touched');
+  /* ---------------- product card image swap on touch ----------------
+
+     On a pointer device the second photograph arrives on :hover and
+     CSS does the whole thing. A phone has no hover, so the first tap on
+     the photograph swaps the frame and the second one follows the link.
+
+     DELEGATED FROM THE DOCUMENT, not bound to the cards present at
+     parse time. Every grid on this site is re-rendered in place — the
+     white shop's filters and the Lada listing's filters both come back
+     through the Section Rendering API, and the quick view panel builds
+     a card's worth of markup out of a fetched product page. Cards bound
+     once at load are the cards that were there before the customer
+     filtered anything, and after one filter change the swap was gone
+     from a grid that looks identical.
+
+     snippets/lada-product-card.liquid now carries data-pcard,
+     .pcard__link and .pcard__img--alt alongside its own .lcard names,
+     so the Lada card comes down this same path rather than growing a
+     second copy of it here. Reading the hover setting per event rather
+     than once also covers the tablet that gains a trackpad mid-visit. */
+  document.addEventListener('click', function (e) {
+    if (!noHover() || !e.target.closest) return;
+
+    var card = e.target.closest('[data-pcard]');
+    var link = e.target.closest('.pcard__link');
+
+    /* A tap anywhere else on the page puts every card back to its
+       first frame, so a grid is never left with one card mid-swap. */
+    if (!card) { clearTouched(null); return; }
+    if (!link || !card.contains(link)) return;
+    if (card.classList.contains('is-touched')) return;      /* second tap navigates */
+
+    var alt = card.querySelector('.pcard__img--alt');
+    if (!alt) return;                                       /* nothing to swap to */
+
+    /* ASK THE STYLESHEET BEFORE SWALLOWING THE TAP.
+
+       This handler cancels a real link, and it is only worth cancelling
+       if something visible happens instead. The .is-touched rule is
+       written per card family in CSS, so a card that grows the
+       data-pcard hook before its own rule lands would answer the first
+       tap with nothing at all and read as a broken link — on a phone,
+       on the grid that is the whole shop. Add the class, ask what the
+       second frame's opacity resolved to, and stand down if the answer
+       is still zero. Failing back to the link is the safe direction. */
+    clearTouched(card);
+    card.classList.add('is-touched');
+    /* THE RESOLVED VALUE DURING A TRANSITION IS THE ANIMATED ONE, NOT
+       THE TARGET, and reading only that answered "nothing happened" on
+       the very card where everything happens.
+
+       .pcard__media img carries transition:opacity, so adding the class
+       does not jump the alt frame to 1: it starts a fade, and the
+       getComputedStyle below runs the style recalc that CREATES that
+       fade, so it is handed the value at t=0 — the 0 we are trying to
+       leave. The check therefore stood down on every .pcard on the
+       white shop, put the class straight back, and let the tap navigate
+       — which is the whole swap, gone from every phone, with the CSS
+       for it sitting right there working.
+
+       Measured in Chrome on a painted card, which is the only state
+       that matters (before first paint there is no before-change style,
+       no transition is created, and the read returns 1 — which is why
+       this passes a quick probe at parse time and fails in the shop):
+         rule + transition   opacity "0", one opacity transition running
+         no rule             opacity "0", no transitions
+         rule, no transition opacity "1", no transitions
+       So ask the second question when the first says 0. A transition on
+       opacity, started by the class we just added, IS the stylesheet
+       answering yes. No rule means no style change means no transition,
+       and that card still falls through to its link. */
+    var lit = window.getComputedStyle(alt).opacity !== '0';
+    if (!lit && alt.getAnimations) {
+      lit = alt.getAnimations().some(function (a) {
+        return a.transitionProperty === 'opacity';
       });
-    });
-    document.addEventListener('click', function (e) {
-      if (e.target.closest('[data-pcard]')) return;
-      cards.forEach(function (c) { c.classList.remove('is-touched'); });
+    }
+    if (!lit) {
+      card.classList.remove('is-touched');
+      return;
+    }
+    e.preventDefault();
+  });
+
+  function clearTouched(except) {
+    document.querySelectorAll('[data-pcard].is-touched').forEach(function (c) {
+      if (c !== except) c.classList.remove('is-touched');
     });
   }
 
@@ -308,7 +526,7 @@
     function scrollBy(dir) {
       var rail = railOf(activePanel());
       if (!rail) return;
-      rail.scrollBy({ left: dir * Math.round(rail.clientWidth * 0.8), behavior: 'smooth' });
+      rail.scrollBy({ left: dir * Math.round(rail.clientWidth * 0.8), behavior: scrollEase() });
     }
     var prev = root.querySelector('[data-pcar-prev]');
     var next = root.querySelector('[data-pcar-next]');
@@ -333,7 +551,7 @@
     dots.forEach(function (d) {
       d.addEventListener('click', function () {
         var s = slides[parseInt(d.dataset.csplitDot, 10)];
-        if (s) rail.scrollTo({ left: s.offsetLeft - rail.offsetLeft, behavior: 'smooth' });
+        if (s) rail.scrollTo({ left: s.offsetLeft - rail.offsetLeft, behavior: scrollEase() });
       });
     });
     rail.addEventListener('scroll', function () {
@@ -421,6 +639,34 @@
     var atc = form.querySelector('.pdp__atc');
     var label = form.querySelector('.pdp__atc-t');
 
+    /* NOTHING A CUSTOMER READS IS WRITTEN IN THIS FILE.
+
+       Three English words used to live here, and they overwrote
+       whatever sections/main-product.liquid had rendered into the
+       button. So the section's own wording — and any translation of
+       it — survived exactly until the shopper changed one option, at
+       which point the page started speaking in strings nobody can find
+       in the theme editor. Copy belongs in Liquid.
+
+       Two sources take their place. The resting wording is read off
+       the button once, before anything touches it, so it is by
+       definition whatever the section rendered. The out-of-stock
+       wording comes off data attributes the section fills from its own
+       settings. When an attribute is absent the label is left exactly
+       as Liquid wrote it and only `disabled` changes: a button that
+       cannot be pressed already says so, and making the sentence up
+       here is how a theme ends up with one word that cannot be edited
+       or translated. */
+    var restWord = label ? label.textContent.trim() : '';
+    var soldWord = form.getAttribute('data-sold-label');
+    /* A pairing the shop does not list at all reads the same as one
+       that has run out: either way the customer cannot have it. The
+       separate attribute exists for a shop that wants to say so
+       differently, and falls back to the one word when it does not. */
+    var goneWord = form.getAttribute('data-unavailable-label') || soldWord;
+
+    function say(word) { if (label && word) label.textContent = word; }
+
     function sync() {
       var chosen = selects.map(function (s) { return s.value; });
       var match = variants.filter(function (v) {
@@ -429,12 +675,12 @@
 
       if (!match) {
         if (atc) atc.disabled = true;
-        if (label) label.textContent = 'Unavailable';
+        say(goneWord);
         return;
       }
       idField.value = match.id;
       if (atc) atc.disabled = !match.available;
-      if (label) label.textContent = match.available ? 'Add to bag' : 'Sold out';
+      say(match.available ? restWord : soldWord);
     }
 
     selects.forEach(function (s) { s.addEventListener('change', sync); });
@@ -547,15 +793,20 @@
    Progressive enhancement throughout. With this file blocked, 404ing
    or still parsing: every element is visible, because the hidden
    state lives behind the .js-lada-reveal class that only this script
-   adds; the CTA arrow is drawn by CSS and needs nothing from here;
-   and the header stays transparent over a page whose every section
-   is already --lada-ground, so nothing becomes unreadable, it just
-   stops flipping.
+   adds; and the header is painted dark by the stylesheet from the
+   first frame, so it neither reads anything written here nor has a
+   state left to lose. The gate falls back to its 61px default height,
+   which is the bar's height on every viewport where it does not wrap.
    ============================================================ */
 (function () {
   'use strict';
 
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* Asked every time, for the reason given at the top of this file:
+     Reduce Motion is a setting, not a device fact, and a boolean
+     captured at parse time keeps the page moving for the rest of the
+     visit after somebody turns it on. */
+  var motionMQ = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  function reduced() { return !!(motionMQ && motionMQ.matches); }
 
   function slice(list) { return Array.prototype.slice.call(list); }
 
@@ -575,21 +826,42 @@
      renamed the effect stops, and stopping means content that was
      never hidden stays visible, which is the safe direction to fail.
 
-     .lada__frames (the lookbook) is deliberately absent. The lookbook
-     puts scroll-snap-type on the root scrollport; a full-bleed plate
-     that fades and rises while the scrollport is snapping to it
-     fights itself.
+     THE LIST BELOW WAS ONCE FIVE NAMES THAT NOTHING EMITTED. Every
+     one of them — .lada__grid, .lada__stages, .lada__proof-list,
+     .lada__routes, .lada__house-grid — belonged to Lada sections that
+     were cut or rewritten, so the second source had gone the same way
+     as the first and the whole layer was dead code that looked alive.
+     Checked against every file in sections/, the containers that
+     actually ship are the ones named below. They are not all Lada:
+     the effect was always written as a site-wide grammar and scoping
+     it to one page is half of what made the Lada page read as a
+     different website.
 
-     Two hard guards before anything is hidden: prefers-reduced-motion,
-     and IntersectionObserver actually existing. Either one missing and
-     we return before adding the root class, so the page keeps content
-     that was never hidden in the first place. */
+     Rails and scrollports are deliberately absent — .crail__track,
+     .pcar rails, .csplit__rail. They are horizontal scrollers, and a
+     child that fades and rises while its own scrollport is snapping
+     to it fights itself.
+
+     Layout columns are absent too: .pdp__grid and .lpdp__grid hold
+     the buying column, and holding an Add to bag button back behind
+     an entrance animation is the sort of premium that costs a sale.
+
+     Three hard guards before anything is hidden: prefers-reduced-
+     motion, IntersectionObserver actually existing, and the site's own
+     [data-reveal] hook. That last one matters now that Liquid marks
+     the Lada cards and the gateway doors with data-reveal: site.js
+     already hides and reveals those, with its own class, its own
+     observer and its own timing, and an element caught by both would
+     be hidden twice and revealed on whichever transition finished
+     last. One element, one reveal. Whoever marks it first owns it. */
   var REVEAL_GROUPS = [
-    '.lada__grid',        /* lada-collection : the product cards */
-    '.lada__stages',      /* lada-craft      : the three tables   */
-    '.lada__proof-list',  /* lada-proof      : the proof band     */
-    '.lada__routes',      /* lada-house      : the contact routes */
-    '.lada__house-grid'   /* lada-house      : copy beside media  */
+    '.lada-gate__doors',  /* /pages/lada     : the two doors        */
+    '.pgrid',             /* every product grid, Lada listing too   */
+    '.pdp__rel-grid',     /* product page    : the other pieces     */
+    '.epair',             /* home            : the editorial pair   */
+    '.bdir__grid',        /* brands page     : the houses           */
+    '.bwall',             /* brand wall      : one group's houses   */
+    '.grid-brand'         /* collections index : the brand cards    */
   ];
   var REVEAL_SEL = '.lada-reveal, ' + REVEAL_GROUPS.join(' > *, ') + ' > *';
 
@@ -610,7 +882,7 @@
   /* root is the whole document on first run, and one re-rendered
      section when the theme editor hands us a shopify:section:load. */
   function scanReveal(root) {
-    if (reduce || !('IntersectionObserver' in window)) return;
+    if (reduced() || !('IntersectionObserver' in window)) return;
 
     var scope = root && root.querySelectorAll ? root : document;
     var found = slice(scope.querySelectorAll(REVEAL_SEL));
@@ -618,7 +890,10 @@
     found.forEach(function (el) {
       /* data-lada-reveal is the "already handled" mark. Without it a
          rescan re-hides an element that has finished its reveal. */
-      if (!el.hasAttribute('data-lada-reveal')) items.push(el);
+      if (el.hasAttribute('data-lada-reveal')) return;
+      /* site.js got there first. See the note above REVEAL_GROUPS. */
+      if (el.hasAttribute('data-reveal')) return;
+      items.push(el);
     });
     if (!items.length) return;
 
@@ -680,11 +955,14 @@
     var ob = observer();
     plan.forEach(function (p) { if (!p.visible) ob.observe(p.el); });
 
-    /* Safety net, and narrower than site.js's, which reveals EVERY
-       item after two seconds unconditionally and so quietly cancels
-       the effect for anything the visitor has not reached yet.
+    /* Safety net, and the same shape as site.js's: both ask whether
+       anything is on screen and still hidden, and neither touches what
+       is below the fold. (site.js used to reveal EVERY item after two
+       seconds unconditionally, which quietly cancelled the effect for
+       anything the visitor had not reached yet. It no longer does, and
+       the two nets should stay in step.)
 
-       It is also narrower than this file's first version, which only
+       This is narrower than this file's first version, which only
        fired "if the observer has not called back even once", a
        condition that can never be true, because IntersectionObserver
        is specified to deliver an initial callback for every target the
@@ -705,95 +983,78 @@
     }, 2500);
   }
 
-  /* ---------------- 2. header: solid past the plate ----------------
+  /* ---------------- 2. header: publish the bar's height ----------------
 
-     Adds `scrolled-past-header` to <body>, and publishes the header's
-     measured height as --lada-hdr-h on <html> so the CSS can give the
-     page's anchor targets (#lada-collection and friends, which the
-     hero button links to) clearance under a now-fixed bar.
+     Measures .hdr and publishes it as --lada-hdr-h on <html>, because
+     .lada-gate sizes itself with calc(100svh - var(--lada-hdr-h,61px))
+     and the gateway is meant to be exactly one screen. With nothing
+     publishing it every gate fell back to the hardcoded 61px and the
+     doors were a few pixels out on any viewport where the bar wrapped.
 
-     There was no such class anywhere in this theme already:
-     assets/header.js is Horizon's and theme.liquid never loads it, so
-     nothing else listens to scroll for the header and this is the only
-     listener of its kind.
+     THERE IS NO SCROLLED STATE HERE ANY MORE, and that is the point.
+     This block used to keep a `scrolled-past-header` class on <body>,
+     rewritten from a scroll listener for the life of the page, and
+     nothing in the theme ever read it: no rule in either stylesheet,
+     no other script. The header treatment it was meant to drive is
+     `.template-page-lada:has(.lada-gate) .hdr`, which paints the bar
+     dark from the first frame with no JavaScript at all — deliberately,
+     so there is no white flash before a script runs. Deleting the class
+     takes a scroll listener and a per-frame <body> class write off the
+     one page on the site that is a full-screen image.
 
-     Scoped three ways so it cannot run on any other page: the body
-     template class, the presence of .hdr, and the presence of the hero
-     plate. The CSS side is scoped identically with :has(.lada__hero),
-     so if the template is ever reordered and the hero is no longer
-     first, both halves stand down together and the shared sticky
-     header comes back.
+     Scoped three ways so it cannot run elsewhere: a Lada body template
+     class, the presence of .hdr, and the presence of the full plate the
+     measurement is for. The body check accepts all three Lada templates
+     because the page, the listing and the product page are one register
+     and a hook that only knows about one of them is how they drift
+     apart. The .lada-gate check is what keeps this to the one surface
+     that actually reads the variable: on the listing and the product
+     page there is no gate section and nothing to measure for.
+
+     THAT PLATE IS .lada-gate, AND IT USED TO BE .lada__hero. The hero
+     section was replaced by sections/lada-gateway.liquid, which emits
+     `.lada .lada-gate`, and nothing has emitted .lada__hero since — so
+     this function returned on its first real check and never ran on the
+     page it was written for.
 
      State lives at module scope, not inside initHeader, because the
      theme editor can call initHeader again after a section reload and
-     the listeners bound on the first call have to see the new
-     measurement rather than a stale closure. */
+     the listener bound on the first call has to see the new element
+     rather than a stale closure. */
   var hdrEl = null;
-  var hdrThreshold = 0;
-  var hdrPast = null;
-  var hdrTicking = false;
   var hdrBound = false;
 
   function hdrMeasure() {
     if (!hdrEl) return;
     /* The bar is min-height:60px but wraps on narrow viewports, so the
-       threshold is measured rather than hardcoded. Measured off the
-       header itself, so it stays correct if an announcement bar is
-       ever added above it. */
-    hdrThreshold = hdrEl.offsetHeight;
-    document.documentElement.style.setProperty('--lada-hdr-h', hdrThreshold + 'px');
+       height is measured rather than hardcoded. Measured off the header
+       itself, so it stays correct if an announcement bar is ever added
+       above it. */
+    document.documentElement.style.setProperty('--lada-hdr-h', hdrEl.offsetHeight + 'px');
   }
 
-  function hdrApply() {
-    hdrTicking = false;
-    if (!hdrEl) return;
-    var now = (window.pageYOffset || document.documentElement.scrollTop) > hdrThreshold;
-    /* Compare before writing. Without this the class is set on every
-       frame of every scroll, and each write is a style invalidation
-       on <body>, which is the root of the whole page's cascade. */
-    if (now === hdrPast) return;
-    hdrPast = now;
-    document.body.classList.toggle('scrolled-past-header', now);
-  }
-
-  function hdrOnScroll() {
-    if (hdrTicking) return;
-    hdrTicking = true;
-    window.requestAnimationFrame(hdrApply);
-  }
+  var LADA_TEMPLATES = ['template-page-lada', 'template-collection-lada', 'template-product-lada'];
 
   function initHeader() {
     var body = document.body;
-    if (!body || !body.classList.contains('template-page-lada')) return;
+    if (!body) return;
+    var onLada = LADA_TEMPLATES.some(function (c) { return body.classList.contains(c); });
+    if (!onLada) return;
 
-    if (!document.querySelector('.lada__hero')) {
-      /* Hero removed in the theme editor. The CSS :has() has already
-         handed the header back to the shared sticky rule, so drop the
-         class with it rather than leaving a dead flag on <body>. */
-      hdrEl = null;
-      hdrPast = null;
-      body.classList.remove('scrolled-past-header');
-      return;
-    }
+    /* No plate under the bar: either this is the listing or the product
+       page, or the client has removed the gateway section in the theme
+       editor. Nothing reads --lada-hdr-h without a gate, so stand down
+       rather than keep measuring for a rule that cannot match. */
+    if (!document.querySelector('.lada-gate')) { hdrEl = null; return; }
 
     hdrEl = document.querySelector('.hdr');
     if (!hdrEl) return;
 
     hdrMeasure();
-    hdrPast = null;
-    /* Run once at start. A reload halfway down the page, or a landing
-       on #lada-collection from the hero button, both begin already
-       scrolled past the header, and without this the bar would be
-       transparent over the grid until the visitor happened to scroll. */
-    hdrApply();
 
     if (hdrBound) return;
     hdrBound = true;
-    window.addEventListener('scroll', hdrOnScroll, { passive: true });
-    window.addEventListener('resize', function () {
-      hdrMeasure();
-      hdrOnScroll();
-    }, { passive: true });
+    window.addEventListener('resize', hdrMeasure, { passive: true });
   }
 
   /* ---------------- 3. start, and stay correct in the theme editor --
@@ -1277,10 +1538,17 @@
 
     var img = found.cloneNode(false);
 
-    /* The product page's lead frame is a tabpanel: it is announced as
-       one, it is a tab stop, and it is hidden or shown by a thumbnail
-       strip that is not coming with it. In here it is a photograph and
-       nothing else. */
+    /* The product page's lead frame is a photograph and nothing else
+       now: the tabpanel role and the tab stop that used to sit on it
+       are gone from sections/main-product.liquid, and the Lada page's
+       frame never had them. What it still carries is page state, none
+       of which survives the trip into a panel — the id the thumbnail
+       strip's aria-controls points at, the `hidden` that strip toggles,
+       a load priority for a frame that is at the top of a page but not
+       at the top of this one, and .pdp__/.lpdp__ paint that would drag
+       the product page's layout into a 40vw column. role, tabindex and
+       aria-label are swept with them: a clone is a poor place to find
+       out that a gallery grew them back. */
     ['id', 'role', 'tabindex', 'aria-label', 'hidden', 'fetchpriority', 'class', 'style']
       .forEach(function (a) { img.removeAttribute(a); });
 
@@ -1410,7 +1678,7 @@
      rewrote that hidden field, so a customer who chose ecru in medium
      got the FIRST variant added to his bag whatever he picked, at the
      first variant's price, with the add button never disabled for a
-     pairing that does not exist. Alamghir is colour and Ready to Wear
+     pairing that does not exist. Alamgeer is colour and Ready to Wear
      is S/M/L, so both ship on the one-option path today and the fault
      was invisible — until the first piece is listed in two colours and
      three sizes, which is a day away, not a year. Both paths are

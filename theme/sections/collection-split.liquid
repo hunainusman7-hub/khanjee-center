@@ -3,6 +3,24 @@
   Copy block on the left, wide image carousel on the right that bleeds off
   the edge of the viewport.
 {%- endcomment -%}
+
+{%- liquid
+  # asset_url cannot report a file's width, so a theme asset gets no srcset
+  # unless we already know what was generated for it. These are the six
+  # category photographs the shop ships with; anything else the client types
+  # into the fallback box still renders, just as a single src.
+  assign v_420_860 = 'men-unstitched,men-shawls,women-shawls' | split: ','
+  assign v_900 = 'women-unstitched,bridal,lada-waistcoats' | split: ','
+-%}
+
+{%- comment -%}
+  .csplit__slide is min(86vw,760px), so the box stops growing at 884px of
+  viewport and is 760px from there up. The old markup asked for a flat
+  1600px file with no srcset and no sizes at all, which is more than double
+  the widest the slide is ever drawn, on a section that sits below the fold.
+{%- endcomment -%}
+{%- capture slide_sizes -%}(min-width:884px) 760px, 86vw{%- endcapture -%}
+
 <section class="csplit" data-csplit aria-labelledby="csplit-{{ section.id }}">
   <div class="csplit__copy">
     {%- if section.settings.eyebrow != blank -%}
@@ -29,12 +47,46 @@
   <div class="csplit__rail" data-csplit-rail>
     {%- for block in section.blocks -%}
       <a class="csplit__slide" href="{{ block.settings.link | default: '#' }}" {{ block.shopify_attributes }}>
+        {%- comment -%}
+          alt is empty. The caption is printed as visible text inside this
+          same link, so describing the photograph with the same words made
+          the link read "Bridal, Bridal, link".
+        {%- endcomment -%}
         {%- if block.settings.image -%}
-          <img src="{{ block.settings.image | image_url: width: 1600 }}" width="1600" height="1200"
-               loading="lazy" decoding="async" alt="{{ block.settings.caption | escape }}">
+          {%- liquid
+            # Cap the candidates at what the source actually holds. The
+            # widest the slide is ever drawn is 760px, so 1520 covers a 2x
+            # screen and there is nothing above it worth asking for.
+            assign src_w = block.settings.image.width | default: 1520
+            assign base_w = 900
+            if src_w < base_w
+              assign base_w = src_w
+            endif
+          -%}
+          <img src="{{ block.settings.image | image_url: width: base_w }}"
+               srcset="{%- if src_w > 500 %}{{ block.settings.image | image_url: width: 500 }} 500w, {% endif -%}
+                       {%- if src_w > 900 %}{{ block.settings.image | image_url: width: 900 }} 900w, {% endif -%}
+                       {%- if src_w > 1520 %}{{ block.settings.image | image_url: width: 1520 }} 1520w, {% endif -%}
+                       {{ block.settings.image | image_url: width: src_w }} {{ src_w }}w"
+               sizes="{{ slide_sizes }}"
+               width="{{ block.settings.image.width }}" height="{{ block.settings.image.height }}"
+               loading="lazy" decoding="async" alt="">
         {%- elsif block.settings.asset_file != blank -%}
-          <img src="{{ block.settings.asset_file | asset_url }}" width="1600" height="1200"
-               loading="lazy" decoding="async" alt="{{ block.settings.caption | escape }}">
+          {%- liquid
+            assign base = block.settings.asset_file | split: '.' | first
+            assign steps = ''
+            if v_420_860 contains base
+              assign steps = '420,860'
+            elsif v_900 contains base
+              assign steps = '900'
+            endif
+          -%}
+          <img src="{{ block.settings.asset_file | asset_url }}"
+               {%- if steps != blank %}
+               srcset="{% assign step_list = steps | split: ',' %}{% for w in step_list %}{{ base | append: '-w' | append: w | append: '.webp' | asset_url }} {{ w }}w, {% endfor %}{{ block.settings.asset_file | asset_url }} 1000w"
+               sizes="{{ slide_sizes }}"
+               {%- endif %}
+               width="1000" height="1250" loading="lazy" decoding="async" alt="">
         {%- endif -%}
         {%- if block.settings.caption != blank -%}<span>{{ block.settings.caption }}</span>{%- endif -%}
       </a>
@@ -47,7 +99,7 @@
   "name": "Collection split",
   "tag": "section",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "eyebrow", "label": "Small line above the heading" },
     { "type": "text", "id": "heading", "label": "Heading", "default": "Shop by collection" },
     { "type": "textarea", "id": "text", "label": "Text" },
     { "type": "text", "id": "cta", "label": "Button label", "default": "Shop the look" },
@@ -56,7 +108,8 @@
   "blocks": [
     { "type": "slide", "name": "Slide", "settings": [
       { "type": "image_picker", "id": "image", "label": "Image" },
-      { "type": "text", "id": "asset_file", "label": "…or theme asset filename" },
+      { "type": "text", "id": "asset_file", "label": "Or theme asset filename",
+        "info": "One of the pictures already in the theme, for example bridal.webp. Used only when no image is picked above." },
       { "type": "text", "id": "caption", "label": "Caption over image" },
       { "type": "url", "id": "link", "label": "Link" }
     ]}

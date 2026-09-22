@@ -15,8 +15,9 @@
         "s1": {
           "type": "slide",
           "settings": {
-            "asset_file": "hiran-minar-2560.jpg",
+            "asset_file": "hiran-minar-2560.webp",
             "focal": "center",
+            "focal_mobile": "88% 50%",
             "align": "centre",
             "eyebrow": "Since 1978 \u00b7 Sheikhupura",
             "heading": "Khan Jee",
@@ -29,7 +30,7 @@
         "s2": {
           "type": "slide",
           "settings": {
-            "asset_file": "women-unstitched.jpg",
+            "asset_file": "women-unstitched.webp",
             "focal": "center",
             "align": "centre",
             "eyebrow": "Just in",
@@ -42,7 +43,7 @@
         "s3": {
           "type": "slide",
           "settings": {
-            "asset_file": "bridal.jpg",
+            "asset_file": "bridal.webp",
             "focal": "center",
             "align": "centre",
             "eyebrow": "Bridal & formal",
@@ -55,7 +56,7 @@
         "s4": {
           "type": "slide",
           "settings": {
-            "asset_file": "lada-waistcoats.jpg",
+            "asset_file": "lada-waistcoats.webp",
             "focal": "center",
             "align": "centre",
             "eyebrow": "Made in-house",
@@ -84,7 +85,7 @@
         "c1": {
           "type": "card",
           "settings": {
-            "asset_file": "men-unstitched.jpg",
+            "asset_file": "men-unstitched.webp",
             "label": "Gents Unstitched",
             "link": "/collections/gents-unstitched"
           }
@@ -92,7 +93,7 @@
         "c2": {
           "type": "card",
           "settings": {
-            "asset_file": "women-unstitched.jpg",
+            "asset_file": "women-unstitched.webp",
             "label": "Ladies Unstitched",
             "link": "/collections/ladies-unstitched"
           }
@@ -100,7 +101,7 @@
         "c3": {
           "type": "card",
           "settings": {
-            "asset_file": "bridal.jpg",
+            "asset_file": "bridal.webp",
             "label": "Bridal & Formal",
             "link": "/collections/bridal"
           }
@@ -108,7 +109,7 @@
         "c4": {
           "type": "card",
           "settings": {
-            "asset_file": "men-shawls.jpg",
+            "asset_file": "men-shawls.webp",
             "label": "Gents Shawls",
             "link": "/collections/gents-fabric-shawls"
           }
@@ -116,7 +117,7 @@
         "c5": {
           "type": "card",
           "settings": {
-            "asset_file": "women-shawls.jpg",
+            "asset_file": "women-shawls.webp",
             "label": "Ladies Shawls",
             "link": "/collections/ladies-fabric-shawls"
           }
@@ -124,7 +125,7 @@
         "c6": {
           "type": "card",
           "settings": {
-            "asset_file": "lada-waistcoats.jpg",
+            "asset_file": "lada-waistcoats.webp",
             "label": "Lada by Khan Jee",
             "link": "/pages/lada"
           }
@@ -204,7 +205,7 @@
         "s1": {
           "type": "slide",
           "settings": {
-            "asset_file": "women-shawls.jpg",
+            "asset_file": "women-shawls.webp",
             "caption": "Ladies shawls",
             "link": "/collections/ladies-fabric-shawls"
           }
@@ -212,7 +213,7 @@
         "s2": {
           "type": "slide",
           "settings": {
-            "asset_file": "bridal.jpg",
+            "asset_file": "bridal.webp",
             "caption": "Bridal",
             "link": "/collections/bridal"
           }
@@ -220,7 +221,7 @@
         "s3": {
           "type": "slide",
           "settings": {
-            "asset_file": "men-shawls.jpg",
+            "asset_file": "men-shawls.webp",
             "caption": "Gents shawls",
             "link": "/collections/gents-fabric-shawls"
           }
@@ -245,7 +246,7 @@
         "p1": {
           "type": "item",
           "settings": {
-            "asset_file": "men-unstitched.jpg",
+            "asset_file": "men-unstitched.webp",
             "label": "Gents",
             "link": "/collections/gents-unstitched"
           }
@@ -253,7 +254,7 @@
         "p2": {
           "type": "item",
           "settings": {
-            "asset_file": "women-unstitched.jpg",
+            "asset_file": "women-unstitched.webp",
             "label": "Ladies",
             "link": "/collections/ladies-unstitched"
           }
@@ -269,7 +270,7 @@
       "type": "brand-marquee",
       "settings": {
         "heading": "All brands under one roof",
-        "sub": "Sixty-plus houses on one shelf in Sheikhupura, plus our own label: Lada, woven in-house.",
+        "sub": "Over sixty brands in the Sheikhupura shop, plus our own label, Lada, woven in-house.",
         "link_label": "See every brand we stock"
       }
     },
@@ -287,7 +288,7 @@
         "map_src": "https://www.google.com/maps/embed?origin=mfe&pb=!1m3!3m2!1m1!4s17149789868114528921",
         "map_title": "Map showing Khan Jee Center, Civil Quarters Road, Sheikhupura",
         "directions_label": "Get directions",
-        "photo_asset": "khanjee-storefront.jpg",
+        "photo_asset": "khanjee-storefront.webp",
         "image_alt": "The Khan Jee Center on Civil Quarters Road, Sheikhupura, lit at dusk",
         "address_label": "Address",
         "address": "Khan Jee Center, Civil Quarters Road, Sheikhupura",

@@ -28,24 +28,30 @@
   WHICH PART. The fetched section is searched in this order:
 
       [data-lada-qv-content]   the section nominates its own buy column
+      .lpdp__info              sections/main-product-lada.liquid's column
       .pdp__info               the shared product page's buy column
       the whole section
 
-  and the lead photograph from [data-lada-qv-media] or the first <img>.
-  So the Lada product section, when it is built, only has to put
+  and the lead photograph in the matching order: [data-lada-qv-media],
+  then .lpdp__frame img / .lpdp__img, then the shared page's gallery.
+  Never a bare <img>: the retry below fetches the WHOLE page, and a
+  piece with no photograph yet would match the first image on it, which
+  is another product. An empty plate is the honest answer.
+
+  So the Lada product section is already picked up by name, and a
+  section that wants to nominate something else only has to put
   data-lada-qv-content on its buying column and data-lada-qv-media on
-  its lead frame, and this panel picks the right thing up with no change
-  here. Until then it falls back to .pdp__info and works today against
-  sections/main-product.liquid.
+  its lead frame to jump the queue with no change here.
 
   WHY A SECTION ID SETTING AND NOT A CONSTANT. A section id is the KEY in
-  the JSON template, not the filename: templates/product.json calls its
-  one section "main", so that is the default. templates/product.lada.json
-  does not exist yet. If its key ever differs, this is a setting the
-  client (or whoever builds that template) can correct without touching
-  code — and even if it is wrong, the panel still fills, because a failed
-  or empty section response retries against the plain product URL. Two
-  requests in the worst case, none in the normal one.
+  the JSON template, not the filename: templates/product.json and
+  templates/product.lada.json both call their one section "main", so
+  that is the default and it is currently right for both. If a future
+  template names it something else, this is a setting the client (or
+  whoever builds that template) can correct without touching code — and
+  even if it is wrong, the panel still fills, because a failed or empty
+  section response retries against the plain product URL. Two requests
+  in the worst case, none in the normal one.
 
   WHY A REAL <dialog>. assets/kj-cart.js hand-rolls modality for the bag
   because that drawer has to co-exist with an inert page it manages
@@ -71,9 +77,11 @@
        fallback_title: section.settings.qv_title %}
 
   Every string is a setting the client owns; the defaults below are only
-  the fallback for a caller that has not added them yet. They are
-  lowercase where the CSS uppercases them, because uppercase on this
-  panel comes from text-transform and is never typed into a setting.
+  the fallback for a caller that has not added them yet. They are all
+  sentence case. Uppercase on this panel comes from text-transform in
+  the stylesheet and is never typed into a setting value, but what the
+  client reads in the theme editor is the value, so a default that
+  starts lowercase reads as a typo to him rather than as a style.
 
   Render it ONCE. It carries ids, and two of these on a page would make
   them duplicates.
@@ -84,7 +92,7 @@
   assign close_label   = close_label   | default: 'Close'
   assign loading_label = loading_label | default: 'Loading'
   assign error_text    = error_text    | default: 'This did not load.'
-  assign full_label    = full_label    | default: 'see the full page'
+  assign full_label    = full_label    | default: 'See the full page'
   assign fallback_title = fallback_title | default: 'Quick view'
 
   # The only string the JavaScript ever writes into the panel. When a
