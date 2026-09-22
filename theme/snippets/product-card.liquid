@@ -64,6 +64,18 @@
   if product.compare_at_price > product.price
     assign off = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round
   endif
+
+  # product.available is Shopify's own Liquid-computed flag, and on this
+  # shop's two-location setup it has been observed to render false for a
+  # variant the Admin API reports as availableForSale:true with real stock.
+  # Compute availability straight from the inventory fields instead of
+  # trusting that flag (see sections/main-product.liquid for the same fix).
+  assign is_available = false
+  for variant in product.variants
+    if variant.inventory_management == null or variant.inventory_policy == 'continue' or variant.inventory_quantity > 0
+      assign is_available = true
+    endif
+  endfor
 -%}
 
 <article class="pcard" data-pcard>
@@ -108,11 +120,11 @@
       <span class="pcard__off">{{ off }}% OFF</span>
     {%- elsif in_house -%}
       <span class="pcard__badge pcard__badge--seal">Khan Jee Seal</span>
-    {%- elsif product.available == false and preorder -%}
+    {%- elsif is_available == false and preorder -%}
       <span class="pcard__pre">Pre order</span>
     {%- endif -%}
 
-    {%- unless product.available -%}
+    {%- unless is_available -%}
       <span class="pcard__soldout">Sold out</span>
     {%- endunless -%}
   </a>
@@ -126,7 +138,7 @@
     /cart/add.js and opens the bag. Without JS this is still a plain
     form post to /cart/add and still works.
   {%- endcomment -%}
-  {%- if product.available and product.variants.size == 1 -%}
+  {%- if is_available and product.variants.size == 1 -%}
     <form class="pcard__add" action="{{ routes.cart_add_url }}" method="post"
           enctype="multipart/form-data" data-kj-atc>
       <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
@@ -137,7 +149,7 @@
       </button>
       <p class="pcard__err" data-kj-atc-error role="alert" hidden></p>
     </form>
-  {%- elsif product.available -%}
+  {%- elsif is_available -%}
     <a class="pcard__quick pcard__quick--link" href="{{ product.url }}">Choose options</a>
   {%- endif -%}
   </div>
@@ -166,10 +178,10 @@
       {{ off }}% off.
     {%- elsif in_house -%}
       Khan Jee Seal.
-    {%- elsif product.available == false and preorder -%}
+    {%- elsif is_available == false and preorder -%}
       Available to pre order.
     {%- endif -%}
-    {%- unless product.available %} Sold out.{% endunless -%}
+    {%- unless is_available %} Sold out.{% endunless -%}
   {%- endcapture -%}
   {%- assign card_status = card_status | strip -%}
   {%- if card_status != blank -%}

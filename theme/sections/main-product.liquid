@@ -36,6 +36,20 @@
     assign has_options = true
   endunless
 
+  # variant.available / product.available are Shopify's own Liquid-computed
+  # flags, and on this shop's two-location setup (stock held at Wah Cantt,
+  # zero stock at the Civil Quarters Road location, both flagged as
+  # fulfilling online orders) they have been observed to render false for a
+  # variant the Admin API itself reports as availableForSale:true with real
+  # inventory. Compute availability straight from the inventory fields
+  # instead of trusting that flag.
+  assign is_available = false
+  for variant in product.variants
+    if variant.inventory_management == null or variant.inventory_policy == 'continue' or variant.inventory_quantity > 0
+      assign is_available = true
+    endif
+  endfor
+
   assign sold_label = section.settings.sold_label | default: 'Sold out'
   assign gone_label = section.settings.unavailable_label
 -%}
@@ -147,7 +161,7 @@
           came from. They now send a sentence and the page address, which is
           what the man at the counter needs to answer it.
         {%- endcomment -%}
-        {%- unless product.available -%}
+        {%- unless is_available -%}
           {%- capture wa_restock -%}Hello Khan Jee Center. Is {{ product.title | split: ' - ' | first }} back in stock? {{ shop.url }}{{ product.url }}{%- endcapture -%}
           <p class="pdp__oos">
             Sold out for now.
@@ -201,9 +215,15 @@
             <script type="application/json" data-pdp-variants>
               [
                 {%- for variant in product.variants -%}
+                  {%- liquid
+                    assign variant_is_available = false
+                    if variant.inventory_management == null or variant.inventory_policy == 'continue' or variant.inventory_quantity > 0
+                      assign variant_is_available = true
+                    endif
+                  -%}
                   {"id":{{ variant.id }},
                    "options":{{ variant.options | json }},
-                   "available":{{ variant.available }}}{% unless forloop.last %},{% endunless %}
+                   "available":{{ variant_is_available }}}{% unless forloop.last %},{% endunless %}
                 {%- endfor -%}
               ]
             </script>
@@ -222,9 +242,9 @@
             </div>
 
             <button class="pdp__atc" type="submit"
-                    {% unless product.available %}disabled{% endunless %}>
+                    {% unless is_available %}disabled{% endunless %}>
               <span class="pdp__atc-t">
-                {%- if product.available -%}Add to bag{%- else -%}{{ sold_label }}{%- endif -%}
+                {%- if is_available -%}Add to bag{%- else -%}{{ sold_label }}{%- endif -%}
               </span>
               <span class="pcard__spin" aria-hidden="true"></span>
             </button>
